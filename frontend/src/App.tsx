@@ -508,16 +508,6 @@ function App() {
     return Array.from(deptMap.values()).sort((a, b) => a.fullName.localeCompare(b.fullName));
   }, [filteredTasksForTable]);
 
-  const filteredViewDepartments = useMemo(() => {
-    const query = deptSearchQuery.trim().toLowerCase();
-    if (!query) return currentViewDepartments;
-    return currentViewDepartments.filter(
-      (dept) =>
-        dept.shortName.toLowerCase().includes(query) ||
-        dept.fullName.toLowerCase().includes(query)
-    );
-  }, [currentViewDepartments, deptSearchQuery]);
-
   const taskTypeDeptBreakdowns = useMemo(() => {
     const breakdowns: Record<string, { name: string; value: number }[]> = {};
     const taskTypeTotals: Record<string, number> = {};
@@ -1576,32 +1566,31 @@ function App() {
           <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500, marginBottom: '1.5rem' }}>
             A total of <span style={{ fontWeight: 700, color: '#764393' }}>{currentViewDepartments.length}</span> departments/units are active in the filtered view below.
           </p>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '0.75rem',
-          }}>
-            {currentViewDepartments.map((dept, idx) => (
-              <span
-                key={idx}
-                title={dept.fullName}
-                style={{
-                  fontFamily: 'Montserrat, sans-serif',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  color: '#764393',
-                  background: 'rgba(118, 67, 147, 0.05)',
-                  border: '1px solid rgba(118, 67, 147, 0.12)',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '20px',
-                  boxShadow: '0 2px 8px 0 rgba(118, 67, 147, 0.02)',
-                  transition: 'all 0.2s ease',
-                  userSelect: 'none',
-                }}
-              >
-                {dept.fullName}
-              </span>
-            ))}
+          <div className="table-container" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            <table style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th style={{ width: '60%' }}>Department / Office / Unit</th>
+                  <th>Short Name / Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentViewDepartments.length > 0 ? (
+                  currentViewDepartments.map((dept, idx) => (
+                    <tr key={idx}>
+                      <td style={{ fontWeight: 600 }}>{dept.fullName}</td>
+                      <td style={{ color: '#764393', fontWeight: 600 }}>{dept.shortName}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} style={{ textAlign: 'center', padding: '3rem', color: '#555555', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                      No active departments match your filters.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
