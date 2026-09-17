@@ -289,6 +289,9 @@ function App() {
   // Chart toggle states
   const [excludeCPR, setExcludeCPR] = useState<boolean>(false);
 
+  // Pagination states
+  const [deptPage, setDeptPage] = useState<number>(1);
+
   useEffect(() => {
     // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
     const SHEET_ID = '10QwbD_iQuL2iL4HAkhZ61uAIiXcvSOT6j1EcswRO-lY';
@@ -1566,7 +1569,7 @@ function App() {
           <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500, marginBottom: '1.5rem' }}>
             A total of <span style={{ fontWeight: 700, color: '#764393' }}>{currentViewDepartments.length}</span> departments/units are active in the filtered view below.
           </p>
-          <div className="table-container" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          <div className="table-container">
             <table style={{ width: '100%' }}>
               <thead>
                 <tr>
@@ -1575,14 +1578,22 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {currentViewDepartments.length > 0 ? (
-                  currentViewDepartments.map((dept, idx) => (
+                {currentViewDepartments.length > 0 ? (() => {
+                  const DEPTS_PER_PAGE = 15;
+                  const totalDeptPages = Math.ceil(currentViewDepartments.length / DEPTS_PER_PAGE);
+                  const safeDeptPage = Math.max(1, Math.min(deptPage, totalDeptPages));
+                  const paginatedDepts = currentViewDepartments.slice(
+                    (safeDeptPage - 1) * DEPTS_PER_PAGE,
+                    safeDeptPage * DEPTS_PER_PAGE
+                  );
+
+                  return paginatedDepts.map((dept, idx) => (
                     <tr key={idx}>
                       <td style={{ fontWeight: 600 }}>{dept.fullName}</td>
                       <td style={{ color: '#764393', fontWeight: 600 }}>{dept.shortName}</td>
                     </tr>
-                  ))
-                ) : (
+                  ));
+                })() : (
                   <tr>
                     <td colSpan={2} style={{ textAlign: 'center', padding: '3rem', color: '#555555', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
                       No active departments match your filters.
@@ -1592,6 +1603,61 @@ function App() {
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {Math.ceil(currentViewDepartments.length / 15) > 1 && (() => {
+            const DEPTS_PER_PAGE = 15;
+            const totalDeptPages = Math.ceil(currentViewDepartments.length / DEPTS_PER_PAGE);
+            const safeDeptPage = Math.max(1, Math.min(deptPage, totalDeptPages));
+            const startIdx = (safeDeptPage - 1) * DEPTS_PER_PAGE + 1;
+            const endIdx = Math.min(safeDeptPage * DEPTS_PER_PAGE, currentViewDepartments.length);
+
+            return (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', color: '#555555', fontWeight: 600 }}>
+                  Showing {startIdx} to {endIdx} of {currentViewDepartments.length} active departments
+                </span>
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    onClick={() => setDeptPage(p => Math.max(1, p - 1))}
+                    disabled={safeDeptPage === 1}
+                    style={{
+                      padding: '0.5rem 1.25rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(118, 67, 147, 0.2)',
+                      background: safeDeptPage === 1 ? 'rgba(118, 67, 147, 0.04)' : '#ffffff',
+                      color: safeDeptPage === 1 ? '#999999' : '#764393',
+                      fontWeight: 600,
+                      cursor: safeDeptPage === 1 ? 'not-allowed' : 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      transition: 'all 0.2s ease',
+                      boxShadow: safeDeptPage === 1 ? 'none' : '0 2px 6px rgba(118, 67, 147, 0.08)'
+                    }}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setDeptPage(p => Math.min(totalDeptPages, p + 1))}
+                    disabled={safeDeptPage === totalDeptPages}
+                    style={{
+                      padding: '0.5rem 1.25rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(118, 67, 147, 0.2)',
+                      background: safeDeptPage === totalDeptPages ? 'rgba(118, 67, 147, 0.04)' : '#ffffff',
+                      color: safeDeptPage === totalDeptPages ? '#999999' : '#764393',
+                      fontWeight: 600,
+                      cursor: safeDeptPage === totalDeptPages ? 'not-allowed' : 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      transition: 'all 0.2s ease',
+                      boxShadow: safeDeptPage === totalDeptPages ? 'none' : '0 2px 6px rgba(118, 67, 147, 0.08)'
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </>
