@@ -3,7 +3,7 @@ const path = require('path');
 const axios = require('axios');
 const { parse } = require('csv-parse/sync');
 
-const VISUALS_LOG_CSV_URL = 'https://docs.google.com/spreadsheets/d/1uhlxFpYAuOXO4A1BhKVWp56dKskzq6Oh8HTee8kfaiM/gviz/tq?tqx=out:csv&sheet=CUHK%20Visuals%20Log';
+const VISUALS_LOG_CSV_URL = 'https://docs.google.com/spreadsheets/d/1uhlxFpYAuOXO4A1BhKVWp56dKskzq6Oh8HTee8kfaiM/export?format=csv&gid=470175709';
 const OUTPUT_PATH = './frontend/public/visuals-summary.json';
 
 function cleanString(str) {
@@ -67,6 +67,10 @@ async function run() {
     let totalRequests = 0;
     let totalApprovals = 0;
 
+    let totalSettings = 0;
+    let totalUpdates = 0;
+    let totalRemovals = 0;
+
     const locationStats = {};
     const monthlyStats = {};
     const fileStats = {};
@@ -79,21 +83,31 @@ async function run() {
       const dateStr = r['Date and Time'] || '';
 
       let type = 'other';
-      if (op.toLowerCase().includes('preview')) {
+      const opLower = op.toLowerCase();
+      if (opLower.includes('preview')) {
         type = 'preview';
         totalPreviews++;
-      } else if (op.toLowerCase().includes('download')) {
+      } else if (opLower.includes('download')) {
         type = 'download';
         totalDownloads++;
-      } else if (op.toLowerCase().includes('share')) {
+      } else if (opLower.includes('share')) {
         type = 'share';
         totalShares++;
-      } else if (op.toLowerCase().includes('request')) {
+      } else if (opLower.includes('request')) {
         type = 'request';
         totalRequests++;
-      } else if (op.toLowerCase().includes('approve')) {
+      } else if (opLower.includes('approve')) {
         type = 'approve';
         totalApprovals++;
+      }
+
+      // Pre-publishing pipeline classification
+      if (opLower.includes('upload') || opLower.includes('assign') || opLower.includes('pending to approved') || opLower.includes('add multiple files')) {
+        totalSettings++;
+      } else if (opLower.includes('update') || opLower.includes('edited tag') || opLower.includes('edited keyword') || opLower.includes('edit metadata')) {
+        totalUpdates++;
+      } else if (opLower.includes('delete') || opLower.includes('remove') || opLower.includes('approved to restricted') || opLower.includes('pending to restricted')) {
+        totalRemovals++;
       }
 
       // Group by Location/Platform
@@ -182,6 +196,12 @@ async function run() {
         totalRequests,
         totalApprovals,
         conversionRate: totalPreviews > 0 ? ((totalDownloads / totalPreviews) * 100).toFixed(2) + '%' : '0.00%'
+      },
+      pipeline: {
+        setting: totalSettings,
+        updating: totalUpdates,
+        removing: totalRemovals,
+        totalPipelineEvents: totalSettings + totalUpdates + totalRemovals
       },
       locations: sortedLocations,
       users: topUsers,

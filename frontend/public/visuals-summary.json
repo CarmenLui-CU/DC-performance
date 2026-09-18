@@ -10,6 +10,12 @@
       "totalApprovals": 2106,
       "conversionRate": "20.49%"
     },
+    "pipeline": {
+      "setting": 26249,
+      "updating": 35954,
+      "removing": 662,
+      "totalPipelineEvents": 62865
+    },
     "locations": [
       {
         "location": "Main Library",
