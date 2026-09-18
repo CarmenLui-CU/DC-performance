@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
-import { ListTodo, Activity, Calendar, Building, TrendingUp, Layers } from 'lucide-react';
+import { ListTodo, Activity, Calendar, Building, TrendingUp, Layers, Clock } from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
 
@@ -265,6 +265,157 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             );
           })}
         </div>
+            </>
+          ) : (
+            <div className="services-impact-page flex-column" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              <div className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
+                  <Layers size={24} color="#764393" />
+                  <h3 style={{ fontSize: '1.65rem', margin: 0 }}>Services Impact Overview</h3>
+                </div>
+                
+                <div style={{ height: 350, marginTop: '1.5rem' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={servicesMonthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorVisuals" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#764393" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#764393" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#9b7d46" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#9b7d46" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorStickers" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(118, 67, 147, 0.08)" />
+                      <XAxis dataKey="periodStr" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                      <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                      <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                      <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                      <Area type="monotone" dataKey="CUHK Visuals" stroke="#764393" fillOpacity={1} fill="url(#colorVisuals)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="CUHK in Focus" stroke="#9b7d46" fillOpacity={1} fill="url(#colorFocus)" strokeWidth={2} />
+                      <Area type="monotone" dataKey="CUHK Stickers" stroke="#20bf6b" fillOpacity={1} fill="url(#colorStickers)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="services-grid">
+                {Object.entries(servicesImpactStats).map(([key, cat]) => {
+                  return (
+                    <div className="service-card" key={key}>
+                      <div className="service-card-header" style={{ backgroundColor: cat.color }}>
+                        <h3>{cat.title}</h3>
+                        <Layers size={20} />
+                      </div>
+                      
+                      <div className="service-card-content">
+                        <div className="service-kpi-row">
+                          <div className="service-kpi-box">
+                            <div className="service-kpi-label">Projects</div>
+                            <div className="service-kpi-value">{cat.stats.total}</div>
+                          </div>
+                          <div className="service-kpi-box">
+                            <div className="service-kpi-label">Depts Served</div>
+                            <div className="service-kpi-value">{cat.stats.uniqueDeptsCount}</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="service-section-title">Status Breakdown</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                            <span>Done: {cat.stats.completed}</span>
+                            <span>In Progress: {cat.stats.inProgress}</span>
+                          </div>
+                          <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
+                            <div style={{ width: `${cat.stats.total > 0 ? (cat.stats.completed / cat.stats.total) * 100 : 0}%`, background: '#20bf6b' }}></div>
+                            <div style={{ width: `${cat.stats.total > 0 ? (cat.stats.inProgress / cat.stats.total) * 100 : 0}%`, background: '#9b7d46' }}></div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="service-section-title">Top Impacted Departments</div>
+                          {cat.stats.deptsList.length === 0 ? (
+                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No departments served in current timeline</div>
+                          ) : (
+                            cat.stats.deptsList.map((d, i) => (
+                              <div className="service-list-item" key={i}>
+                                <span className="service-list-item-name" title={d.name}>{d.name}</span>
+                                <span className="service-list-item-count">{d.count}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        <div>
+                          <div className="service-section-title">Latest Deliverables</div>
+                          {cat.stats.latestTasks.length === 0 ? (
+                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent deliverables</div>
+                          ) : (
+                            cat.stats.latestTasks.map((t, i) => {
+                              const s = t.Status?.trim().toLowerCase();
+                              const isDone = s === 'done' || s === 'completed';
+                              return (
+                                <div className="deliverable-item" key={i}>
+                                  <div className="deliverable-title" title={t['Task Name']}>{t['Task Name']}</div>
+                                  <div className="deliverable-meta">
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                      <Clock size={12} />
+                                      {t['Created Date'] || t.Period}
+                                    </span>
+                                    <span className={`status-badge ${isDone ? 'done' : 'pending'}`}>
+                                      {t.Status || 'Pending'}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <aside className="right-sidebar">
+          <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(118, 67, 147, 0.15)', paddingBottom: '1.5rem' }}>
+            <Activity size={24} color="#764393" />
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: '0.9rem', color: '#764393', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
+              DC PERFORMANCE
+            </span>
+          </div>
+
+          <div className="nav-title">Navigation</div>
+          <div className="nav-group">
+            <button
+              className={`nav-button ${activeTab === 'requests' ? 'active' : ''}`}
+              onClick={() => setActiveTab('requests')}
+            >
+              <ListTodo size={20} />
+              Fulfilling Requests
+            </button>
+            <button
+              className={`nav-button ${activeTab === 'services' ? 'active' : ''}`}
+              onClick={() => setActiveTab('services')}
+            >
+              <Layers size={20} />
+              Services Impacted
+            </button>
+          </div>
+
+          <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(118, 67, 147, 0.15)', paddingTop: '1.5rem', fontSize: '0.8rem', color: '#777777', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+            <div>Role: Creative & Digital</div>
+            <div style={{ marginTop: '0.25rem' }}>System Integrity: 100%</div>
+          </div>
+        </aside>
       </div>
     );
   }
@@ -297,13 +448,6 @@ function App() {
   const [edmTasks, setEdmTasks] = useState<any[]>([]);
   const [edmLoading, setEdmLoading] = useState(true);
 
-  // CUHK Visuals log summary state
-  const [selectedServiceCard, setSelectedServiceCard] = useState<string | null>(null);
-  const [visualsSummary, setVisualsSummary] = useState<any>(null);
-  const [visualsLoading, setVisualsLoading] = useState<boolean>(false);
-  const [visualsError, setVisualsError] = useState<string | null>(null);
-  const [visualsSubTab, setVisualsSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey'>('overview');
-
   useEffect(() => {
     // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
     const SHEET_ID = '10QwbD_iQuL2iL4HAkhZ61uAIiXcvSOT6j1EcswRO-lY';
@@ -317,11 +461,7 @@ function App() {
         .then((text) => {
           const parsed = parseCSV(text);
           if (parsed && parsed.length > 0) {
-            const normalized = parsed.map((t: any) => ({
-              ...t,
-              'PROJECT NAME': t['PROJECT NAME'] || t['Task Name'] || 'Untitled',
-            }));
-            setTasks(normalized);
+            setTasks(parsed);
           }
           setLoading(false);
         })
@@ -352,11 +492,7 @@ function App() {
         .then((res) => res.json())
         .then((data) => {
           if (data.data) {
-            const normalized = data.data.map((t: any) => ({
-              ...t,
-              'PROJECT NAME': t['PROJECT NAME'] || t['Task Name'] || 'Untitled',
-            }));
-            setTasks(normalized);
+            setTasks(data.data);
             setLoading(false);
           } else {
             fetchTasksDirectly();
@@ -897,6 +1033,53 @@ function App() {
     };
   }, [filteredActiveTasksByCPR, selectedTimeline]);
 
+  const servicesMonthlyData = useMemo(() => {
+    const monthsMap: Record<string, { periodStr: string, period: string, 'CUHK Visuals': number, 'CUHK in Focus': number, 'CUHK Stickers': number }> = {};
+    
+    availablePeriods.forEach((p) => {
+      monthsMap[p.raw] = {
+        periodStr: p.formatted,
+        period: p.raw,
+        'CUHK Visuals': 0,
+        'CUHK in Focus': 0,
+        'CUHK Stickers': 0,
+      };
+    });
+
+    const isVisuals = (t: TaskRecord) => (t['Task type'] || '').trim() === 'CUHK Visuals';
+    const isFocus = (t: TaskRecord) => {
+      const name = (t['PROJECT NAME'] || '').toLowerCase();
+      const tags = (t['Tags'] || '').toLowerCase();
+      const type = (t['Task type'] || '').toLowerCase();
+      return name.includes('focus') || tags.includes('focus') || type.includes('focus');
+    };
+    const isStickers = (t: TaskRecord) => {
+      const name = (t['PROJECT NAME'] || '').toLowerCase();
+      const tags = (t['Tags'] || '').toLowerCase();
+      const type = (t['Task type'] || '').toLowerCase();
+      return name.includes('sticker') || tags.includes('sticker') || type.includes('sticker');
+    };
+
+    filteredActiveTasksByCPR.forEach((t) => {
+      const period = t.Period?.trim() || '';
+      const fy = getFinancialYear(period);
+      if (selectedTimeline !== 'All' && fy !== selectedTimeline) {
+        return;
+      }
+
+      if (monthsMap[period]) {
+        if (isVisuals(t)) monthsMap[period]['CUHK Visuals']++;
+        if (isFocus(t)) monthsMap[period]['CUHK in Focus']++;
+        if (isStickers(t)) monthsMap[period]['CUHK Stickers']++;
+      }
+    });
+
+    return Object.keys(monthsMap)
+      .sort()
+      .map((k) => monthsMap[k])
+      .filter((item) => item['CUHK Visuals'] > 0 || item['CUHK in Focus'] > 0 || item['CUHK Stickers'] > 0);
+  }, [filteredActiveTasksByCPR, availablePeriods, selectedTimeline]);
+
   const edmSummary = useMemo(() => {
     let totalDelivered = 0;
     let totalOpens = 0;
@@ -905,7 +1088,6 @@ function App() {
     let sumOR = 0;
     let sumCTOR = 0;
     let count = 0;
-    const uniqueDays = new Set<string>();
 
     const audienceMap: Record<string, { target: string; sumCTR: number; sumOR: number; count: number; totalDelivered: number }> = {};
 
@@ -917,11 +1099,6 @@ function App() {
       const opens = parseFloat((t['Total opens'] || '').replace(/,/g, '')) || 0;
       const clicks = parseFloat((t['Total clicks'] || '').replace(/,/g, '')) || 0;
       const target = t['Target list']?.trim() || 'Unknown';
-      const scheduled = t.Scheduled?.trim() || '';
-
-      if (scheduled && scheduled.length >= 10) {
-        uniqueDays.add(scheduled.substring(0, 10));
-      }
 
       if (ctrStr && orStr) {
         const ctr = parseFloat(ctrStr.replace('%', ''));
@@ -959,19 +1136,14 @@ function App() {
       }))
       .sort((a, b) => b.or - a.or);
 
-    const issuesCount = uniqueDays.size;
-
     return {
       totalCampaigns: count,
-      issuesCount,
       avgOR: count > 0 ? parseFloat((sumOR / count).toFixed(2)) : 0,
       avgCTR: count > 0 ? parseFloat((sumCTR / count).toFixed(2)) : 0,
       avgCTOR: count > 0 ? parseFloat((sumCTOR / count).toFixed(2)) : 0,
       totalDelivered,
       totalOpens,
       totalClicks,
-      avgOpensPerIssue: issuesCount > 0 ? totalOpens / issuesCount : 0,
-      avgDeliveredPerIssue: issuesCount > 0 ? totalDelivered / issuesCount : 0,
       audienceBreakdown,
     };
   }, [edmTasks]);
@@ -1974,64 +2146,46 @@ function App() {
         </div> {/* closes requests activeTab wrapper */}
 
         <div style={{ display: activeTab === 'services' ? 'flex' : 'none', flexDirection: 'column', gap: '2.5rem', width: '100%' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
               <Layers size={24} color="#764393" />
-              <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222' }}>Services Impact Overview</h3>
+              <h3 style={{ fontSize: '1.65rem', margin: 0 }}>Services Impact Overview</h3>
             </div>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
-              Detailed metrics across key creative services to analyze total output and reach.
-            </p>
+            
+            <div style={{ height: 350, marginTop: '1.5rem' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={servicesMonthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorVisuals" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#764393" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#764393" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#9b7d46" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#9b7d46" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorStickers" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(118, 67, 147, 0.08)" />
+                  <XAxis dataKey="periodStr" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                  <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                  <Area type="monotone" dataKey="CUHK Visuals" stroke="#764393" fillOpacity={1} fill="url(#colorVisuals)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="CUHK in Focus" stroke="#9b7d46" fillOpacity={1} fill="url(#colorFocus)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="CUHK Stickers" stroke="#20bf6b" fillOpacity={1} fill="url(#colorStickers)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           <div className="services-grid">
             {Object.entries(servicesImpactStats).map(([key, cat]) => {
-              const isVisualsCard = key === 'visuals';
-              const isSelected = selectedServiceCard === key;
-
               return (
-                <div
-                  className={`service-card ${isVisualsCard ? 'interactive-card' : ''} ${isSelected ? 'selected' : ''}`}
-                  key={key}
-                  onClick={() => {
-                    if (isVisualsCard) {
-                      if (isSelected) {
-                        setSelectedServiceCard(null);
-                      } else {
-                        setSelectedServiceCard(key);
-                        if (!visualsSummary) {
-                          setVisualsLoading(true);
-                          setVisualsError(null);
-                          fetch('http://localhost:3001/api/visuals-summary')
-                            .then((res) => {
-                              if (!res.ok) throw new Error('Failed to fetch from backend.');
-                              return res.json();
-                            })
-                            .then((data) => {
-                              if (data.data) {
-                                setVisualsSummary(data.data);
-                              } else {
-                                setVisualsError('Failed to fetch visuals log details.');
-                              }
-                              setVisualsLoading(false);
-                            })
-                            .catch((err) => {
-                              console.error('Error fetching visuals summary:', err);
-                              setVisualsError('Failed to load visuals details. Please ensure the backend is running.');
-                              setVisualsLoading(false);
-                            });
-                        }
-                      }
-                    }
-                  }}
-                  style={{
-                    cursor: isVisualsCard ? 'pointer' : 'default',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    border: isSelected ? `2.5px solid ${cat.color}` : '1px solid #e2e8f0',
-                    transform: isSelected ? 'scale(1.02)' : 'none',
-                    boxShadow: isSelected ? '0 10px 25px -5px rgba(118, 67, 147, 0.15)' : 'none'
-                  }}
-                >
+                <div className="service-card" key={key}>
                   <div className="service-card-header" style={{ backgroundColor: cat.color }}>
                     <h3>{cat.title}</h3>
                     <Layers size={20} />
@@ -2063,352 +2217,31 @@ function App() {
                       )}
                     </div>
 
-                    {isVisualsCard && (
-                      <div style={{
-                        marginTop: '1.5rem',
-                        padding: '0.75rem',
-                        background: isSelected ? 'rgba(118, 67, 147, 0.1)' : 'rgba(118, 67, 147, 0.05)',
-                        border: '1px dashed rgba(118, 67, 147, 0.3)',
-                        borderRadius: '6px',
-                        textAlign: 'center',
-                        color: '#764393',
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
-                        fontFamily: 'Montserrat, sans-serif',
-                        transition: 'all 0.2s'
-                      }}>
-                        {isSelected ? '▼ Click to Hide Log Journey' : '▶ Click to View Log Journey & Impact'}
-                      </div>
-                    )}
+                    <div>
+                      <div className="service-section-title">Latest Deliverables</div>
+                      {cat.stats.latestTasks.length === 0 ? (
+                        <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent deliverables</div>
+                      ) : (
+                        cat.stats.latestTasks.map((t, i) => {
+                          return (
+                            <div className="deliverable-item" key={i}>
+                              <div className="deliverable-title" title={t['PROJECT NAME']}>{t['PROJECT NAME']}</div>
+                              <div className="deliverable-meta">
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                  <Clock size={12} />
+                                  {t['Created Date'] || t.Period}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
-          {/* CUHK Visuals Deep Impact Log Details Panel */}
-          {selectedServiceCard === 'visuals' && (
-            <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.5s ease' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <TrendingUp size={24} color="#764393" />
-                  <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>CUHK Visuals: Journey of Influence</h3>
-                </div>
-                <button
-                  onClick={() => setSelectedServiceCard(null)}
-                  style={{
-                    padding: '0.4rem 1.25rem',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(118, 67, 147, 0.3)',
-                    background: 'transparent',
-                    color: '#764393',
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                >
-                  Close Detail View
-                </button>
-              </div>
-
-              {visualsLoading && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', gap: '1.5rem' }}>
-                  <div className="loader" style={{
-                    border: '4px solid rgba(118, 67, 147, 0.1)',
-                    borderTop: '4px solid #764393',
-                    borderRadius: '50%',
-                    width: '36px',
-                    height: '36px',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                    Analyzing 204,239 records to build Journey of Influence...
-                  </span>
-                </div>
-              )}
-
-              {visualsError && (
-                <div style={{ padding: '2rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#b91c1c', fontWeight: 600, fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>
-                  {visualsError}
-                </div>
-              )}
-
-              {visualsSummary && !visualsLoading && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                  {/* Detailed KPI Row */}
-                  <div className="dashboard-grid">
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.totalEvents.toLocaleString()}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>All digital asset actions</span>
-                    </div>
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.totalPreviews.toLocaleString()}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
-                    </div>
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.totalDownloads.toLocaleString()}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>High-res file downloads</span>
-                    </div>
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.conversionRate}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset conversion rate</span>
-                    </div>
-                  </div>
-
-                  {/* Sub-Tab Segmented Controls */}
-                  <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => setVisualsSubTab('overview')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'overview' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'overview' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Group View & Trends
-                    </button>
-                    <button
-                      onClick={() => setVisualsSubTab('previews')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'previews' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'previews' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Preview Files Log
-                    </button>
-                    <button
-                      onClick={() => setVisualsSubTab('downloads')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'downloads' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'downloads' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Downloads Log
-                    </button>
-                    <button
-                      onClick={() => setVisualsSubTab('journey')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'journey' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'journey' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Journey of Influence
-                    </button>
-                  </div>
-
-                  {/* SUB-TAB CONTENTS */}
-
-                  {/* 1. Group View & Trends */}
-                  {visualsSubTab === 'overview' && (
-                    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                      <div style={{ flex: '1 1 55%', minWidth: '350px' }}>
-                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>CUHK Visuals Engagement Trend</div>
-                        <div style={{ height: 350 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={visualsSummary.monthlyTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                              <defs>
-                                <linearGradient id="colorVisPreviews" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#9174A8" stopOpacity={0.4}/>
-                                  <stop offset="95%" stopColor="#9174A8" stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorVisDownloads" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
-                                  <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(118, 67, 147, 0.08)" />
-                              <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                              <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                              <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
-                              <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                              <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorVisPreviews)" strokeWidth={2} />
-                              <Area type="monotone" dataKey="download" name="Downloads" stroke="#20bf6b" fillOpacity={1} fill="url(#colorVisDownloads)" strokeWidth={2} />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      <div style={{ flex: '1 1 35%', minWidth: '280px' }}>
-                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Group Activity by Location</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                          {visualsSummary.locations.slice(0, 5).map((loc: any, idx: number) => (
-                            <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>{loc.location}</span>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', background: 'rgba(118, 67, 147, 0.08)', padding: '0.15rem 0.5rem', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif' }}>
-                                  {loc.total.toLocaleString()} events
-                                </span>
-                              </div>
-                              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.825rem' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Previews</span>
-                                  <span style={{ color: '#9174A8', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.preview.toLocaleString()}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Downloads</span>
-                                  <span style={{ color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Shares</span>
-                                  <span style={{ color: '#9b7d46', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.share.toLocaleString()}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 2. Top Previewed Files */}
-                  {visualsSubTab === 'previews' && (
-                    <div>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed Creative Assets</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                        {visualsSummary.topPreviews.slice(0, 12).map((file: any, idx: number) => (
-                          <div key={idx} className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                              <div style={{ fontWeight: 700, color: '#334155', fontSize: '0.85rem', wordBreak: 'break-all', fontFamily: 'Montserrat, sans-serif' }}>{file.file}</div>
-                              {file.size && (
-                                <span style={{ fontSize: '0.7rem', color: '#64748b', background: '#f1f5f9', padding: '0.1rem 0.4rem', borderRadius: '4px', whiteSpace: 'nowrap', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                                  {file.size}
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '0.5rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Previews</span>
-                              <span style={{ fontSize: '1rem', color: '#9174A8', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{file.preview.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 3. Top Downloaded Files */}
-                  {visualsSubTab === 'downloads' && (
-                    <div>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded Creative Assets</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                        {visualsSummary.topDownloads.slice(0, 12).map((file: any, idx: number) => (
-                          <div key={idx} className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                              <div style={{ fontWeight: 700, color: '#334155', fontSize: '0.85rem', wordBreak: 'break-all', fontFamily: 'Montserrat, sans-serif' }}>{file.file}</div>
-                              {file.size && (
-                                <span style={{ fontSize: '0.7rem', color: '#64748b', background: '#f1f5f9', padding: '0.1rem 0.4rem', borderRadius: '4px', whiteSpace: 'nowrap', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                                  {file.size}
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '0.5rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Downloads</span>
-                              <span style={{ fontSize: '1rem', color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{file.download.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 4. Journey of Influence (Funnel Table) */}
-                  {visualsSubTab === 'journey' && (
-                    <div>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The Creative Discovery Journey</div>
-                      <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                        Tracing how individual files are discovered (Previewed), requested, and distributed (Downloaded/Shared). Sorted by overall engagement score.
-                      </p>
-                      
-                      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
-                          <thead>
-                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Previews</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Downloads</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Shares</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Conversion</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Score</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {visualsSummary.journeyOfInfluence.slice(0, 15).map((file: any, idx: number) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
-                                <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                  <span style={{
-                                    display: 'inline-block',
-                                    padding: '0.15rem 0.5rem',
-                                    borderRadius: '12px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 700,
-                                    background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                                    color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
-                                  }}>
-                                    {file.conversionRate}
-                                  </span>
-                                </td>
-                                <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 800, color: '#764393' }}>{file.score.toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* CUHK in Focus eDM Campaign Impact */}
           <div className="glass-panel" style={{ padding: '2.5rem' }}>
@@ -2445,22 +2278,6 @@ function App() {
                 <div className="kpi-info" style={{ flex: 1 }}>
                   <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Delivered</h3>
                   <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>{(edmSummary.totalDelivered / 1000000).toFixed(2)}M</div>
-                </div>
-              </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Opens / Issue</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46' }}>
-                    {Math.round(edmSummary.avgOpensPerIssue).toLocaleString()}
-                  </div>
-                </div>
-              </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Delivered / Issue</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>
-                    {Math.round(edmSummary.avgDeliveredPerIssue).toLocaleString()}
-                  </div>
                 </div>
               </div>
             </div>

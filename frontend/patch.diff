@@ -1,0 +1,160 @@
+--- src/App.tsx
++++ src/App.tsx
+@@ -1659,6 +1659,157 @@ function App() {
+             );
+           })()}
+         </div>
++            </>
++          ) : (
++            <div className="services-impact-page flex-column" style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
++              <div className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
++                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2.5rem' }}>
++                  <Layers size={24} color="#764393" />
++                  <h3 style={{ fontSize: '1.65rem', margin: 0 }}>Services Impact Overview</h3>
++                </div>
++                
++                <div style={{ height: 350, marginTop: '1.5rem' }}>
++                  <ResponsiveContainer width="100%" height="100%">
++                    <AreaChart data={servicesMonthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
++                      <defs>
++                        <linearGradient id="colorVisuals" x1="0" y1="0" x2="0" y2="1">
++                          <stop offset="5%" stopColor="#764393" stopOpacity={0.4}/>
++                          <stop offset="95%" stopColor="#764393" stopOpacity={0}/>
++                        </linearGradient>
++                        <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
++                          <stop offset="5%" stopColor="#9b7d46" stopOpacity={0.4}/>
++                          <stop offset="95%" stopColor="#9b7d46" stopOpacity={0}/>
++                        </linearGradient>
++                        <linearGradient id="colorStickers" x1="0" y1="0" x2="0" y2="1">
++                          <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
++                          <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
++                        </linearGradient>
++                      </defs>
++                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(118, 67, 147, 0.08)" />
++                      <XAxis dataKey="periodStr" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
++                      <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
++                      <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
++                      <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
++                      <Area type="monotone" dataKey="CUHK Visuals" stroke="#764393" fillOpacity={1} fill="url(#colorVisuals)" strokeWidth={2} />
++                      <Area type="monotone" dataKey="CUHK in Focus" stroke="#9b7d46" fillOpacity={1} fill="url(#colorFocus)" strokeWidth={2} />
++                      <Area type="monotone" dataKey="CUHK Stickers" stroke="#20bf6b" fillOpacity={1} fill="url(#colorStickers)" strokeWidth={2} />
++                    </AreaChart>
++                  </ResponsiveContainer>
++                </div>
++              </div>
++
++              <div className="services-grid">
++                {Object.entries(servicesImpactStats).map(([key, cat]) => {
++                  return (
++                    <div className="service-card" key={key}>
++                      <div className="service-card-header" style={{ backgroundColor: cat.color }}>
++                        <h3>{cat.title}</h3>
++                        <Layers size={20} />
++                      </div>
++                      
++                      <div className="service-card-content">
++                        <div className="service-kpi-row">
++                          <div className="service-kpi-box">
++                            <div className="service-kpi-label">Projects</div>
++                            <div className="service-kpi-value">{cat.stats.total}</div>
++                          </div>
++                          <div className="service-kpi-box">
++                            <div className="service-kpi-label">Depts Served</div>
++                            <div className="service-kpi-value">{cat.stats.uniqueDeptsCount}</div>
++                          </div>
++                        </div>
++
++                        <div>
++                          <div className="service-section-title">Status Breakdown</div>
++                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
++                            <span>Done: {cat.stats.completed}</span>
++                            <span>In Progress: {cat.stats.inProgress}</span>
++                          </div>
++                          <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden', display: 'flex' }}>
++                            <div style={{ width: `${cat.stats.total > 0 ? (cat.stats.completed / cat.stats.total) * 100 : 0}%`, background: '#20bf6b' }}></div>
++                            <div style={{ width: `${cat.stats.total > 0 ? (cat.stats.inProgress / cat.stats.total) * 100 : 0}%`, background: '#9b7d46' }}></div>
++                          </div>
++                        </div>
++
++                        <div>
++                          <div className="service-section-title">Top Impacted Departments</div>
++                          {cat.stats.deptsList.length === 0 ? (
++                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No departments served in current timeline</div>
++                          ) : (
++                            cat.stats.deptsList.map((d, i) => (
++                              <div className="service-list-item" key={i}>
++                                <span className="service-list-item-name" title={d.name}>{d.name}</span>
++                                <span className="service-list-item-count">{d.count}</span>
++                              </div>
++                            ))
++                          )}
++                        </div>
++
++                        <div>
++                          <div className="service-section-title">Latest Deliverables</div>
++                          {cat.stats.latestTasks.length === 0 ? (
++                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent deliverables</div>
++                          ) : (
++                            cat.stats.latestTasks.map((t, i) => {
++                              const s = t.Status?.trim().toLowerCase();
++                              const isDone = s === 'done' || s === 'completed';
++                              return (
++                                <div className="deliverable-item" key={i}>
++                                  <div className="deliverable-title" title={t['Task Name']}>{t['Task Name']}</div>
++                                  <div className="deliverable-meta">
++                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
++                                      <Clock size={12} />
++                                      {t['Created Date'] || t.Period}
++                                    </span>
++                                    <span className={`status-badge ${isDone ? 'done' : 'pending'}`}>
++                                      {t.Status || 'Pending'}
++                                    </span>
++                                  </div>
++                                </div>
++                              );
++                            })
++                          )}
++                        </div>
++                      </div>
++                    </div>
++                  );
++                })}
++              </div>
++            </div>
++          )}
++        </div>
++
++        <aside className="right-sidebar">
++          <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(118, 67, 147, 0.15)', paddingBottom: '1.5rem' }}>
++            <Activity size={24} color="#764393" />
++            <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: '0.9rem', color: '#764393', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
++              DC PERFORMANCE
++            </span>
++          </div>
++
++          <div className="nav-title">Navigation</div>
++          <div className="nav-group">
++            <button
++              className={`nav-button ${activeTab === 'requests' ? 'active' : ''}`}
++              onClick={() => setActiveTab('requests')}
++            >
++              <ListTodo size={20} />
++              Fulfilling Requests
++            </button>
++            <button
++              className={`nav-button ${activeTab === 'services' ? 'active' : ''}`}
++              onClick={() => setActiveTab('services')}
++            >
++              <Layers size={20} />
++              Services Impacted
++            </button>
++          </div>
++
++          <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(118, 67, 147, 0.15)', paddingTop: '1.5rem', fontSize: '0.8rem', color: '#777777', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
++            <div>Role: Creative & Digital</div>
++            <div style={{ marginTop: '0.25rem' }}>System Integrity: 100%</div>
++          </div>
++        </aside>
+       </div>
+     </>
+   );

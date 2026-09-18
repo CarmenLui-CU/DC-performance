@@ -4,7 +4,7 @@ export interface TaskRecord {
   'Created Time': string;
   'Dpt/ Office': string;
   'Created Date & Time': string;
-  'Task Name': string;
+  'PROJECT NAME': string;
   'Department/ Office': string;
   Status: string;
   'Task type': string;
