@@ -2517,7 +2517,7 @@ function App() {
                                 paddingAngle={2}
                                 dataKey="value"
                               >
-                                {visualsSummary.locations.map((entry: any, index: number) => {
+                                {visualsSummary.locations.map((_entry: any, index: number) => {
                                   const colors = ['#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#f7b731', '#eb3b5a', '#a55eea', '#2bcbba', '#a5b1c2'];
                                   return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                 })}
@@ -2564,7 +2564,7 @@ function App() {
                                 paddingAngle={2}
                                 dataKey="value"
                               >
-                                {visualsSummary.users.map((entry: any, index: number) => {
+                                {visualsSummary.users.map((_entry: any, index: number) => {
                                   const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
                                   return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                 })}
