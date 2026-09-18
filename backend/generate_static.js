@@ -70,6 +70,7 @@ async function run() {
     const locationStats = {};
     const monthlyStats = {};
     const fileStats = {};
+    const userStats = {};
 
     records.forEach((r) => {
       const op = r.Operation || '';
@@ -130,6 +131,13 @@ async function run() {
           if (type === 'approve') fileStats[name].approve++;
         }
       }
+
+      // User stats tracking
+      const user = cleanString(r.User || 'anonymous');
+      if (!userStats[user]) {
+        userStats[user] = 0;
+      }
+      userStats[user]++;
     });
 
     const sortedLocations = Object.values(locationStats)
@@ -155,6 +163,16 @@ async function run() {
       .sort((a, b) => b.score - a.score)
       .slice(0, 50);
 
+    const sortedUsers = Object.entries(userStats)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    const topUsers = sortedUsers.slice(0, 7);
+    if (sortedUsers.length > 7) {
+      const othersValue = sortedUsers.slice(7).reduce((acc, curr) => acc + curr.value, 0);
+      topUsers.push({ name: 'Others', value: othersValue });
+    }
+
     const summaryData = {
       summary: {
         totalEvents: records.length,
@@ -166,6 +184,7 @@ async function run() {
         conversionRate: totalPreviews > 0 ? ((totalDownloads / totalPreviews) * 100).toFixed(2) + '%' : '0.00%'
       },
       locations: sortedLocations,
+      users: topUsers,
       monthlyTrend: sortedTrend.reverse(),
       topDownloads,
       topPreviews,

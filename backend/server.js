@@ -158,6 +158,7 @@ app.get('/api/visuals-summary', async (req, res) => {
     const locationStats = {};
     const monthlyStats = {};
     const fileStats = {};
+    const userStats = {};
 
     records.forEach((r) => {
       const op = r.Operation || '';
@@ -218,6 +219,13 @@ app.get('/api/visuals-summary', async (req, res) => {
           if (type === 'approve') fileStats[name].approve++;
         }
       }
+
+      // User stats tracking
+      const user = cleanString(r.User || 'anonymous');
+      if (!userStats[user]) {
+        userStats[user] = 0;
+      }
+      userStats[user]++;
     });
 
     // Top locations sorted by total count
@@ -246,6 +254,17 @@ app.get('/api/visuals-summary', async (req, res) => {
       .sort((a, b) => b.score - a.score)
       .slice(0, 50);
 
+    const sortedUsers = Object.entries(userStats)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    // Group users beyond top 7 as 'Others'
+    const topUsers = sortedUsers.slice(0, 7);
+    if (sortedUsers.length > 7) {
+      const othersValue = sortedUsers.slice(7).reduce((acc, curr) => acc + curr.value, 0);
+      topUsers.push({ name: 'Others', value: othersValue });
+    }
+
     const summaryData = {
       summary: {
         totalEvents: records.length,
@@ -257,6 +276,7 @@ app.get('/api/visuals-summary', async (req, res) => {
         conversionRate: totalPreviews > 0 ? ((totalDownloads / totalPreviews) * 100).toFixed(2) + '%' : '0.00%'
       },
       locations: sortedLocations,
+      users: topUsers,
       monthlyTrend: sortedTrend.reverse(), // chronologically ordered (oldest first for charts)
       topDownloads,
       topPreviews,

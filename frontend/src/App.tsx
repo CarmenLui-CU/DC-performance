@@ -301,7 +301,7 @@ function App() {
   const [visualsSummary, setVisualsSummary] = useState<any>(null);
   const [visualsLoading, setVisualsLoading] = useState<boolean>(true);
   const [visualsError, setVisualsError] = useState<string | null>(null);
-  const [visualsSubTab, setVisualsSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey'>('overview');
+  const [visualsSubTab, setVisualsSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey' | 'attributes'>('overview');
 
   useEffect(() => {
     // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
@@ -2121,8 +2121,10 @@ function App() {
 
               {visualsSummary && !visualsLoading && (() => {
                 const combinedDownloads = visualsSummary.summary.totalDownloads + cuhkVisualsAssetRequests.length;
+                const totalShares = visualsSummary.summary.totalShares || 0;
+                const totalDistribution = combinedDownloads + totalShares;
                 const combinedConversionRate = visualsSummary.summary.totalPreviews > 0
-                  ? ((combinedDownloads / visualsSummary.summary.totalPreviews) * 100).toFixed(2) + '%'
+                  ? ((totalDistribution / visualsSummary.summary.totalPreviews) * 100).toFixed(2) + '%'
                   : '0.00%';
 
                 return (
@@ -2182,18 +2184,22 @@ function App() {
 
                       {/* Step 3 */}
                       <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads Stat</span>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
                         <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
-                          {combinedDownloads.toLocaleString()}
+                          {totalDistribution.toLocaleString()}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
                             <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 "Download Image" (Log)</span>
                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{visualsSummary.summary.totalDownloads.toLocaleString()}</span>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
                             <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Deliverables)</span>
                             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{cuhkVisualsAssetRequests.length.toLocaleString()}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.3 "Share Image" (Log)</span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#9b7d46', fontFamily: 'Montserrat, sans-serif' }}>{totalShares.toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -2302,6 +2308,23 @@ function App() {
                         }}
                       >
                         Journey of Influence
+                      </button>
+                      <button
+                        onClick={() => setVisualsSubTab('attributes')}
+                        style={{
+                          padding: '0.75rem 0.5rem',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: visualsSubTab === 'attributes' ? '3px solid #764393' : '3px solid transparent',
+                          color: visualsSubTab === 'attributes' ? '#764393' : '#64748b',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                      >
+                        User attributes
                       </button>
                     </div>
 
@@ -2470,6 +2493,105 @@ function App() {
                             ))}
                           </tbody>
                         </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 5. User Attributes (Pie Charts) */}
+                  {visualsSubTab === 'attributes' && (
+                    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                      {/* Locations Pie */}
+                      <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Location / Portal</div>
+                        <div style={{ height: 350 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                              <Pie
+                                data={visualsSummary.locations.map((loc: any) => ({ name: loc.location, value: loc.total }))}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={{ stroke: '#764393', strokeWidth: 1 }}
+                                label={renderCustomPieLabel}
+                                innerRadius={60}
+                                outerRadius={110}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {visualsSummary.locations.map((entry: any, index: number) => {
+                                  const colors = ['#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#f7b731', '#eb3b5a', '#a55eea', '#2bcbba', '#a5b1c2'];
+                                  return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                })}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value: any, name: any) => {
+                                  const total = visualsSummary.summary.totalEvents;
+                                  const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                  return [`${value.toLocaleString()} events (${percent}%)`, name];
+                                }}
+                                contentStyle={{
+                                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                  border: '1px solid rgba(118, 67, 147, 0.25)',
+                                  borderRadius: '12px',
+                                  fontFamily: 'Montserrat, sans-serif',
+                                  fontWeight: 500,
+                                }}
+                              />
+                              <Legend
+                                layout="horizontal"
+                                verticalAlign="bottom"
+                                align="center"
+                                wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+
+                      {/* Users Pie */}
+                      <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by User Profile</div>
+                        <div style={{ height: 350 }}>
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                              <Pie
+                                data={visualsSummary.users}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={{ stroke: '#764393', strokeWidth: 1 }}
+                                label={renderCustomPieLabel}
+                                innerRadius={60}
+                                outerRadius={110}
+                                paddingAngle={2}
+                                dataKey="value"
+                              >
+                                {visualsSummary.users.map((entry: any, index: number) => {
+                                  const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                  return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                })}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value: any, name: any) => {
+                                  const total = visualsSummary.summary.totalEvents;
+                                  const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                  return [`${value.toLocaleString()} events (${percent}%)`, name];
+                                }}
+                                contentStyle={{
+                                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                  border: '1px solid rgba(118, 67, 147, 0.25)',
+                                  borderRadius: '12px',
+                                  fontFamily: 'Montserrat, sans-serif',
+                                  fontWeight: 500,
+                                }}
+                              />
+                              <Legend
+                                layout="horizontal"
+                                verticalAlign="bottom"
+                                align="center"
+                                wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                              />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
                       </div>
                     </div>
                   )}

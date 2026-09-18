@@ -117,6 +117,40 @@
         "share": 0
       }
     ],
+    "users": [
+      {
+        "name": "anonymous",
+        "value": 116491
+      },
+      {
+        "name": "visuals@cuhk.edu.hk",
+        "value": 56687
+      },
+      {
+        "name": "Audio-Visual Division (cuav@cuhk.edu.hk)",
+        "value": 11315
+      },
+      {
+        "name": "Canto Help (help@canto.com)",
+        "value": 4092
+      },
+      {
+        "name": "Editorial Team (enews_reply@cuhk.edu.hk)",
+        "value": 3372
+      },
+      {
+        "name": "Digital & Creative Team (digitalcreative.noreply@cuhk.edu.hk)",
+        "value": 2545
+      },
+      {
+        "name": "Ling GONG (lgong@cuhkri.org.cn)",
+        "value": 2305
+      },
+      {
+        "name": "Others",
+        "value": 7432
+      }
+    ],
     "monthlyTrend": [
       {
         "name": "Jan '25",
