@@ -2002,7 +2002,9 @@ function App() {
                         if (!visualsSummary) {
                           setVisualsLoading(true);
                           setVisualsError(null);
-                          fetch('http://localhost:3001/api/visuals-summary')
+                          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                          const visualsUrl = isLocal ? 'http://localhost:3001/api/visuals-summary' : './visuals-summary.json';
+                          fetch(visualsUrl)
                             .then((res) => {
                               if (!res.ok) throw new Error('Failed to fetch from backend.');
                               return res.json();
