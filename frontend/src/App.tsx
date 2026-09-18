@@ -298,9 +298,8 @@ function App() {
   const [edmLoading, setEdmLoading] = useState(true);
 
   // CUHK Visuals log summary state
-  const [selectedServiceCard, setSelectedServiceCard] = useState<string | null>(null);
   const [visualsSummary, setVisualsSummary] = useState<any>(null);
-  const [visualsLoading, setVisualsLoading] = useState<boolean>(false);
+  const [visualsLoading, setVisualsLoading] = useState<boolean>(true);
   const [visualsError, setVisualsError] = useState<string | null>(null);
   const [visualsSubTab, setVisualsSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey'>('overview');
 
@@ -347,6 +346,29 @@ function App() {
         });
     };
 
+    const fetchVisualsDirectly = () => {
+      setVisualsLoading(true);
+      setVisualsError(null);
+      fetch('./visuals-summary.json')
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to fetch from static JSON.');
+          return res.json();
+        })
+        .then((data) => {
+          if (data.data) {
+            setVisualsSummary(data.data);
+          } else {
+            setVisualsError('Failed to fetch visuals log details.');
+          }
+          setVisualsLoading(false);
+        })
+        .catch((err) => {
+          console.error('Error fetching visuals summary directly:', err);
+          setVisualsError('Failed to load visuals details.');
+          setVisualsLoading(false);
+        });
+    };
+
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       fetch('http://localhost:3001/api/stats')
         .then((res) => res.json())
@@ -381,9 +403,25 @@ function App() {
           console.warn('Backend connection failed for EDM, falling back to direct Google Sheet fetch:', err);
           fetchEdmDirectly();
         });
+
+      fetch('http://localhost:3001/api/visuals-summary')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data) {
+            setVisualsSummary(data.data);
+            setVisualsLoading(false);
+          } else {
+            fetchVisualsDirectly();
+          }
+        })
+        .catch((err) => {
+          console.warn('Backend connection failed for visuals summary, falling back to direct fetch:', err);
+          fetchVisualsDirectly();
+        });
     } else {
       fetchTasksDirectly();
       fetchEdmDirectly();
+      fetchVisualsDirectly();
     }
   }, []);
 
@@ -807,6 +845,22 @@ function App() {
       totalMonths,
     };
   }, [filteredActiveTasksByCPR, selectedTimeline, availableTaskTypes, compareYearA, compareYearB, excludeCPR]);
+
+  const cuhkVisualsAssetRequests = useMemo(() => {
+    return activeTasks.filter((t) => {
+      const isVisuals = (t['Task type'] || '').trim() === 'CUHK Visuals';
+      const isAssetRequest = (t['PROJECT NAME'] || '').toLowerCase().includes('asset request');
+      if (!isVisuals || !isAssetRequest) return false;
+
+      // Filter by selected timeline / FY
+      if (selectedTimeline !== 'All') {
+        const p = t.Period?.trim();
+        const fy = getFinancialYear(p);
+        if (fy !== selectedTimeline) return false;
+      }
+      return true;
+    });
+  }, [activeTasks, selectedTimeline]);
 
   const servicesImpactStats = useMemo(() => {
     const isVisuals = (t: TaskRecord) => (t['Task type'] || '').trim() === 'CUHK Visuals';
@@ -1986,52 +2040,13 @@ function App() {
 
           <div className="services-grid">
             {Object.entries(servicesImpactStats).map(([key, cat]) => {
-              const isVisualsCard = key === 'visuals';
-              const isSelected = selectedServiceCard === key;
-
               return (
                 <div
-                  className={`service-card ${isVisualsCard ? 'interactive-card' : ''} ${isSelected ? 'selected' : ''}`}
+                  className="service-card"
                   key={key}
-                  onClick={() => {
-                    if (isVisualsCard) {
-                      if (isSelected) {
-                        setSelectedServiceCard(null);
-                      } else {
-                        setSelectedServiceCard(key);
-                        if (!visualsSummary) {
-                          setVisualsLoading(true);
-                          setVisualsError(null);
-                          const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                          const visualsUrl = isLocal ? 'http://localhost:3001/api/visuals-summary' : './visuals-summary.json';
-                          fetch(visualsUrl)
-                            .then((res) => {
-                              if (!res.ok) throw new Error('Failed to fetch from backend.');
-                              return res.json();
-                            })
-                            .then((data) => {
-                              if (data.data) {
-                                setVisualsSummary(data.data);
-                              } else {
-                                setVisualsError('Failed to fetch visuals log details.');
-                              }
-                              setVisualsLoading(false);
-                            })
-                            .catch((err) => {
-                              console.error('Error fetching visuals summary:', err);
-                              setVisualsError('Failed to load visuals details. Please ensure the backend is running.');
-                              setVisualsLoading(false);
-                            });
-                        }
-                      }
-                    }
-                  }}
                   style={{
-                    cursor: isVisualsCard ? 'pointer' : 'default',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    border: isSelected ? `2.5px solid ${cat.color}` : '1px solid #e2e8f0',
-                    transform: isSelected ? 'scale(1.02)' : 'none',
-                    boxShadow: isSelected ? '0 10px 25px -5px rgba(118, 67, 147, 0.15)' : 'none'
+                    border: '1px solid #e2e8f0',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 >
                   <div className="service-card-header" style={{ backgroundColor: cat.color }}>
@@ -2064,56 +2079,23 @@ function App() {
                         ))
                       )}
                     </div>
-
-                    {isVisualsCard && (
-                      <div style={{
-                        marginTop: '1.5rem',
-                        padding: '0.75rem',
-                        background: isSelected ? 'rgba(118, 67, 147, 0.1)' : 'rgba(118, 67, 147, 0.05)',
-                        border: '1px dashed rgba(118, 67, 147, 0.3)',
-                        borderRadius: '6px',
-                        textAlign: 'center',
-                        color: '#764393',
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
-                        fontFamily: 'Montserrat, sans-serif',
-                        transition: 'all 0.2s'
-                      }}>
-                        {isSelected ? '▼ Click to Hide Log Journey' : '▶ Click to View Log Journey & Impact'}
-                      </div>
-                    )}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* CUHK Visuals Deep Impact Log Details Panel */}
-          {selectedServiceCard === 'visuals' && (
-            <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.5s ease' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <TrendingUp size={24} color="#764393" />
-                  <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>CUHK Visuals: Journey of Influence</h3>
-                </div>
-                <button
-                  onClick={() => setSelectedServiceCard(null)}
-                  style={{
-                    padding: '0.4rem 1.25rem',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(118, 67, 147, 0.3)',
-                    background: 'transparent',
-                    color: '#764393',
-                    fontWeight: 700,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    fontFamily: 'Montserrat, sans-serif'
-                  }}
-                >
-                  Close Detail View
-                </button>
+          {/* CUHK Visuals & DAM Impact Section */}
+          <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <TrendingUp size={24} color="#764393" />
+                <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>CUHK Visuals & DAM Impact</h3>
               </div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                Live analysis of digital asset discovery, interaction, and conversion logs from the CUHK Visuals platform.
+              </p>
+            </div>
 
               {visualsLoading && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', gap: '1.5rem' }}>
@@ -2137,111 +2119,191 @@ function App() {
                 </div>
               )}
 
-              {visualsSummary && !visualsLoading && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                  {/* Detailed KPI Row */}
-                  <div className="dashboard-grid">
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.totalEvents.toLocaleString()}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>All digital asset actions</span>
-                    </div>
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.totalPreviews.toLocaleString()}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
-                    </div>
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.totalDownloads.toLocaleString()}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>High-res file downloads</span>
-                    </div>
-                    <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
-                      <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        {visualsSummary.summary.conversionRate}
-                      </div>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset conversion rate</span>
-                    </div>
-                  </div>
+              {visualsSummary && !visualsLoading && (() => {
+                const combinedDownloads = visualsSummary.summary.totalDownloads + cuhkVisualsAssetRequests.length;
+                const combinedConversionRate = visualsSummary.summary.totalPreviews > 0
+                  ? ((combinedDownloads / visualsSummary.summary.totalPreviews) * 100).toFixed(2) + '%'
+                  : '0.00%';
 
-                  {/* Sub-Tab Segmented Controls */}
-                  <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
-                    <button
-                      onClick={() => setVisualsSubTab('overview')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'overview' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'overview' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Group View & Trends
-                    </button>
-                    <button
-                      onClick={() => setVisualsSubTab('previews')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'previews' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'previews' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Preview Files Log
-                    </button>
-                    <button
-                      onClick={() => setVisualsSubTab('downloads')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'downloads' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'downloads' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Downloads Log
-                    </button>
-                    <button
-                      onClick={() => setVisualsSubTab('journey')}
-                      style={{
-                        padding: '0.75rem 0.5rem',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: visualsSubTab === 'journey' ? '3px solid #764393' : '3px solid transparent',
-                        color: visualsSubTab === 'journey' ? '#764393' : '#64748b',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        fontSize: '0.9rem',
-                        transition: 'all 0.2s',
-                        fontFamily: 'Montserrat, sans-serif'
-                      }}
-                    >
-                      Journey of Influence
-                    </button>
-                  </div>
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                    {/* Visual Funnel Flow */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.03) 0%, rgba(32, 191, 107, 0.03) 100%)',
+                      padding: '2.5rem',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(118, 67, 147, 0.1)',
+                      display: 'flex',
+                      justifyContent: 'space-around',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '1.5rem',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)'
+                    }}>
+                      {/* Step 1 */}
+                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                          {visualsSummary.summary.totalEvents.toLocaleString()}
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
+                      </div>
+
+                      {/* Arrow 1 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                          {((visualsSummary.summary.totalPreviews / visualsSummary.summary.totalEvents) * 100).toFixed(1)}% Preview Rate
+                        </span>
+                      </div>
+
+                      {/* Step 2 */}
+                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>
+                          {visualsSummary.summary.totalPreviews.toLocaleString()}
+                        </div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
+                      </div>
+
+                      {/* Arrow 2 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20bf6b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>
+                          {combinedConversionRate} Conversion
+                        </span>
+                      </div>
+
+                      {/* Step 3 */}
+                      <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads Stat</span>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                          {combinedDownloads.toLocaleString()}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 "Download Image" (Log)</span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{visualsSummary.summary.totalDownloads.toLocaleString()}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Deliverables)</span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{cuhkVisualsAssetRequests.length.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detailed KPI Row */}
+                    <div className="dashboard-grid">
+                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
+                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                          {visualsSummary.summary.totalEvents.toLocaleString()}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>All digital asset actions</span>
+                      </div>
+                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
+                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                          {visualsSummary.summary.totalPreviews.toLocaleString()}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
+                      </div>
+                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
+                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                          {combinedDownloads.toLocaleString()}
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                          {visualsSummary.summary.totalDownloads.toLocaleString()} direct + {cuhkVisualsAssetRequests.length.toLocaleString()} request tickets
+                        </span>
+                      </div>
+                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
+                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                          {combinedConversionRate}
+                        </div>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Combined conversion rate</span>
+                      </div>
+                    </div>
+
+                    {/* Sub-Tab Segmented Controls */}
+                    <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => setVisualsSubTab('overview')}
+                        style={{
+                          padding: '0.75rem 0.5rem',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: visualsSubTab === 'overview' ? '3px solid #764393' : '3px solid transparent',
+                          color: visualsSubTab === 'overview' ? '#764393' : '#64748b',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                      >
+                        Group View & Trends
+                      </button>
+                      <button
+                        onClick={() => setVisualsSubTab('previews')}
+                        style={{
+                          padding: '0.75rem 0.5rem',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: visualsSubTab === 'previews' ? '3px solid #764393' : '3px solid transparent',
+                          color: visualsSubTab === 'previews' ? '#764393' : '#64748b',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                      >
+                        Preview Files Log
+                      </button>
+                      <button
+                        onClick={() => setVisualsSubTab('downloads')}
+                        style={{
+                          padding: '0.75rem 0.5rem',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: visualsSubTab === 'downloads' ? '3px solid #764393' : '3px solid transparent',
+                          color: visualsSubTab === 'downloads' ? '#764393' : '#64748b',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                      >
+                        Downloads Log
+                      </button>
+                      <button
+                        onClick={() => setVisualsSubTab('journey')}
+                        style={{
+                          padding: '0.75rem 0.5rem',
+                          background: 'transparent',
+                          border: 'none',
+                          borderBottom: visualsSubTab === 'journey' ? '3px solid #764393' : '3px solid transparent',
+                          color: visualsSubTab === 'journey' ? '#764393' : '#64748b',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          transition: 'all 0.2s',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                      >
+                        Journey of Influence
+                      </button>
+                    </div>
 
                   {/* SUB-TAB CONTENTS */}
 
@@ -2408,9 +2470,9 @@ function App() {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          )}
+              );
+            })()}
+          </div>
 
           {/* CUHK in Focus eDM Campaign Impact */}
           <div className="glass-panel" style={{ padding: '2.5rem' }}>
