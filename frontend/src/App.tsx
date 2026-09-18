@@ -2113,7 +2113,6 @@ function App() {
             {visualsSummary && !visualsLoading && (() => {
               // Calculate CUHK Visuals scope metrics
               const c_summary = visualsSummary.cuhkVisuals.summary;
-              const c_pipeline = visualsSummary.cuhkVisuals.pipeline;
               const c_combinedDownloads = c_summary.totalDownloads + cuhkVisualsAssetRequests.length;
               const c_totalShares = c_summary.totalShares || 0;
               const c_totalDistribution = c_combinedDownloads + c_totalShares;
@@ -2158,38 +2157,7 @@ function App() {
                         gap: '1.5rem',
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)'
                       }}>
-                        {/* Step 0 */}
-                        <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(118, 67, 147, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(118, 67, 147, 0.15)' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>0. Pre-Publishing Pipeline</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
-                            {c_pipeline.totalPipelineEvents.toLocaleString()}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(118, 67, 147, 0.2)', paddingBottom: '0.25rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.1 Setting (Upload/Assign)</span>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{c_pipeline.setting.toLocaleString()}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(118, 67, 147, 0.2)', paddingBottom: '0.25rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.2 Updating (Metadata/Tags)</span>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>{c_pipeline.updating.toLocaleString()}</span>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.3 Removing (Delete/Restrict)</span>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#b91c1c', fontFamily: 'Montserrat, sans-serif' }}>{c_pipeline.removing.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Arrow 0 -> 1 */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                          </svg>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>Publish</span>
-                        </div>
-
-                        {/* Step 1 */}
+                      {/* Step 1 */}
                         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
                           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
