@@ -2114,8 +2114,7 @@ function App() {
               // Calculate CUHK Visuals scope metrics
               const c_summary = visualsSummary.cuhkVisuals.summary;
               const c_combinedDownloads = c_summary.totalDownloads + cuhkVisualsAssetRequests.length;
-              const c_totalShares = c_summary.totalShares || 0;
-              const c_totalDistribution = c_combinedDownloads + c_totalShares;
+              const c_totalDistribution = c_combinedDownloads;
               const c_combinedConversionRate = c_summary.totalPreviews > 0
                 ? ((c_totalDistribution / c_summary.totalPreviews) * 100).toFixed(2) + '%'
                 : '0.00%';
@@ -2198,7 +2197,7 @@ function App() {
 
                         {/* Step 3 */}
                         <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads Stat</span>
                           <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
                             {c_totalDistribution.toLocaleString()}
                           </div>

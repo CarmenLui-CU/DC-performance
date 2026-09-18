@@ -159,7 +159,7 @@ function aggregateScope(recordsList) {
   const journeyOfInfluence = Object.values(fileStats)
     .map(f => {
       const score = f.download * 3 + f.share * 5 + f.preview;
-      const conversionRate = f.preview > 0 ? ((f.download / f.preview) * 100).toFixed(1) + '%' : '0.0%';
+      const conversionRate = f.preview > 0 ? (((f.download + f.share) / f.preview) * 100).toFixed(1) + '%' : '0.0%';
       return { ...f, score, conversionRate };
     })
     .sort((a, b) => b.score - a.score)
