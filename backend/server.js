@@ -73,6 +73,159 @@ function getMonthYearStr(dateStr) {
   return 'Unknown';
 }
 
+// Reusable scope-level aggregator to partition CUHK Visuals and DAM
+function aggregateScope(recordsList) {
+  let totalPreviews = 0;
+  let totalDownloads = 0;
+  let totalShares = 0;
+  let totalRequests = 0;
+  let totalApprovals = 0;
+
+  let totalSettings = 0;
+  let totalUpdates = 0;
+  let totalRemovals = 0;
+
+  const locationStats = {};
+  const monthlyStats = {};
+  const fileStats = {};
+  const userStats = {};
+
+  recordsList.forEach((r) => {
+    const op = r.Operation || '';
+    const loc = cleanString(r.Location || 'Unknown');
+    const content = r.Content || '';
+    const dateStr = r['Date and Time'] || '';
+    const user = cleanString(r.User || 'anonymous');
+
+    let type = 'other';
+    const opLower = op.toLowerCase();
+    if (opLower.includes('preview')) {
+      type = 'preview';
+      totalPreviews++;
+    } else if (opLower.includes('download')) {
+      type = 'download';
+      totalDownloads++;
+    } else if (opLower.includes('share')) {
+      type = 'share';
+      totalShares++;
+    } else if (opLower.includes('request')) {
+      type = 'request';
+      totalRequests++;
+    } else if (opLower.includes('approve')) {
+      type = 'approve';
+      totalApprovals++;
+    }
+
+    // Pre-publishing pipeline classification
+    if (opLower.includes('upload') || opLower.includes('assign') || opLower.includes('pending to approved') || opLower.includes('add multiple files')) {
+      totalSettings++;
+    } else if (opLower.includes('update') || opLower.includes('edited tag') || opLower.includes('edited keyword') || opLower.includes('edit metadata')) {
+      totalUpdates++;
+    } else if (opLower.includes('delete') || opLower.includes('remove') || opLower.includes('approved to restricted') || opLower.includes('pending to restricted')) {
+      totalRemovals++;
+    }
+
+    // Group by Location/Platform
+    if (!locationStats[loc]) {
+      locationStats[loc] = { location: loc, total: 0, preview: 0, download: 0, share: 0 };
+    }
+    locationStats[loc].total++;
+    if (type === 'preview') locationStats[loc].preview++;
+    if (type === 'download') locationStats[loc].download++;
+    if (type === 'share') locationStats[loc].share++;
+
+    // Trend over time
+    const monthStr = getMonthYearStr(dateStr);
+    if (!monthlyStats[monthStr]) {
+      monthlyStats[monthStr] = { name: monthStr, preview: 0, download: 0, share: 0 };
+    }
+    if (type === 'preview') monthlyStats[monthStr].preview++;
+    if (type === 'download') monthlyStats[monthStr].download++;
+    if (type === 'share') monthlyStats[monthStr].share++;
+
+    // File-level journey details
+    if (content) {
+      const { name, size } = parseFileNameAndSize(content);
+      if (name) {
+        if (!fileStats[name]) {
+          fileStats[name] = { file: name, size: size, preview: 0, download: 0, share: 0, request: 0, approve: 0, total: 0 };
+        }
+        fileStats[name].total++;
+        if (size && !fileStats[name].size) fileStats[name].size = size;
+
+        if (type === 'preview') fileStats[name].preview++;
+        if (type === 'download') fileStats[name].download++;
+        if (type === 'share') fileStats[name].share++;
+        if (type === 'request') fileStats[name].request++;
+        if (type === 'approve') fileStats[name].approve++;
+      }
+    }
+
+    // User stats tracking
+    if (!userStats[user]) {
+      userStats[user] = 0;
+    }
+    userStats[user]++;
+  });
+
+  const sortedLocations = Object.values(locationStats)
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 15);
+
+  const sortedTrend = Object.values(monthlyStats);
+
+  const topDownloads = Object.values(fileStats)
+    .sort((a, b) => b.download - a.download)
+    .slice(0, 30);
+
+  const topPreviews = Object.values(fileStats)
+    .sort((a, b) => b.preview - a.preview)
+    .slice(0, 30);
+
+  const journeyOfInfluence = Object.values(fileStats)
+    .map(f => {
+      const score = f.download * 3 + f.share * 5 + f.preview;
+      const conversionRate = f.preview > 0 ? ((f.download / f.preview) * 100).toFixed(1) + '%' : '0.0%';
+      return { ...f, score, conversionRate };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 50);
+
+  const sortedUsers = Object.entries(userStats)
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => b.value - a.value);
+
+  const topUsers = sortedUsers.slice(0, 7);
+  if (sortedUsers.length > 7) {
+    const othersValue = sortedUsers.slice(7).reduce((acc, curr) => acc + curr.value, 0);
+    topUsers.push({ name: 'Others', value: othersValue });
+  }
+
+  return {
+    summary: {
+      totalEvents: recordsList.length,
+      totalPreviews,
+      totalDownloads,
+      totalShares,
+      totalRequests,
+      totalApprovals,
+      conversionRate: totalPreviews > 0 ? ((totalDownloads / totalPreviews) * 100).toFixed(2) + '%' : '0.00%'
+    },
+    pipeline: {
+      setting: totalSettings,
+      updating: totalUpdates,
+      removing: totalRemovals,
+      totalPipelineEvents: totalSettings + totalUpdates + totalRemovals
+    },
+    locations: sortedLocations,
+    users: topUsers,
+    monthlyTrend: sortedTrend.reverse(),
+    topDownloads,
+    topPreviews,
+    journeyOfInfluence
+  };
+}
+
 app.get('/api/edm-stats', async (req, res) => {
   try {
     const now = Date.now();
@@ -148,159 +301,24 @@ app.get('/api/visuals-summary', async (req, res) => {
       skip_empty_lines: true
     });
 
-    console.log(`Aggregating ${records.length} records...`);
-    let totalPreviews = 0;
-    let totalDownloads = 0;
-    let totalShares = 0;
-    let totalRequests = 0;
-    let totalApprovals = 0;
-
-    let totalSettings = 0;
-    let totalUpdates = 0;
-    let totalRemovals = 0;
-
-    const locationStats = {};
-    const monthlyStats = {};
-    const fileStats = {};
-    const userStats = {};
+    console.log(`Partitioning and aggregating ${records.length} records...`);
+    const cuhkVisualsRecords = [];
+    const damRecords = [];
 
     records.forEach((r) => {
-      const op = r.Operation || '';
       const loc = cleanString(r.Location || 'Unknown');
-      const content = r.Content || '';
-      const dateStr = r['Date and Time'] || '';
-
-      let type = 'other';
-      const opLower = op.toLowerCase();
-      if (opLower.includes('preview')) {
-        type = 'preview';
-        totalPreviews++;
-      } else if (opLower.includes('download')) {
-        type = 'download';
-        totalDownloads++;
-      } else if (opLower.includes('share')) {
-        type = 'share';
-        totalShares++;
-      } else if (opLower.includes('request')) {
-        type = 'request';
-        totalRequests++;
-      } else if (opLower.includes('approve')) {
-        type = 'approve';
-        totalApprovals++;
+      const isCUHKVisuals = loc === 'CUHK Visuals' || loc === '中大視野' || loc === '中大視界' || loc === '活動素材上載';
+      if (isCUHKVisuals) {
+        cuhkVisualsRecords.push(r);
+      } else {
+        damRecords.push(r);
       }
-
-      // Pre-publishing pipeline classification
-      if (opLower.includes('upload') || opLower.includes('assign') || opLower.includes('pending to approved') || opLower.includes('add multiple files')) {
-        totalSettings++;
-      } else if (opLower.includes('update') || opLower.includes('edited tag') || opLower.includes('edited keyword') || opLower.includes('edit metadata')) {
-        totalUpdates++;
-      } else if (opLower.includes('delete') || opLower.includes('remove') || opLower.includes('approved to restricted') || opLower.includes('pending to restricted')) {
-        totalRemovals++;
-      }
-
-      // Group by Location/Platform
-      if (!locationStats[loc]) {
-        locationStats[loc] = { location: loc, total: 0, preview: 0, download: 0, share: 0 };
-      }
-      locationStats[loc].total++;
-      if (type === 'preview') locationStats[loc].preview++;
-      if (type === 'download') locationStats[loc].download++;
-      if (type === 'share') locationStats[loc].share++;
-
-      // Trend over time
-      const monthStr = getMonthYearStr(dateStr);
-      if (!monthlyStats[monthStr]) {
-        monthlyStats[monthStr] = { name: monthStr, preview: 0, download: 0, share: 0 };
-      }
-      if (type === 'preview') monthlyStats[monthStr].preview++;
-      if (type === 'download') monthlyStats[monthStr].download++;
-      if (type === 'share') monthlyStats[monthStr].share++;
-
-      // File-level journey details
-      if (content) {
-        const { name, size } = parseFileNameAndSize(content);
-        if (name) {
-          if (!fileStats[name]) {
-            fileStats[name] = { file: name, size: size, preview: 0, download: 0, share: 0, request: 0, approve: 0, total: 0 };
-          }
-          fileStats[name].total++;
-          if (size && !fileStats[name].size) fileStats[name].size = size;
-
-          if (type === 'preview') fileStats[name].preview++;
-          if (type === 'download') fileStats[name].download++;
-          if (type === 'share') fileStats[name].share++;
-          if (type === 'request') fileStats[name].request++;
-          if (type === 'approve') fileStats[name].approve++;
-        }
-      }
-
-      // User stats tracking
-      const user = cleanString(r.User || 'anonymous');
-      if (!userStats[user]) {
-        userStats[user] = 0;
-      }
-      userStats[user]++;
     });
 
-    // Top locations sorted by total count
-    const sortedLocations = Object.values(locationStats)
-      .sort((a, b) => b.total - a.total)
-      .slice(0, 15);
-
-    // Month trend chronologically sorted (or simply sorted backward)
-    // We reverse chronological sort: newest first
-    const sortedTrend = Object.values(monthlyStats);
-
-    const topDownloads = Object.values(fileStats)
-      .sort((a, b) => b.download - a.download)
-      .slice(0, 30);
-
-    const topPreviews = Object.values(fileStats)
-      .sort((a, b) => b.preview - a.preview)
-      .slice(0, 30);
-
-    const journeyOfInfluence = Object.values(fileStats)
-      .map(f => {
-        const score = f.download * 3 + f.share * 5 + f.preview;
-        const conversionRate = f.preview > 0 ? ((f.download / f.preview) * 100).toFixed(1) + '%' : '0.0%';
-        return { ...f, score, conversionRate };
-      })
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 50);
-
-    const sortedUsers = Object.entries(userStats)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
-
-    // Group users beyond top 7 as 'Others'
-    const topUsers = sortedUsers.slice(0, 7);
-    if (sortedUsers.length > 7) {
-      const othersValue = sortedUsers.slice(7).reduce((acc, curr) => acc + curr.value, 0);
-      topUsers.push({ name: 'Others', value: othersValue });
-    }
-
     const summaryData = {
-      summary: {
-        totalEvents: records.length,
-        totalPreviews,
-        totalDownloads,
-        totalShares,
-        totalRequests,
-        totalApprovals,
-        conversionRate: totalPreviews > 0 ? ((totalDownloads / totalPreviews) * 100).toFixed(2) + '%' : '0.00%'
-      },
-      pipeline: {
-        setting: totalSettings,
-        updating: totalUpdates,
-        removing: totalRemovals,
-        totalPipelineEvents: totalSettings + totalUpdates + totalRemovals
-      },
-      locations: sortedLocations,
-      users: topUsers,
-      monthlyTrend: sortedTrend.reverse(), // chronologically ordered (oldest first for charts)
-      topDownloads,
-      topPreviews,
-      journeyOfInfluence
+      totalEvents: records.length,
+      cuhkVisuals: aggregateScope(cuhkVisualsRecords),
+      dam: aggregateScope(damRecords)
     };
 
     cachedVisualsSummary = summaryData;

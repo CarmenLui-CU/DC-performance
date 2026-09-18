@@ -1,1495 +1,2913 @@
 {
   "source": "static",
   "data": {
-    "summary": {
-      "totalEvents": 204239,
-      "totalPreviews": 111105,
-      "totalDownloads": 22760,
-      "totalShares": 4576,
-      "totalRequests": 1746,
-      "totalApprovals": 2106,
-      "conversionRate": "20.49%"
+    "totalEvents": 204239,
+    "cuhkVisuals": {
+      "summary": {
+        "totalEvents": 113529,
+        "totalPreviews": 95104,
+        "totalDownloads": 14350,
+        "totalShares": 2327,
+        "totalRequests": 1746,
+        "totalApprovals": 0,
+        "conversionRate": "15.09%"
+      },
+      "pipeline": {
+        "setting": 2,
+        "updating": 0,
+        "removing": 0,
+        "totalPipelineEvents": 2
+      },
+      "locations": [
+        {
+          "location": "CUHK Visuals",
+          "total": 67251,
+          "preview": 55361,
+          "download": 8754,
+          "share": 1706
+        },
+        {
+          "location": "中大視野",
+          "total": 39437,
+          "preview": 34036,
+          "download": 4555,
+          "share": 546
+        },
+        {
+          "location": "中大視界",
+          "total": 6831,
+          "preview": 5699,
+          "download": 1041,
+          "share": 75
+        },
+        {
+          "location": "活動素材上載",
+          "total": 10,
+          "preview": 8,
+          "download": 0,
+          "share": 0
+        }
+      ],
+      "users": [
+        {
+          "name": "anonymous",
+          "value": 112035
+        },
+        {
+          "name": "visuals@cuhk.edu.hk",
+          "value": 923
+        },
+        {
+          "name": "Ling GONG (lgong@cuhkri.org.cn)",
+          "value": 206
+        },
+        {
+          "name": "Digital & Creative Team (digitalcreative.noreply@cuhk.edu.hk)",
+          "value": 175
+        },
+        {
+          "name": "Editorial Team (enews_reply@cuhk.edu.hk)",
+          "value": 84
+        },
+        {
+          "name": "Marketing Services Team (cpro@cuhk.edu.hk)",
+          "value": 37
+        },
+        {
+          "name": "James Lou (jameslou@cuhk.edu.hk)",
+          "value": 20
+        },
+        {
+          "name": "Others",
+          "value": 49
+        }
+      ],
+      "monthlyTrend": [
+        {
+          "name": "Jan '25",
+          "preview": 3051,
+          "download": 435,
+          "share": 26
+        },
+        {
+          "name": "Feb '25",
+          "preview": 3691,
+          "download": 493,
+          "share": 138
+        },
+        {
+          "name": "Mar '25",
+          "preview": 4393,
+          "download": 765,
+          "share": 174
+        },
+        {
+          "name": "Apr '25",
+          "preview": 4467,
+          "download": 656,
+          "share": 63
+        },
+        {
+          "name": "May '25",
+          "preview": 4459,
+          "download": 551,
+          "share": 92
+        },
+        {
+          "name": "Jun '25",
+          "preview": 4850,
+          "download": 638,
+          "share": 132
+        },
+        {
+          "name": "Jul '25",
+          "preview": 5120,
+          "download": 619,
+          "share": 97
+        },
+        {
+          "name": "Aug '25",
+          "preview": 6621,
+          "download": 759,
+          "share": 240
+        },
+        {
+          "name": "Sep '25",
+          "preview": 6393,
+          "download": 745,
+          "share": 137
+        },
+        {
+          "name": "Oct '25",
+          "preview": 4594,
+          "download": 575,
+          "share": 50
+        },
+        {
+          "name": "Nov '25",
+          "preview": 3972,
+          "download": 921,
+          "share": 76
+        },
+        {
+          "name": "Dec '25",
+          "preview": 3677,
+          "download": 467,
+          "share": 259
+        },
+        {
+          "name": "Jan '26",
+          "preview": 3488,
+          "download": 506,
+          "share": 99
+        },
+        {
+          "name": "Feb '26",
+          "preview": 8367,
+          "download": 1850,
+          "share": 144
+        },
+        {
+          "name": "Mar '26",
+          "preview": 3465,
+          "download": 781,
+          "share": 108
+        },
+        {
+          "name": "Apr '26",
+          "preview": 3039,
+          "download": 451,
+          "share": 150
+        },
+        {
+          "name": "May '26",
+          "preview": 5131,
+          "download": 659,
+          "share": 32
+        },
+        {
+          "name": "Jun '26",
+          "preview": 4696,
+          "download": 592,
+          "share": 96
+        },
+        {
+          "name": "Jul '26",
+          "preview": 5389,
+          "download": 904,
+          "share": 38
+        },
+        {
+          "name": "Aug '26",
+          "preview": 4050,
+          "download": 699,
+          "share": 158
+        },
+        {
+          "name": "Sep '26",
+          "preview": 2191,
+          "download": 284,
+          "share": 18
+        }
+      ],
+      "topDownloads": [
+        {
+          "file": "CNY2026 - È¶¨Âπ¥Â§ßÂêâ.png",
+          "size": "5.33MB",
+          "preview": 769,
+          "download": 284,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 1053
+        },
+        {
+          "file": "CUHK 2024 Summer-74.jpg",
+          "size": "16.69MB",
+          "preview": 781,
+          "download": 233,
+          "share": 36,
+          "request": 0,
+          "approve": 0,
+          "total": 1050
+        },
+        {
+          "file": "Desktop-Wallpaper-5.jpg",
+          "size": "7.99MB",
+          "preview": 460,
+          "download": 204,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 664
+        },
+        {
+          "file": "4DN.jpg",
+          "size": "9.74MB",
+          "preview": 529,
+          "download": 191,
+          "share": 24,
+          "request": 0,
+          "approve": 0,
+          "total": 744
+        },
+        {
+          "file": "CUHK-2024-Summer-120.jpg",
+          "size": "1.33MB",
+          "preview": 356,
+          "download": 176,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 532
+        },
+        {
+          "file": "Mobile Wallpaper 1.jpg",
+          "size": "1.92MB",
+          "preview": 500,
+          "download": 158,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 658
+        },
+        {
+          "file": "Desktop-Wallpaper-6.jpg",
+          "size": "9.19MB",
+          "preview": 334,
+          "download": 154,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 488
+        },
+        {
+          "file": "CNY2026 - Good Luck and Health.png",
+          "size": "5.31MB",
+          "preview": 529,
+          "download": 152,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 681
+        },
+        {
+          "file": "11-6-12.jpg",
+          "size": "21.98MB",
+          "preview": 391,
+          "download": 145,
+          "share": 10,
+          "request": 0,
+          "approve": 0,
+          "total": 546
+        },
+        {
+          "file": "CNY2026 - Á¶è.png",
+          "size": "5.37MB",
+          "preview": 520,
+          "download": 136,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 656
+        },
+        {
+          "file": "Mobile Wallpaper 6.jpg",
+          "size": "1.75MB",
+          "preview": 471,
+          "download": 134,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 605
+        },
+        {
+          "file": "5al.jpg",
+          "size": "867.16KB",
+          "preview": 404,
+          "download": 128,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 544
+        },
+        {
+          "file": "Desktop-Wallpaper-4.jpg",
+          "size": "7.65MB",
+          "preview": 246,
+          "download": 122,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 368
+        },
+        {
+          "file": "CUHK-2024-Summer-74.jpg",
+          "size": "1.68MB",
+          "preview": 286,
+          "download": 120,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 406
+        },
+        {
+          "file": "CNY2026 - ÈæçÈ¶¨Á≤æÁ•û.png",
+          "size": "5.39MB",
+          "preview": 599,
+          "download": 119,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 718
+        },
+        {
+          "file": "duR.jpg",
+          "size": "3.71MB",
+          "preview": 407,
+          "download": 108,
+          "share": 22,
+          "request": 0,
+          "approve": 0,
+          "total": 537
+        },
+        {
+          "file": "Landmarks.png",
+          "size": "2.76MB",
+          "preview": 329,
+          "download": 107,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 450
+        },
+        {
+          "file": "CUHK 2024 Summer-57.jpg",
+          "size": "16.35MB",
+          "preview": 317,
+          "download": 107,
+          "share": 21,
+          "request": 0,
+          "approve": 0,
+          "total": 445
+        },
+        {
+          "file": "Mobile-Wallpaper-21.jpg",
+          "size": "2.54MB",
+          "preview": 477,
+          "download": 104,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 581
+        },
+        {
+          "file": "22-1-new-2.jpg",
+          "size": "40.90MB",
+          "preview": 269,
+          "download": 102,
+          "share": 24,
+          "request": 0,
+          "approve": 0,
+          "total": 395
+        },
+        {
+          "file": "13-6-11.jpg",
+          "size": "33.80MB",
+          "preview": 287,
+          "download": 100,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 399
+        },
+        {
+          "file": "Mobile Wallpaper 14.png",
+          "size": "4.95MB",
+          "preview": 397,
+          "download": 100,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 497
+        },
+        {
+          "file": "14-6-10.jpg",
+          "size": "33.19MB",
+          "preview": 264,
+          "download": 99,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 377
+        },
+        {
+          "file": "198_R.jpg",
+          "size": "868.26KB",
+          "preview": 328,
+          "download": 99,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 441
+        },
+        {
+          "file": "Mobile Wallpaper 11.jpg",
+          "size": "2.40MB",
+          "preview": 308,
+          "download": 99,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 407
+        },
+        {
+          "file": "CUHK 2024 Summer-120.jpg",
+          "size": "15.16MB",
+          "preview": 299,
+          "download": 94,
+          "share": 16,
+          "request": 0,
+          "approve": 0,
+          "total": 409
+        },
+        {
+          "file": "CUHK-2024-Summer-57.jpg",
+          "size": "1.42MB",
+          "preview": 197,
+          "download": 90,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 287
+        },
+        {
+          "file": "Mobile Wallpaper 5.jpg",
+          "size": "2.39MB",
+          "preview": 305,
+          "download": 88,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 393
+        },
+        {
+          "file": "21-1-new-4.jpg",
+          "size": "65.24MB",
+          "preview": 215,
+          "download": 86,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 313
+        },
+        {
+          "file": "17-10-1.jpg",
+          "size": "27.05MB",
+          "preview": 291,
+          "download": 84,
+          "share": 8,
+          "request": 0,
+          "approve": 0,
+          "total": 383
+        }
+      ],
+      "topPreviews": [
+        {
+          "file": "CUHK 2024 Summer-74.jpg",
+          "size": "16.69MB",
+          "preview": 781,
+          "download": 233,
+          "share": 36,
+          "request": 0,
+          "approve": 0,
+          "total": 1050
+        },
+        {
+          "file": "CNY2026 - È¶¨Âπ¥Â§ßÂêâ.png",
+          "size": "5.33MB",
+          "preview": 769,
+          "download": 284,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 1053
+        },
+        {
+          "file": "V2309-10_008_Colorgrade.mp4",
+          "size": "102.92MB",
+          "preview": 653,
+          "download": 0,
+          "share": 38,
+          "request": 0,
+          "approve": 0,
+          "total": 691
+        },
+        {
+          "file": "20211230_Campus snapshot_Cam 1-044.mp4",
+          "size": "88.94MB",
+          "preview": 647,
+          "download": 0,
+          "share": 38,
+          "request": 0,
+          "approve": 0,
+          "total": 685
+        },
+        {
+          "file": "Á∂†ÊÑè‰∏≠Â≠∏Áøí.jpg",
+          "size": "3.33MB",
+          "preview": 609,
+          "download": 8,
+          "share": 4,
+          "request": 0,
+          "approve": 0,
+          "total": 621
+        },
+        {
+          "file": "CNY2026 - ÈæçÈ¶¨Á≤æÁ•û.png",
+          "size": "5.39MB",
+          "preview": 599,
+          "download": 119,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 718
+        },
+        {
+          "file": "4DN.jpg",
+          "size": "9.74MB",
+          "preview": 529,
+          "download": 191,
+          "share": 24,
+          "request": 0,
+          "approve": 0,
+          "total": 744
+        },
+        {
+          "file": "CNY2026 - Good Luck and Health.png",
+          "size": "5.31MB",
+          "preview": 529,
+          "download": 152,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 681
+        },
+        {
+          "file": "CNY2026 - Á¶è.png",
+          "size": "5.37MB",
+          "preview": 520,
+          "download": 136,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 656
+        },
+        {
+          "file": "Mobile Wallpaper 1.jpg",
+          "size": "1.92MB",
+          "preview": 500,
+          "download": 158,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 658
+        },
+        {
+          "file": "Mobile-Wallpaper-21.jpg",
+          "size": "2.54MB",
+          "preview": 477,
+          "download": 104,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 581
+        },
+        {
+          "file": "Mobile Wallpaper 6.jpg",
+          "size": "1.75MB",
+          "preview": 471,
+          "download": 134,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 605
+        },
+        {
+          "file": "Desktop-Wallpaper-5.jpg",
+          "size": "7.99MB",
+          "preview": 460,
+          "download": 204,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 664
+        },
+        {
+          "file": "V2309-10_002.mp4",
+          "size": "119.52MB",
+          "preview": 420,
+          "download": 0,
+          "share": 42,
+          "request": 0,
+          "approve": 0,
+          "total": 462
+        },
+        {
+          "file": "ÊåëÁáàÂ§úËÆÄ.jpg",
+          "size": "5.19MB",
+          "preview": 411,
+          "download": 7,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 418
+        },
+        {
+          "file": "CUHK 2024 Summer-75.jpg",
+          "size": "11.33MB",
+          "preview": 407,
+          "download": 71,
+          "share": 10,
+          "request": 0,
+          "approve": 0,
+          "total": 488
+        },
+        {
+          "file": "duR.jpg",
+          "size": "3.71MB",
+          "preview": 407,
+          "download": 108,
+          "share": 22,
+          "request": 0,
+          "approve": 0,
+          "total": 537
+        },
+        {
+          "file": "ÁÖôËä±.jpg",
+          "size": "4.19MB",
+          "preview": 407,
+          "download": 10,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 417
+        },
+        {
+          "file": "5al.jpg",
+          "size": "867.16KB",
+          "preview": 404,
+          "download": 128,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 544
+        },
+        {
+          "file": "Mobile Wallpaper 14.png",
+          "size": "4.95MB",
+          "preview": 397,
+          "download": 100,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 497
+        },
+        {
+          "file": "11-6-12.jpg",
+          "size": "21.98MB",
+          "preview": 391,
+          "download": 145,
+          "share": 10,
+          "request": 0,
+          "approve": 0,
+          "total": 546
+        },
+        {
+          "file": "V2309-10_004_Colorgrade.mp4",
+          "size": "88.28MB",
+          "preview": 377,
+          "download": 0,
+          "share": 18,
+          "request": 0,
+          "approve": 0,
+          "total": 395
+        },
+        {
+          "file": "d7.jpg",
+          "size": "9.62MB",
+          "preview": 375,
+          "download": 40,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 427
+        },
+        {
+          "file": "Êú™Âúì.jpg",
+          "size": "2.79MB",
+          "preview": 363,
+          "download": 8,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 371
+        },
+        {
+          "file": "CUHK-2024-Summer-120.jpg",
+          "size": "1.33MB",
+          "preview": 356,
+          "download": 176,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 532
+        },
+        {
+          "file": "C0003.mp4",
+          "size": "110.23MB",
+          "preview": 352,
+          "download": 0,
+          "share": 32,
+          "request": 0,
+          "approve": 0,
+          "total": 384
+        },
+        {
+          "file": "ÊôÇÈñì.jpg",
+          "size": "4.23MB",
+          "preview": 348,
+          "download": 15,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 363
+        },
+        {
+          "file": "CU-0170.jpg",
+          "size": "52.03MB",
+          "preview": 343,
+          "download": 66,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 423
+        },
+        {
+          "file": "Desktop-Wallpaper-6.jpg",
+          "size": "9.19MB",
+          "preview": 334,
+          "download": 154,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 488
+        },
+        {
+          "file": "Landmarks.png",
+          "size": "2.76MB",
+          "preview": 329,
+          "download": 107,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 450
+        }
+      ],
+      "journeyOfInfluence": [
+        {
+          "file": "CUHK 2024 Summer-74.jpg",
+          "size": "16.69MB",
+          "preview": 781,
+          "download": 233,
+          "share": 36,
+          "request": 0,
+          "approve": 0,
+          "total": 1050,
+          "score": 1660,
+          "conversionRate": "29.8%"
+        },
+        {
+          "file": "CNY2026 - È¶¨Âπ¥Â§ßÂêâ.png",
+          "size": "5.33MB",
+          "preview": 769,
+          "download": 284,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 1053,
+          "score": 1621,
+          "conversionRate": "36.9%"
+        },
+        {
+          "file": "4DN.jpg",
+          "size": "9.74MB",
+          "preview": 529,
+          "download": 191,
+          "share": 24,
+          "request": 0,
+          "approve": 0,
+          "total": 744,
+          "score": 1222,
+          "conversionRate": "36.1%"
+        },
+        {
+          "file": "Desktop-Wallpaper-5.jpg",
+          "size": "7.99MB",
+          "preview": 460,
+          "download": 204,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 664,
+          "score": 1072,
+          "conversionRate": "44.3%"
+        },
+        {
+          "file": "CNY2026 - Good Luck and Health.png",
+          "size": "5.31MB",
+          "preview": 529,
+          "download": 152,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 681,
+          "score": 985,
+          "conversionRate": "28.7%"
+        },
+        {
+          "file": "Mobile Wallpaper 1.jpg",
+          "size": "1.92MB",
+          "preview": 500,
+          "download": 158,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 658,
+          "score": 974,
+          "conversionRate": "31.6%"
+        },
+        {
+          "file": "CNY2026 - ÈæçÈ¶¨Á≤æÁ•û.png",
+          "size": "5.39MB",
+          "preview": 599,
+          "download": 119,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 718,
+          "score": 956,
+          "conversionRate": "19.9%"
+        },
+        {
+          "file": "CNY2026 - Á¶è.png",
+          "size": "5.37MB",
+          "preview": 520,
+          "download": 136,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 656,
+          "score": 928,
+          "conversionRate": "26.2%"
+        },
+        {
+          "file": "CUHK-2024-Summer-120.jpg",
+          "size": "1.33MB",
+          "preview": 356,
+          "download": 176,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 532,
+          "score": 884,
+          "conversionRate": "49.4%"
+        },
+        {
+          "file": "11-6-12.jpg",
+          "size": "21.98MB",
+          "preview": 391,
+          "download": 145,
+          "share": 10,
+          "request": 0,
+          "approve": 0,
+          "total": 546,
+          "score": 876,
+          "conversionRate": "37.1%"
+        },
+        {
+          "file": "Mobile Wallpaper 6.jpg",
+          "size": "1.75MB",
+          "preview": 471,
+          "download": 134,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 605,
+          "score": 873,
+          "conversionRate": "28.5%"
+        },
+        {
+          "file": "5al.jpg",
+          "size": "867.16KB",
+          "preview": 404,
+          "download": 128,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 544,
+          "score": 848,
+          "conversionRate": "31.7%"
+        },
+        {
+          "file": "V2309-10_008_Colorgrade.mp4",
+          "size": "102.92MB",
+          "preview": 653,
+          "download": 0,
+          "share": 38,
+          "request": 0,
+          "approve": 0,
+          "total": 691,
+          "score": 843,
+          "conversionRate": "0.0%"
+        },
+        {
+          "file": "duR.jpg",
+          "size": "3.71MB",
+          "preview": 407,
+          "download": 108,
+          "share": 22,
+          "request": 0,
+          "approve": 0,
+          "total": 537,
+          "score": 841,
+          "conversionRate": "26.5%"
+        },
+        {
+          "file": "20211230_Campus snapshot_Cam 1-044.mp4",
+          "size": "88.94MB",
+          "preview": 647,
+          "download": 0,
+          "share": 38,
+          "request": 0,
+          "approve": 0,
+          "total": 685,
+          "score": 837,
+          "conversionRate": "0.0%"
+        },
+        {
+          "file": "Desktop-Wallpaper-6.jpg",
+          "size": "9.19MB",
+          "preview": 334,
+          "download": 154,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 488,
+          "score": 796,
+          "conversionRate": "46.1%"
+        },
+        {
+          "file": "Mobile-Wallpaper-21.jpg",
+          "size": "2.54MB",
+          "preview": 477,
+          "download": 104,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 581,
+          "score": 789,
+          "conversionRate": "21.8%"
+        },
+        {
+          "file": "CUHK 2024 Summer-57.jpg",
+          "size": "16.35MB",
+          "preview": 317,
+          "download": 107,
+          "share": 21,
+          "request": 0,
+          "approve": 0,
+          "total": 445,
+          "score": 743,
+          "conversionRate": "33.8%"
+        },
+        {
+          "file": "Landmarks.png",
+          "size": "2.76MB",
+          "preview": 329,
+          "download": 107,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 450,
+          "score": 720,
+          "conversionRate": "32.5%"
+        },
+        {
+          "file": "Mobile Wallpaper 14.png",
+          "size": "4.95MB",
+          "preview": 397,
+          "download": 100,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 497,
+          "score": 697,
+          "conversionRate": "25.2%"
+        },
+        {
+          "file": "198_R.jpg",
+          "size": "868.26KB",
+          "preview": 328,
+          "download": 99,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 441,
+          "score": 695,
+          "conversionRate": "30.2%"
+        },
+        {
+          "file": "22-1-new-2.jpg",
+          "size": "40.90MB",
+          "preview": 269,
+          "download": 102,
+          "share": 24,
+          "request": 0,
+          "approve": 0,
+          "total": 395,
+          "score": 695,
+          "conversionRate": "37.9%"
+        },
+        {
+          "file": "CUHK 2024 Summer-75.jpg",
+          "size": "11.33MB",
+          "preview": 407,
+          "download": 71,
+          "share": 10,
+          "request": 0,
+          "approve": 0,
+          "total": 488,
+          "score": 670,
+          "conversionRate": "17.4%"
+        },
+        {
+          "file": "CUHK 2024 Summer-120.jpg",
+          "size": "15.16MB",
+          "preview": 299,
+          "download": 94,
+          "share": 16,
+          "request": 0,
+          "approve": 0,
+          "total": 409,
+          "score": 661,
+          "conversionRate": "31.4%"
+        },
+        {
+          "file": "Á∂†ÊÑè‰∏≠Â≠∏Áøí.jpg",
+          "size": "3.33MB",
+          "preview": 609,
+          "download": 8,
+          "share": 4,
+          "request": 0,
+          "approve": 0,
+          "total": 621,
+          "score": 653,
+          "conversionRate": "1.3%"
+        },
+        {
+          "file": "13-6-11.jpg",
+          "size": "33.80MB",
+          "preview": 287,
+          "download": 100,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 399,
+          "score": 647,
+          "conversionRate": "34.8%"
+        },
+        {
+          "file": "CUHK-2024-Summer-74.jpg",
+          "size": "1.68MB",
+          "preview": 286,
+          "download": 120,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 406,
+          "score": 646,
+          "conversionRate": "42.0%"
+        },
+        {
+          "file": "14-6-10.jpg",
+          "size": "33.19MB",
+          "preview": 264,
+          "download": 99,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 377,
+          "score": 631,
+          "conversionRate": "37.5%"
+        },
+        {
+          "file": "V2309-10_002.mp4",
+          "size": "119.52MB",
+          "preview": 420,
+          "download": 0,
+          "share": 42,
+          "request": 0,
+          "approve": 0,
+          "total": 462,
+          "score": 630,
+          "conversionRate": "0.0%"
+        },
+        {
+          "file": "Desktop-Wallpaper-4.jpg",
+          "size": "7.65MB",
+          "preview": 246,
+          "download": 122,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 368,
+          "score": 612,
+          "conversionRate": "49.6%"
+        },
+        {
+          "file": "2o4.jpg",
+          "size": "773.69KB",
+          "preview": 328,
+          "download": 81,
+          "share": 8,
+          "request": 0,
+          "approve": 0,
+          "total": 417,
+          "score": 611,
+          "conversionRate": "24.7%"
+        },
+        {
+          "file": "CU-0170.jpg",
+          "size": "52.03MB",
+          "preview": 343,
+          "download": 66,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 423,
+          "score": 611,
+          "conversionRate": "19.2%"
+        },
+        {
+          "file": "Mobile Wallpaper 11.jpg",
+          "size": "2.40MB",
+          "preview": 308,
+          "download": 99,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 407,
+          "score": 605,
+          "conversionRate": "32.1%"
+        },
+        {
+          "file": "17-10-1.jpg",
+          "size": "27.05MB",
+          "preview": 291,
+          "download": 84,
+          "share": 8,
+          "request": 0,
+          "approve": 0,
+          "total": 383,
+          "score": 583,
+          "conversionRate": "28.9%"
+        },
+        {
+          "file": "Mobile Wallpaper 5.jpg",
+          "size": "2.39MB",
+          "preview": 305,
+          "download": 88,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 393,
+          "score": 569,
+          "conversionRate": "28.9%"
+        },
+        {
+          "file": "d7.jpg",
+          "size": "9.62MB",
+          "preview": 375,
+          "download": 40,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 427,
+          "score": 555,
+          "conversionRate": "10.7%"
+        },
+        {
+          "file": "001_Central_Campus-2.jpg",
+          "size": "12.90MB",
+          "preview": 253,
+          "download": 69,
+          "share": 16,
+          "request": 0,
+          "approve": 0,
+          "total": 338,
+          "score": 540,
+          "conversionRate": "27.3%"
+        },
+        {
+          "file": "21-1-new-4.jpg",
+          "size": "65.24MB",
+          "preview": 215,
+          "download": 86,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 313,
+          "score": 533,
+          "conversionRate": "40.0%"
+        },
+        {
+          "file": "CUHK 2024 Summer-3.jpg",
+          "size": "1.83MB",
+          "preview": 232,
+          "download": 61,
+          "share": 22,
+          "request": 0,
+          "approve": 0,
+          "total": 315,
+          "score": 525,
+          "conversionRate": "26.3%"
+        },
+        {
+          "file": "Mobile Wallpaper 9.jpg",
+          "size": "1.30MB",
+          "preview": 301,
+          "download": 74,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 375,
+          "score": 523,
+          "conversionRate": "24.6%"
+        },
+        {
+          "file": "CU-0149.jpg",
+          "size": "1.02MB",
+          "preview": 239,
+          "download": 71,
+          "share": 14,
+          "request": 0,
+          "approve": 0,
+          "total": 324,
+          "score": 522,
+          "conversionRate": "29.7%"
+        },
+        {
+          "file": "Mobile Wallpaper 13.jpg",
+          "size": "1.38MB",
+          "preview": 309,
+          "download": 69,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 378,
+          "score": 516,
+          "conversionRate": "22.3%"
+        },
+        {
+          "file": "C0003.mp4",
+          "size": "110.23MB",
+          "preview": 352,
+          "download": 0,
+          "share": 32,
+          "request": 0,
+          "approve": 0,
+          "total": 384,
+          "score": 512,
+          "conversionRate": "0.0%"
+        },
+        {
+          "file": "Mobile Wallpaper 12.jpg",
+          "size": "2.23MB",
+          "preview": 304,
+          "download": 69,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 373,
+          "score": 511,
+          "conversionRate": "22.7%"
+        },
+        {
+          "file": "Mobile-Wallpaper-19.jpg",
+          "size": "2.60MB",
+          "preview": 292,
+          "download": 68,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 360,
+          "score": 496,
+          "conversionRate": "23.3%"
+        },
+        {
+          "file": "Mobile-Wallpaper-20.jpg",
+          "size": "2.87MB",
+          "preview": 321,
+          "download": 57,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 378,
+          "score": 492,
+          "conversionRate": "17.8%"
+        },
+        {
+          "file": "8FO.jpg",
+          "size": "655.11KB",
+          "preview": 296,
+          "download": 49,
+          "share": 8,
+          "request": 0,
+          "approve": 0,
+          "total": 353,
+          "score": 483,
+          "conversionRate": "16.6%"
+        },
+        {
+          "file": "mMj.jpg",
+          "size": "6.27MB",
+          "preview": 264,
+          "download": 51,
+          "share": 12,
+          "request": 0,
+          "approve": 0,
+          "total": 327,
+          "score": 477,
+          "conversionRate": "19.3%"
+        },
+        {
+          "file": "CUHK 2024 Summer-56.jpg",
+          "size": "2.64MB",
+          "preview": 230,
+          "download": 54,
+          "share": 16,
+          "request": 0,
+          "approve": 0,
+          "total": 300,
+          "score": 472,
+          "conversionRate": "23.5%"
+        },
+        {
+          "file": "Desktop-Wallpaper-1.jpg",
+          "size": "3.85MB",
+          "preview": 220,
+          "download": 84,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 304,
+          "score": 472,
+          "conversionRate": "38.2%"
+        }
+      ]
     },
-    "pipeline": {
-      "setting": 26249,
-      "updating": 35954,
-      "removing": 662,
-      "totalPipelineEvents": 62865
-    },
-    "locations": [
-      {
-        "location": "Main Library",
-        "total": 85533,
-        "preview": 14884,
-        "download": 5784,
-        "share": 1886
-      },
-      {
-        "location": "CUHK Visuals",
-        "total": 67251,
-        "preview": 55361,
-        "download": 8754,
-        "share": 1706
-      },
-      {
-        "location": "中大視野",
-        "total": 39437,
-        "preview": 34036,
-        "download": 4555,
-        "share": 546
-      },
-      {
-        "location": "中大視界",
-        "total": 6831,
-        "preview": 5699,
-        "download": 1041,
-        "share": 75
-      },
-      {
-        "location": "Congratulatory Messages to VC",
-        "total": 1357,
-        "preview": 1053,
-        "download": 304,
-        "share": 0
-      },
-      {
-        "location": "CUAV Workspace",
-        "total": 961,
-        "preview": 7,
-        "download": 183,
-        "share": 363
-      },
-      {
-        "location": "University Archives Workspace",
-        "total": 555,
-        "preview": 13,
-        "download": 0,
-        "share": 0
-      },
-      {
-        "location": "SURF",
-        "total": 408,
-        "preview": 0,
-        "download": 408,
-        "share": 0
-      },
-      {
-        "location": "Anita Leung",
-        "total": 322,
-        "preview": 0,
-        "download": 322,
-        "share": 0
-      },
-      {
-        "location": "第七屆期頤學人開講",
-        "total": 235,
-        "preview": 0,
-        "download": 235,
-        "share": 0
-      },
-      {
-        "location": "Photography Contest 2025",
-        "total": 99,
-        "preview": 5,
-        "download": 0,
-        "share": 0
-      },
-      {
-        "location": "PRPA 2025 CPRO",
-        "total": 27,
-        "preview": 27,
-        "download": 0,
-        "share": 0
-      },
-      {
-        "location": "Photos of Charles K. Kao",
-        "total": 27,
-        "preview": 0,
-        "download": 27,
-        "share": 0
-      },
-      {
-        "location": "List of Images for FAAR",
-        "total": 26,
-        "preview": 0,
-        "download": 26,
-        "share": 0
-      },
-      {
-        "location": "CPRO Colleagues Photos",
-        "total": 24,
-        "preview": 3,
-        "download": 0,
-        "share": 0
-      }
-    ],
-    "users": [
-      {
-        "name": "anonymous",
-        "value": 116491
-      },
-      {
-        "name": "visuals@cuhk.edu.hk",
-        "value": 56687
-      },
-      {
-        "name": "Audio-Visual Division (cuav@cuhk.edu.hk)",
-        "value": 11315
-      },
-      {
-        "name": "Canto Help (help@canto.com)",
-        "value": 4092
-      },
-      {
-        "name": "Editorial Team (enews_reply@cuhk.edu.hk)",
-        "value": 3372
-      },
-      {
-        "name": "Digital & Creative Team (digitalcreative.noreply@cuhk.edu.hk)",
-        "value": 2545
-      },
-      {
-        "name": "Ling GONG (lgong@cuhkri.org.cn)",
-        "value": 2305
-      },
-      {
-        "name": "Others",
-        "value": 7432
-      }
-    ],
-    "monthlyTrend": [
-      {
-        "name": "Jan '25",
-        "preview": 3846,
-        "download": 782,
-        "share": 54
-      },
-      {
-        "name": "Feb '25",
-        "preview": 4376,
-        "download": 751,
-        "share": 226
-      },
-      {
-        "name": "Mar '25",
-        "preview": 5176,
-        "download": 968,
-        "share": 202
-      },
-      {
-        "name": "Apr '25",
-        "preview": 4884,
-        "download": 825,
-        "share": 70
-      },
-      {
-        "name": "May '25",
-        "preview": 6645,
-        "download": 1416,
-        "share": 390
-      },
-      {
-        "name": "Jun '25",
-        "preview": 6214,
-        "download": 1202,
-        "share": 608
-      },
-      {
-        "name": "Jul '25",
-        "preview": 5396,
-        "download": 750,
-        "share": 156
-      },
-      {
-        "name": "Aug '25",
-        "preview": 7271,
-        "download": 967,
-        "share": 252
-      },
-      {
-        "name": "Sep '25",
-        "preview": 6909,
-        "download": 1247,
-        "share": 557
-      },
-      {
-        "name": "Oct '25",
-        "preview": 4839,
-        "download": 638,
-        "share": 57
-      },
-      {
-        "name": "Nov '25",
-        "preview": 4175,
-        "download": 1035,
-        "share": 84
-      },
-      {
-        "name": "Dec '25",
-        "preview": 3971,
-        "download": 2574,
-        "share": 275
-      },
-      {
-        "name": "Jan '26",
-        "preview": 4090,
-        "download": 625,
-        "share": 107
-      },
-      {
-        "name": "Feb '26",
-        "preview": 8749,
-        "download": 1957,
-        "share": 157
-      },
-      {
-        "name": "Mar '26",
-        "preview": 3922,
-        "download": 923,
-        "share": 108
-      },
-      {
-        "name": "Apr '26",
-        "preview": 3733,
-        "download": 799,
-        "share": 150
-      },
-      {
-        "name": "May '26",
-        "preview": 5910,
-        "download": 813,
-        "share": 32
-      },
-      {
-        "name": "Jun '26",
-        "preview": 6120,
-        "download": 1421,
-        "share": 417
-      },
-      {
-        "name": "Jul '26",
-        "preview": 6921,
-        "download": 1232,
-        "share": 193
-      },
-      {
-        "name": "Aug '26",
-        "preview": 5206,
-        "download": 1386,
-        "share": 309
-      },
-      {
-        "name": "Sep '26",
-        "preview": 2752,
-        "download": 449,
-        "share": 172
-      }
-    ],
-    "topDownloads": [
-      {
-        "file": "CNY2026 - È¶¨Âπ¥Â§ßÂêâ.png",
-        "size": "5.33MB",
-        "preview": 788,
-        "download": 285,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 1078
-      },
-      {
-        "file": "CUHK 2024 Summer-74.jpg",
-        "size": "16.69MB",
-        "preview": 802,
-        "download": 265,
-        "share": 38,
-        "request": 0,
-        "approve": 0,
-        "total": 1106
-      },
-      {
-        "file": "4DN.jpg",
-        "size": "9.74MB",
-        "preview": 541,
-        "download": 214,
-        "share": 25,
-        "request": 0,
-        "approve": 0,
-        "total": 780
-      },
-      {
-        "file": "Desktop-Wallpaper-5.jpg",
-        "size": "7.99MB",
-        "preview": 467,
-        "download": 206,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 681
-      },
-      {
-        "file": "CUHK-2024-Summer-120.jpg",
-        "size": "1.33MB",
-        "preview": 367,
-        "download": 181,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 550
-      },
-      {
-        "file": "11-6-12.jpg",
-        "size": "21.98MB",
-        "preview": 421,
-        "download": 164,
-        "share": 11,
-        "request": 0,
-        "approve": 0,
-        "total": 601
-      },
-      {
-        "file": "Mobile Wallpaper 1.jpg",
-        "size": "1.92MB",
-        "preview": 507,
-        "download": 159,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 676
-      },
-      {
-        "file": "Desktop-Wallpaper-6.jpg",
-        "size": "9.19MB",
-        "preview": 342,
-        "download": 158,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 504
-      },
-      {
-        "file": "CNY2026 - Good Luck and Health.png",
-        "size": "5.31MB",
-        "preview": 532,
-        "download": 153,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 689
-      },
-      {
-        "file": "5al.jpg",
-        "size": "867.16KB",
-        "preview": 427,
-        "download": 148,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 590
-      },
-      {
-        "file": "CNY2026 - Á¶è.png",
-        "size": "5.37MB",
-        "preview": 527,
-        "download": 137,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 668
-      },
-      {
-        "file": "CUHK 2024 Summer-57.jpg",
-        "size": "16.35MB",
-        "preview": 346,
-        "download": 136,
-        "share": 21,
-        "request": 0,
-        "approve": 0,
-        "total": 503
-      },
-      {
-        "file": "Mobile Wallpaper 6.jpg",
-        "size": "1.75MB",
-        "preview": 478,
-        "download": 135,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 621
-      },
-      {
-        "file": "duR.jpg",
-        "size": "3.71MB",
-        "preview": 442,
-        "download": 131,
-        "share": 24,
-        "request": 0,
-        "approve": 0,
-        "total": 597
-      },
-      {
-        "file": "22-1-new-2.jpg",
-        "size": "40.90MB",
-        "preview": 299,
-        "download": 124,
-        "share": 25,
-        "request": 0,
-        "approve": 0,
-        "total": 452
-      },
-      {
-        "file": "Desktop-Wallpaper-4.jpg",
-        "size": "7.65MB",
-        "preview": 250,
-        "download": 123,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 377
-      },
-      {
-        "file": "13-6-11.jpg",
-        "size": "33.80MB",
-        "preview": 310,
-        "download": 122,
-        "share": 13,
-        "request": 0,
-        "approve": 0,
-        "total": 450
-      },
-      {
-        "file": "14-6-10.jpg",
-        "size": "33.19MB",
-        "preview": 286,
-        "download": 121,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 428
-      },
-      {
-        "file": "CUHK-2024-Summer-74.jpg",
-        "size": "1.68MB",
-        "preview": 288,
-        "download": 121,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 409
-      },
-      {
-        "file": "CNY2026 - ÈæçÈ¶¨Á≤æÁ•û.png",
-        "size": "5.39MB",
-        "preview": 603,
-        "download": 120,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 727
-      },
-      {
-        "file": "Landmarks.png",
-        "size": "2.76MB",
-        "preview": 335,
-        "download": 119,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 470
-      },
-      {
-        "file": "198_R.jpg",
-        "size": "868.26KB",
-        "preview": 345,
-        "download": 115,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 477
-      },
-      {
-        "file": "CUHK 2024 Summer-120.jpg",
-        "size": "15.16MB",
-        "preview": 328,
-        "download": 113,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 457
-      },
-      {
-        "file": "17-10-1.jpg",
-        "size": "27.05MB",
-        "preview": 335,
-        "download": 111,
-        "share": 10,
-        "request": 0,
-        "approve": 0,
-        "total": 461
-      },
-      {
-        "file": "Mobile-Wallpaper-21.jpg",
-        "size": "2.54MB",
-        "preview": 480,
-        "download": 105,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 589
-      },
-      {
-        "file": "Mobile Wallpaper 14.png",
-        "size": "4.95MB",
-        "preview": 404,
-        "download": 103,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 516
-      },
-      {
-        "file": "Mobile Wallpaper 11.jpg",
-        "size": "2.40MB",
-        "preview": 316,
-        "download": 100,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 424
-      },
-      {
-        "file": "21-1-new-4.jpg",
-        "size": "65.24MB",
-        "preview": 247,
-        "download": 99,
-        "share": 12,
-        "request": 0,
-        "approve": 0,
-        "total": 362
-      },
-      {
-        "file": "CUHK-2024-Summer-57.jpg",
-        "size": "1.42MB",
-        "preview": 208,
-        "download": 96,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 308
-      },
-      {
-        "file": "2o4.jpg",
-        "size": "773.69KB",
-        "preview": 330,
-        "download": 90,
-        "share": 8,
-        "request": 0,
-        "approve": 0,
-        "total": 429
-      }
-    ],
-    "topPreviews": [
-      {
-        "file": "CUHK 2024 Summer-74.jpg",
-        "size": "16.69MB",
-        "preview": 802,
-        "download": 265,
-        "share": 38,
-        "request": 0,
-        "approve": 0,
-        "total": 1106
-      },
-      {
-        "file": "CNY2026 - È¶¨Âπ¥Â§ßÂêâ.png",
-        "size": "5.33MB",
-        "preview": 788,
-        "download": 285,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 1078
-      },
-      {
-        "file": "V2309-10_008_Colorgrade.mp4",
-        "size": "102.92MB",
-        "preview": 788,
-        "download": 20,
-        "share": 41,
-        "request": 0,
-        "approve": 0,
-        "total": 850
-      },
-      {
-        "file": "20211230_Campus snapshot_Cam 1-044.mp4",
-        "size": "88.94MB",
-        "preview": 731,
-        "download": 22,
-        "share": 39,
-        "request": 0,
-        "approve": 0,
-        "total": 792
-      },
-      {
-        "file": "Á∂†ÊÑè‰∏≠Â≠∏Áøí.jpg",
-        "size": "3.33MB",
-        "preview": 618,
-        "download": 11,
-        "share": 4,
-        "request": 0,
-        "approve": 0,
-        "total": 642
-      },
-      {
-        "file": "CNY2026 - ÈæçÈ¶¨Á≤æÁ•û.png",
-        "size": "5.39MB",
-        "preview": 603,
-        "download": 120,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 727
-      },
-      {
-        "file": "4DN.jpg",
-        "size": "9.74MB",
-        "preview": 541,
-        "download": 214,
-        "share": 25,
-        "request": 0,
-        "approve": 0,
-        "total": 780
-      },
-      {
-        "file": "CNY2026 - Good Luck and Health.png",
-        "size": "5.31MB",
-        "preview": 532,
-        "download": 153,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 689
-      },
-      {
-        "file": "CNY2026 - Á¶è.png",
-        "size": "5.37MB",
-        "preview": 527,
-        "download": 137,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 668
-      },
-      {
-        "file": "Mobile Wallpaper 1.jpg",
-        "size": "1.92MB",
-        "preview": 507,
-        "download": 159,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 676
-      },
-      {
-        "file": "V2309-10_002.mp4",
-        "size": "119.52MB",
-        "preview": 499,
-        "download": 26,
-        "share": 45,
-        "request": 0,
-        "approve": 0,
-        "total": 570
-      },
-      {
-        "file": "Mobile-Wallpaper-21.jpg",
-        "size": "2.54MB",
-        "preview": 480,
-        "download": 105,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 589
-      },
-      {
-        "file": "Mobile Wallpaper 6.jpg",
-        "size": "1.75MB",
-        "preview": 478,
-        "download": 135,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 621
-      },
-      {
-        "file": "Desktop-Wallpaper-5.jpg",
-        "size": "7.99MB",
-        "preview": 467,
-        "download": 206,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 681
-      },
-      {
-        "file": "duR.jpg",
-        "size": "3.71MB",
-        "preview": 442,
-        "download": 131,
-        "share": 24,
-        "request": 0,
-        "approve": 0,
-        "total": 597
-      },
-      {
-        "file": "5al.jpg",
-        "size": "867.16KB",
-        "preview": 427,
-        "download": 148,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 590
-      },
-      {
-        "file": "11-6-12.jpg",
-        "size": "21.98MB",
-        "preview": 421,
-        "download": 164,
-        "share": 11,
-        "request": 0,
-        "approve": 0,
-        "total": 601
-      },
-      {
-        "file": "ÊåëÁáàÂ§úËÆÄ.jpg",
-        "size": "5.19MB",
-        "preview": 417,
-        "download": 8,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 431
-      },
-      {
-        "file": "CUHK 2024 Summer-75.jpg",
-        "size": "11.33MB",
-        "preview": 414,
-        "download": 85,
-        "share": 11,
-        "request": 0,
-        "approve": 0,
-        "total": 511
-      },
-      {
-        "file": "V2309-10_004_Colorgrade.mp4",
-        "size": "88.28MB",
-        "preview": 411,
-        "download": 6,
-        "share": 18,
-        "request": 0,
-        "approve": 0,
-        "total": 436
-      },
-      {
-        "file": "ÁÖôËä±.jpg",
-        "size": "4.19MB",
-        "preview": 411,
-        "download": 10,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 430
-      },
-      {
-        "file": "Mobile Wallpaper 14.png",
-        "size": "4.95MB",
-        "preview": 404,
-        "download": 103,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 516
-      },
-      {
-        "file": "d7.jpg",
-        "size": "9.62MB",
-        "preview": 397,
-        "download": 54,
-        "share": 13,
-        "request": 0,
-        "approve": 0,
-        "total": 464
-      },
-      {
-        "file": "C0003.mp4",
-        "size": "110.23MB",
-        "preview": 392,
-        "download": 13,
-        "share": 34,
-        "request": 0,
-        "approve": 0,
-        "total": 439
-      },
-      {
-        "file": "2.Gate of Wisdom ‰ª≤ÈñÄ.MP4",
-        "size": "79.94MB",
-        "preview": 377,
-        "download": 26,
-        "share": 27,
-        "request": 0,
-        "approve": 0,
-        "total": 430
-      },
-      {
-        "file": "V2312-01_-033.MP4",
-        "size": "118.35MB",
-        "preview": 370,
-        "download": 13,
-        "share": 34,
-        "request": 0,
-        "approve": 0,
-        "total": 417
-      },
-      {
-        "file": "CU-0170.jpg",
-        "size": "52.03MB",
-        "preview": 370,
-        "download": 83,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 467
-      },
-      {
-        "file": "Êú™Âúì.jpg",
-        "size": "2.79MB",
-        "preview": 370,
-        "download": 8,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 380
-      },
-      {
-        "file": "CUHK-2024-Summer-120.jpg",
-        "size": "1.33MB",
-        "preview": 367,
-        "download": 181,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 550
-      },
-      {
-        "file": "ÊôÇÈñì.jpg",
-        "size": "4.23MB",
-        "preview": 353,
-        "download": 16,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 376
-      }
-    ],
-    "journeyOfInfluence": [
-      {
-        "file": "CUHK 2024 Summer-74.jpg",
-        "size": "16.69MB",
-        "preview": 802,
-        "download": 265,
-        "share": 38,
-        "request": 0,
-        "approve": 0,
-        "total": 1106,
-        "score": 1787,
-        "conversionRate": "33.0%"
-      },
-      {
-        "file": "CNY2026 - È¶¨Âπ¥Â§ßÂêâ.png",
-        "size": "5.33MB",
-        "preview": 788,
-        "download": 285,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 1078,
-        "score": 1643,
-        "conversionRate": "36.2%"
-      },
-      {
-        "file": "4DN.jpg",
-        "size": "9.74MB",
-        "preview": 541,
-        "download": 214,
-        "share": 25,
-        "request": 0,
-        "approve": 0,
-        "total": 780,
-        "score": 1308,
-        "conversionRate": "39.6%"
-      },
-      {
-        "file": "Desktop-Wallpaper-5.jpg",
-        "size": "7.99MB",
-        "preview": 467,
-        "download": 206,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 681,
-        "score": 1085,
-        "conversionRate": "44.1%"
-      },
-      {
-        "file": "V2309-10_008_Colorgrade.mp4",
-        "size": "102.92MB",
-        "preview": 788,
-        "download": 20,
-        "share": 41,
-        "request": 0,
-        "approve": 0,
-        "total": 850,
-        "score": 1053,
-        "conversionRate": "2.5%"
-      },
-      {
-        "file": "20211230_Campus snapshot_Cam 1-044.mp4",
-        "size": "88.94MB",
-        "preview": 731,
-        "download": 22,
-        "share": 39,
-        "request": 0,
-        "approve": 0,
-        "total": 792,
-        "score": 992,
-        "conversionRate": "3.0%"
-      },
-      {
-        "file": "CNY2026 - Good Luck and Health.png",
-        "size": "5.31MB",
-        "preview": 532,
-        "download": 153,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 689,
-        "score": 991,
-        "conversionRate": "28.8%"
-      },
-      {
-        "file": "Mobile Wallpaper 1.jpg",
-        "size": "1.92MB",
-        "preview": 507,
-        "download": 159,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 676,
-        "score": 984,
-        "conversionRate": "31.4%"
-      },
-      {
-        "file": "11-6-12.jpg",
-        "size": "21.98MB",
-        "preview": 421,
-        "download": 164,
-        "share": 11,
-        "request": 0,
-        "approve": 0,
-        "total": 601,
-        "score": 968,
-        "conversionRate": "39.0%"
-      },
-      {
-        "file": "CNY2026 - ÈæçÈ¶¨Á≤æÁ•û.png",
-        "size": "5.39MB",
-        "preview": 603,
-        "download": 120,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 727,
-        "score": 963,
-        "conversionRate": "19.9%"
-      },
-      {
-        "file": "duR.jpg",
-        "size": "3.71MB",
-        "preview": 442,
-        "download": 131,
-        "share": 24,
-        "request": 0,
-        "approve": 0,
-        "total": 597,
-        "score": 955,
-        "conversionRate": "29.6%"
-      },
-      {
-        "file": "5al.jpg",
-        "size": "867.16KB",
-        "preview": 427,
-        "download": 148,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 590,
-        "score": 941,
-        "conversionRate": "34.7%"
-      },
-      {
-        "file": "CNY2026 - Á¶è.png",
-        "size": "5.37MB",
-        "preview": 527,
-        "download": 137,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 668,
-        "score": 938,
-        "conversionRate": "26.0%"
-      },
-      {
-        "file": "CUHK-2024-Summer-120.jpg",
-        "size": "1.33MB",
-        "preview": 367,
-        "download": 181,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 550,
-        "score": 910,
-        "conversionRate": "49.3%"
-      },
-      {
-        "file": "Mobile Wallpaper 6.jpg",
-        "size": "1.75MB",
-        "preview": 478,
-        "download": 135,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 621,
-        "score": 883,
-        "conversionRate": "28.2%"
-      },
-      {
-        "file": "CUHK 2024 Summer-57.jpg",
-        "size": "16.35MB",
-        "preview": 346,
-        "download": 136,
-        "share": 21,
-        "request": 0,
-        "approve": 0,
-        "total": 503,
-        "score": 859,
-        "conversionRate": "39.3%"
-      },
-      {
-        "file": "Desktop-Wallpaper-6.jpg",
-        "size": "9.19MB",
-        "preview": 342,
-        "download": 158,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 504,
-        "score": 816,
-        "conversionRate": "46.2%"
-      },
-      {
-        "file": "V2309-10_002.mp4",
-        "size": "119.52MB",
-        "preview": 499,
-        "download": 26,
-        "share": 45,
-        "request": 0,
-        "approve": 0,
-        "total": 570,
-        "score": 802,
-        "conversionRate": "5.2%"
-      },
-      {
-        "file": "22-1-new-2.jpg",
-        "size": "40.90MB",
-        "preview": 299,
-        "download": 124,
-        "share": 25,
-        "request": 0,
-        "approve": 0,
-        "total": 452,
-        "score": 796,
-        "conversionRate": "41.5%"
-      },
-      {
-        "file": "Mobile-Wallpaper-21.jpg",
-        "size": "2.54MB",
-        "preview": 480,
-        "download": 105,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 589,
-        "score": 795,
-        "conversionRate": "21.9%"
-      },
-      {
-        "file": "198_R.jpg",
-        "size": "868.26KB",
-        "preview": 345,
-        "download": 115,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 477,
-        "score": 770,
-        "conversionRate": "33.3%"
-      },
-      {
-        "file": "Landmarks.png",
-        "size": "2.76MB",
-        "preview": 335,
-        "download": 119,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 470,
-        "score": 762,
-        "conversionRate": "35.5%"
-      },
-      {
-        "file": "CUHK 2024 Summer-120.jpg",
-        "size": "15.16MB",
-        "preview": 328,
-        "download": 113,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 457,
-        "score": 747,
-        "conversionRate": "34.5%"
-      },
-      {
-        "file": "13-6-11.jpg",
-        "size": "33.80MB",
-        "preview": 310,
-        "download": 122,
-        "share": 13,
-        "request": 0,
-        "approve": 0,
-        "total": 450,
-        "score": 741,
-        "conversionRate": "39.4%"
-      },
-      {
-        "file": "14-6-10.jpg",
-        "size": "33.19MB",
-        "preview": 286,
-        "download": 121,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 428,
-        "score": 729,
-        "conversionRate": "42.3%"
-      },
-      {
-        "file": "CUHK 2024 Summer-75.jpg",
-        "size": "11.33MB",
-        "preview": 414,
-        "download": 85,
-        "share": 11,
-        "request": 0,
-        "approve": 0,
-        "total": 511,
-        "score": 724,
-        "conversionRate": "20.5%"
-      },
-      {
-        "file": "17-10-1.jpg",
-        "size": "27.05MB",
-        "preview": 335,
-        "download": 111,
-        "share": 10,
-        "request": 0,
-        "approve": 0,
-        "total": 461,
-        "score": 718,
-        "conversionRate": "33.1%"
-      },
-      {
-        "file": "Mobile Wallpaper 14.png",
-        "size": "4.95MB",
-        "preview": 404,
-        "download": 103,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 516,
-        "score": 713,
-        "conversionRate": "25.5%"
-      },
-      {
-        "file": "CU-0170.jpg",
-        "size": "52.03MB",
-        "preview": 370,
-        "download": 83,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 467,
-        "score": 689,
-        "conversionRate": "22.4%"
-      },
-      {
-        "file": "Á∂†ÊÑè‰∏≠Â≠∏Áøí.jpg",
-        "size": "3.33MB",
-        "preview": 618,
-        "download": 11,
-        "share": 4,
-        "request": 0,
-        "approve": 0,
-        "total": 642,
-        "score": 671,
-        "conversionRate": "1.8%"
-      },
-      {
-        "file": "001_Central_Campus-2.jpg",
-        "size": "12.90MB",
-        "preview": 298,
-        "download": 89,
-        "share": 19,
-        "request": 0,
-        "approve": 0,
-        "total": 406,
-        "score": 660,
-        "conversionRate": "29.9%"
-      },
-      {
-        "file": "CUHK-2024-Summer-74.jpg",
-        "size": "1.68MB",
-        "preview": 288,
-        "download": 121,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 409,
-        "score": 651,
-        "conversionRate": "42.0%"
-      },
-      {
-        "file": "2o4.jpg",
-        "size": "773.69KB",
-        "preview": 330,
-        "download": 90,
-        "share": 8,
-        "request": 0,
-        "approve": 0,
-        "total": 429,
-        "score": 640,
-        "conversionRate": "27.3%"
-      },
-      {
-        "file": "d7.jpg",
-        "size": "9.62MB",
-        "preview": 397,
-        "download": 54,
-        "share": 13,
-        "request": 0,
-        "approve": 0,
-        "total": 464,
-        "score": 624,
-        "conversionRate": "13.6%"
-      },
-      {
-        "file": "Desktop-Wallpaper-4.jpg",
-        "size": "7.65MB",
-        "preview": 250,
-        "download": 123,
-        "share": 0,
-        "request": 0,
-        "approve": 0,
-        "total": 377,
-        "score": 619,
-        "conversionRate": "49.2%"
-      },
-      {
-        "file": "Mobile Wallpaper 11.jpg",
-        "size": "2.40MB",
-        "preview": 316,
-        "download": 100,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 424,
-        "score": 616,
-        "conversionRate": "31.6%"
-      },
-      {
-        "file": "21-1-new-4.jpg",
-        "size": "65.24MB",
-        "preview": 247,
-        "download": 99,
-        "share": 12,
-        "request": 0,
-        "approve": 0,
-        "total": 362,
-        "score": 604,
-        "conversionRate": "40.1%"
-      },
-      {
-        "file": "C0003.mp4",
-        "size": "110.23MB",
-        "preview": 392,
-        "download": 13,
-        "share": 34,
-        "request": 0,
-        "approve": 0,
-        "total": 439,
-        "score": 601,
-        "conversionRate": "3.3%"
-      },
-      {
-        "file": "2.Gate of Wisdom ‰ª≤ÈñÄ.MP4",
-        "size": "79.94MB",
-        "preview": 377,
-        "download": 26,
-        "share": 27,
-        "request": 0,
-        "approve": 0,
-        "total": 430,
-        "score": 590,
-        "conversionRate": "6.9%"
-      },
-      {
-        "file": "Mobile Wallpaper 5.jpg",
-        "size": "2.39MB",
-        "preview": 312,
-        "download": 90,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 409,
-        "score": 582,
-        "conversionRate": "28.8%"
-      },
-      {
-        "file": "CUHK 2024 Summer-3.jpg",
-        "size": "1.83MB",
-        "preview": 236,
-        "download": 78,
-        "share": 22,
-        "request": 0,
-        "approve": 0,
-        "total": 338,
-        "score": 580,
-        "conversionRate": "33.1%"
-      },
-      {
-        "file": "V2312-01_-033.MP4",
-        "size": "118.35MB",
-        "preview": 370,
-        "download": 13,
-        "share": 34,
-        "request": 0,
-        "approve": 0,
-        "total": 417,
-        "score": 579,
-        "conversionRate": "3.5%"
-      },
-      {
-        "file": "CU-0149.jpg",
-        "size": "1.02MB",
-        "preview": 248,
-        "download": 87,
-        "share": 14,
-        "request": 0,
-        "approve": 0,
-        "total": 351,
-        "score": 579,
-        "conversionRate": "35.1%"
-      },
-      {
-        "file": "mMj.jpg",
-        "size": "6.27MB",
-        "preview": 284,
-        "download": 63,
-        "share": 13,
-        "request": 0,
-        "approve": 0,
-        "total": 360,
-        "score": 538,
-        "conversionRate": "22.2%"
-      },
-      {
-        "file": "Mobile Wallpaper 9.jpg",
-        "size": "1.30MB",
-        "preview": 310,
-        "download": 76,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 394,
-        "score": 538,
-        "conversionRate": "24.5%"
-      },
-      {
-        "file": "CUHK 2024 Summer-56.jpg",
-        "size": "2.64MB",
-        "preview": 240,
-        "download": 69,
-        "share": 18,
-        "request": 0,
-        "approve": 0,
-        "total": 329,
-        "score": 537,
-        "conversionRate": "28.7%"
-      },
-      {
-        "file": "8-18-6.jpg",
-        "size": "27.53MB",
-        "preview": 258,
-        "download": 66,
-        "share": 16,
-        "request": 0,
-        "approve": 0,
-        "total": 344,
-        "score": 536,
-        "conversionRate": "25.6%"
-      },
-      {
-        "file": "10-10-6.jpg",
-        "size": "22.51MB",
-        "preview": 221,
-        "download": 87,
-        "share": 8,
-        "request": 0,
-        "approve": 0,
-        "total": 321,
-        "score": 522,
-        "conversionRate": "39.4%"
-      },
-      {
-        "file": "Mobile Wallpaper 13.jpg",
-        "size": "1.38MB",
-        "preview": 314,
-        "download": 69,
-        "share": 0,
-        "request": 0,
-        "approve": 1,
-        "total": 391,
-        "score": 521,
-        "conversionRate": "22.0%"
-      },
-      {
-        "file": "V2309-10_004_Colorgrade.mp4",
-        "size": "88.28MB",
-        "preview": 411,
-        "download": 6,
-        "share": 18,
-        "request": 0,
-        "approve": 0,
-        "total": 436,
-        "score": 519,
-        "conversionRate": "1.5%"
-      }
-    ]
+    "dam": {
+      "summary": {
+        "totalEvents": 90710,
+        "totalPreviews": 16001,
+        "totalDownloads": 8410,
+        "totalShares": 2249,
+        "totalRequests": 0,
+        "totalApprovals": 2106,
+        "conversionRate": "52.56%"
+      },
+      "pipeline": {
+        "setting": 26247,
+        "updating": 35954,
+        "removing": 662,
+        "totalPipelineEvents": 62863
+      },
+      "locations": [
+        {
+          "location": "Main Library",
+          "total": 85533,
+          "preview": 14884,
+          "download": 5784,
+          "share": 1886
+        },
+        {
+          "location": "Congratulatory Messages to VC",
+          "total": 1357,
+          "preview": 1053,
+          "download": 304,
+          "share": 0
+        },
+        {
+          "location": "CUAV Workspace",
+          "total": 961,
+          "preview": 7,
+          "download": 183,
+          "share": 363
+        },
+        {
+          "location": "University Archives Workspace",
+          "total": 555,
+          "preview": 13,
+          "download": 0,
+          "share": 0
+        },
+        {
+          "location": "SURF",
+          "total": 408,
+          "preview": 0,
+          "download": 408,
+          "share": 0
+        },
+        {
+          "location": "Anita Leung",
+          "total": 322,
+          "preview": 0,
+          "download": 322,
+          "share": 0
+        },
+        {
+          "location": "第七屆期頤學人開講",
+          "total": 235,
+          "preview": 0,
+          "download": 235,
+          "share": 0
+        },
+        {
+          "location": "Photography Contest 2025",
+          "total": 99,
+          "preview": 5,
+          "download": 0,
+          "share": 0
+        },
+        {
+          "location": "PRPA 2025 CPRO",
+          "total": 27,
+          "preview": 27,
+          "download": 0,
+          "share": 0
+        },
+        {
+          "location": "Photos of Charles K. Kao",
+          "total": 27,
+          "preview": 0,
+          "download": 27,
+          "share": 0
+        },
+        {
+          "location": "List of Images for FAAR",
+          "total": 26,
+          "preview": 0,
+          "download": 26,
+          "share": 0
+        },
+        {
+          "location": "CPRO Colleagues Photos",
+          "total": 24,
+          "preview": 3,
+          "download": 0,
+          "share": 0
+        },
+        {
+          "location": "GKE60",
+          "total": 21,
+          "preview": 0,
+          "download": 21,
+          "share": 0
+        },
+        {
+          "location": "M381D",
+          "total": 21,
+          "preview": 0,
+          "download": 21,
+          "share": 0
+        },
+        {
+          "location": "Video 0804",
+          "total": 20,
+          "preview": 0,
+          "download": 20,
+          "share": 0
+        }
+      ],
+      "users": [
+        {
+          "name": "visuals@cuhk.edu.hk",
+          "value": 55764
+        },
+        {
+          "name": "Audio-Visual Division (cuav@cuhk.edu.hk)",
+          "value": 11315
+        },
+        {
+          "name": "anonymous",
+          "value": 4456
+        },
+        {
+          "name": "Canto Help (help@canto.com)",
+          "value": 4092
+        },
+        {
+          "name": "Editorial Team (enews_reply@cuhk.edu.hk)",
+          "value": 3288
+        },
+        {
+          "name": "Digital & Creative Team (digitalcreative.noreply@cuhk.edu.hk)",
+          "value": 2370
+        },
+        {
+          "name": "Corporate Communications Team (media@cuhk.edu.hk)",
+          "value": 2247
+        },
+        {
+          "name": "Others",
+          "value": 7178
+        }
+      ],
+      "monthlyTrend": [
+        {
+          "name": "Jan '25",
+          "preview": 795,
+          "download": 347,
+          "share": 28
+        },
+        {
+          "name": "Feb '25",
+          "preview": 685,
+          "download": 258,
+          "share": 88
+        },
+        {
+          "name": "Mar '25",
+          "preview": 783,
+          "download": 203,
+          "share": 28
+        },
+        {
+          "name": "Apr '25",
+          "preview": 417,
+          "download": 169,
+          "share": 7
+        },
+        {
+          "name": "May '25",
+          "preview": 2186,
+          "download": 865,
+          "share": 298
+        },
+        {
+          "name": "Jun '25",
+          "preview": 1364,
+          "download": 564,
+          "share": 476
+        },
+        {
+          "name": "Jul '25",
+          "preview": 276,
+          "download": 131,
+          "share": 59
+        },
+        {
+          "name": "Aug '25",
+          "preview": 650,
+          "download": 208,
+          "share": 12
+        },
+        {
+          "name": "Sep '25",
+          "preview": 516,
+          "download": 502,
+          "share": 420
+        },
+        {
+          "name": "Oct '25",
+          "preview": 245,
+          "download": 63,
+          "share": 7
+        },
+        {
+          "name": "Nov '25",
+          "preview": 203,
+          "download": 114,
+          "share": 8
+        },
+        {
+          "name": "Dec '25",
+          "preview": 294,
+          "download": 2107,
+          "share": 16
+        },
+        {
+          "name": "Jan '26",
+          "preview": 602,
+          "download": 119,
+          "share": 8
+        },
+        {
+          "name": "Feb '26",
+          "preview": 382,
+          "download": 107,
+          "share": 13
+        },
+        {
+          "name": "Mar '26",
+          "preview": 457,
+          "download": 142,
+          "share": 0
+        },
+        {
+          "name": "Apr '26",
+          "preview": 694,
+          "download": 348,
+          "share": 0
+        },
+        {
+          "name": "May '26",
+          "preview": 779,
+          "download": 154,
+          "share": 0
+        },
+        {
+          "name": "Jun '26",
+          "preview": 1424,
+          "download": 829,
+          "share": 321
+        },
+        {
+          "name": "Jul '26",
+          "preview": 1532,
+          "download": 328,
+          "share": 155
+        },
+        {
+          "name": "Aug '26",
+          "preview": 1156,
+          "download": 687,
+          "share": 151
+        },
+        {
+          "name": "Sep '26",
+          "preview": 561,
+          "download": 165,
+          "share": 154
+        }
+      ],
+      "topDownloads": [
+        {
+          "file": "CUHK 2024 Summer-74.jpg",
+          "size": "16.69MB",
+          "preview": 21,
+          "download": 32,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 56
+        },
+        {
+          "file": "Asia University.pdf",
+          "size": "110.50KB",
+          "preview": 33,
+          "download": 30,
+          "share": 2,
+          "request": 0,
+          "approve": 3,
+          "total": 78
+        },
+        {
+          "file": "CUHK 2024 Summer-57.jpg",
+          "size": "16.35MB",
+          "preview": 29,
+          "download": 29,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 58
+        },
+        {
+          "file": "17-10-1.jpg",
+          "size": "27.05MB",
+          "preview": 44,
+          "download": 27,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 78
+        },
+        {
+          "file": "University of Cape Town.pdf",
+          "size": "32.37KB",
+          "preview": 10,
+          "download": 27,
+          "share": 1,
+          "request": 0,
+          "approve": 3,
+          "total": 49
+        },
+        {
+          "file": "2.Gate of Wisdom ‰ª≤ÈñÄ.MP4",
+          "size": "79.94MB",
+          "preview": 99,
+          "download": 26,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 128
+        },
+        {
+          "file": "V2309-10_002.mp4",
+          "size": "119.52MB",
+          "preview": 79,
+          "download": 26,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 108
+        },
+        {
+          "file": "duR.jpg",
+          "size": "3.71MB",
+          "preview": 35,
+          "download": 23,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 60
+        },
+        {
+          "file": "4DN.jpg",
+          "size": "9.74MB",
+          "preview": 12,
+          "download": 23,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 36
+        },
+        {
+          "file": "20211230_Campus snapshot_Cam 1-044.mp4",
+          "size": "88.94MB",
+          "preview": 84,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 107
+        },
+        {
+          "file": "14-6-10.jpg",
+          "size": "33.19MB",
+          "preview": 22,
+          "download": 22,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 51
+        },
+        {
+          "file": "13-6-11.jpg",
+          "size": "33.80MB",
+          "preview": 23,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 51
+        },
+        {
+          "file": "8-18-6.jpg",
+          "size": "27.53MB",
+          "preview": 21,
+          "download": 22,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 47
+        },
+        {
+          "file": "22-1-new-2.jpg",
+          "size": "40.90MB",
+          "preview": 30,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 57
+        },
+        {
+          "file": "001_Central_Campus-2.jpg",
+          "size": "12.90MB",
+          "preview": 45,
+          "download": 20,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 68
+        },
+        {
+          "file": "V2309-10_008_Colorgrade.mp4",
+          "size": "102.92MB",
+          "preview": 135,
+          "download": 20,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 159
+        },
+        {
+          "file": "ArtMuseum_newwing_05.jpg",
+          "size": "13.34MB",
+          "preview": 36,
+          "download": 20,
+          "share": 2,
+          "request": 0,
+          "approve": 1,
+          "total": 66
+        },
+        {
+          "file": "5al.jpg",
+          "size": "867.16KB",
+          "preview": 23,
+          "download": 20,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 46
+        },
+        {
+          "file": "CUHK 2024 Summer-120.jpg",
+          "size": "15.16MB",
+          "preview": 29,
+          "download": 19,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 48
+        },
+        {
+          "file": "11-6-12.jpg",
+          "size": "21.98MB",
+          "preview": 30,
+          "download": 19,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 55
+        },
+        {
+          "file": "CU-0170.jpg",
+          "size": "52.03MB",
+          "preview": 27,
+          "download": 17,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 44
+        },
+        {
+          "file": "10-10-6.jpg",
+          "size": "22.51MB",
+          "preview": 13,
+          "download": 17,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 35
+        },
+        {
+          "file": "CUHK 2024 Summer-3.jpg",
+          "size": "2.90MB",
+          "preview": 4,
+          "download": 17,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 23
+        },
+        {
+          "file": "University of Ghana.pdf",
+          "size": "28.46KB",
+          "preview": 10,
+          "download": 17,
+          "share": 2,
+          "request": 0,
+          "approve": 3,
+          "total": 44
+        },
+        {
+          "file": "1",
+          "size": "",
+          "preview": 0,
+          "download": 16,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 16
+        },
+        {
+          "file": "198_R.jpg",
+          "size": "868.26KB",
+          "preview": 17,
+          "download": 16,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 36
+        },
+        {
+          "file": "CU-0149.jpg",
+          "size": "1.02MB",
+          "preview": 9,
+          "download": 16,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 27
+        },
+        {
+          "file": "YU, Richard, Honorary Clinical Professor of Medicine, CUHK.pdf",
+          "size": "121.59KB",
+          "preview": 14,
+          "download": 16,
+          "share": 1,
+          "request": 0,
+          "approve": 2,
+          "total": 38
+        },
+        {
+          "file": "CUHK 2024 Summer-56.jpg",
+          "size": "2.64MB",
+          "preview": 10,
+          "download": 15,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 29
+        },
+        {
+          "file": "16-1-1.jpg",
+          "size": "26.41MB",
+          "preview": 29,
+          "download": 15,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 49
+        }
+      ],
+      "topPreviews": [
+        {
+          "file": "V2309-10_008_Colorgrade.mp4",
+          "size": "102.92MB",
+          "preview": 135,
+          "download": 20,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 159
+        },
+        {
+          "file": "2.Gate of Wisdom ‰ª≤ÈñÄ.MP4",
+          "size": "79.94MB",
+          "preview": 99,
+          "download": 26,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 128
+        },
+        {
+          "file": "20211230_Campus snapshot_Cam 1-044.mp4",
+          "size": "88.94MB",
+          "preview": 84,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 107
+        },
+        {
+          "file": "V2309-10_002.mp4",
+          "size": "119.52MB",
+          "preview": 79,
+          "download": 26,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 108
+        },
+        {
+          "file": "V2312-01_-033.MP4",
+          "size": "118.35MB",
+          "preview": 66,
+          "download": 13,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 81
+        },
+        {
+          "file": "1 Chief Secretary for Administration.pdf",
+          "size": "1.04MB",
+          "preview": 65,
+          "download": 12,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 79
+        },
+        {
+          "file": "V2304-07_045.MP4",
+          "size": "154.07MB",
+          "preview": 61,
+          "download": 11,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 85
+        },
+        {
+          "file": "V2304-07_060.MP4",
+          "size": "114.36MB",
+          "preview": 53,
+          "download": 12,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 77
+        },
+        {
+          "file": "V2501-02_082.mp4",
+          "size": "65.10MB",
+          "preview": 48,
+          "download": 6,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 63
+        },
+        {
+          "file": "001_Central_Campus-2.jpg",
+          "size": "12.90MB",
+          "preview": 45,
+          "download": 20,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 68
+        },
+        {
+          "file": "17-10-1.jpg",
+          "size": "27.05MB",
+          "preview": 44,
+          "download": 27,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 78
+        },
+        {
+          "file": "20220111_A7S5241.mp4",
+          "size": "129.03MB",
+          "preview": 44,
+          "download": 10,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 55
+        },
+        {
+          "file": "V2304-07_020.MP4",
+          "size": "129.69MB",
+          "preview": 41,
+          "download": 8,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 59
+        },
+        {
+          "file": "C0003.mp4",
+          "size": "110.23MB",
+          "preview": 40,
+          "download": 13,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 55
+        },
+        {
+          "file": "ArtMuseum_newwing_05.jpg",
+          "size": "13.34MB",
+          "preview": 36,
+          "download": 20,
+          "share": 2,
+          "request": 0,
+          "approve": 1,
+          "total": 66
+        },
+        {
+          "file": "duR.jpg",
+          "size": "3.71MB",
+          "preview": 35,
+          "download": 23,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 60
+        },
+        {
+          "file": "V2407-17_60.MP4",
+          "size": "147.16MB",
+          "preview": 35,
+          "download": 7,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 49
+        },
+        {
+          "file": "V2309-10_004_Colorgrade.mp4",
+          "size": "88.28MB",
+          "preview": 34,
+          "download": 6,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 41
+        },
+        {
+          "file": "2 Financial Secretary.pdf",
+          "size": "319.41KB",
+          "preview": 34,
+          "download": 4,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 40
+        },
+        {
+          "file": "V2304-07_008.MP4",
+          "size": "271.73MB",
+          "preview": 33,
+          "download": 8,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 52
+        },
+        {
+          "file": "V2407-17_035.MP4",
+          "size": "177.87MB",
+          "preview": 33,
+          "download": 5,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 48
+        },
+        {
+          "file": "Asia University.pdf",
+          "size": "110.50KB",
+          "preview": 33,
+          "download": 30,
+          "share": 2,
+          "request": 0,
+          "approve": 3,
+          "total": 78
+        },
+        {
+          "file": "20211208_A7S4886.mp4",
+          "size": "84.11MB",
+          "preview": 32,
+          "download": 7,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 40
+        },
+        {
+          "file": "21-1-new-4.jpg",
+          "size": "65.24MB",
+          "preview": 32,
+          "download": 13,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 49
+        },
+        {
+          "file": "V2304-07_027.MP4",
+          "size": "176.58MB",
+          "preview": 31,
+          "download": 5,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 47
+        },
+        {
+          "file": "3 Education Bureau.pdf",
+          "size": "351.41KB",
+          "preview": 31,
+          "download": 6,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 39
+        },
+        {
+          "file": "11-6-12.jpg",
+          "size": "21.98MB",
+          "preview": 30,
+          "download": 19,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 55
+        },
+        {
+          "file": "22-1-new-2.jpg",
+          "size": "40.90MB",
+          "preview": 30,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 57
+        },
+        {
+          "file": "Hong Kong Cyberport.pdf",
+          "size": "85.86KB",
+          "preview": 30,
+          "download": 7,
+          "share": 0,
+          "request": 0,
+          "approve": 1,
+          "total": 39
+        },
+        {
+          "file": "CUHK 2024 Summer-120.jpg",
+          "size": "15.16MB",
+          "preview": 29,
+          "download": 19,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 48
+        }
+      ],
+      "journeyOfInfluence": [
+        {
+          "file": "V2309-10_008_Colorgrade.mp4",
+          "size": "102.92MB",
+          "preview": 135,
+          "download": 20,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 159,
+          "score": 210,
+          "conversionRate": "14.8%"
+        },
+        {
+          "file": "2.Gate of Wisdom ‰ª≤ÈñÄ.MP4",
+          "size": "79.94MB",
+          "preview": 99,
+          "download": 26,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 128,
+          "score": 192,
+          "conversionRate": "26.3%"
+        },
+        {
+          "file": "V2309-10_002.mp4",
+          "size": "119.52MB",
+          "preview": 79,
+          "download": 26,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 108,
+          "score": 172,
+          "conversionRate": "32.9%"
+        },
+        {
+          "file": "20211230_Campus snapshot_Cam 1-044.mp4",
+          "size": "88.94MB",
+          "preview": 84,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 107,
+          "score": 155,
+          "conversionRate": "26.2%"
+        },
+        {
+          "file": "17-10-1.jpg",
+          "size": "27.05MB",
+          "preview": 44,
+          "download": 27,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 78,
+          "score": 135,
+          "conversionRate": "61.4%"
+        },
+        {
+          "file": "Asia University.pdf",
+          "size": "110.50KB",
+          "preview": 33,
+          "download": 30,
+          "share": 2,
+          "request": 0,
+          "approve": 3,
+          "total": 78,
+          "score": 133,
+          "conversionRate": "90.9%"
+        },
+        {
+          "file": "CUHK 2024 Summer-74.jpg",
+          "size": "16.69MB",
+          "preview": 21,
+          "download": 32,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 56,
+          "score": 127,
+          "conversionRate": "152.4%"
+        },
+        {
+          "file": "001_Central_Campus-2.jpg",
+          "size": "12.90MB",
+          "preview": 45,
+          "download": 20,
+          "share": 3,
+          "request": 0,
+          "approve": 0,
+          "total": 68,
+          "score": 120,
+          "conversionRate": "44.4%"
+        },
+        {
+          "file": "CUHK 2024 Summer-57.jpg",
+          "size": "16.35MB",
+          "preview": 29,
+          "download": 29,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 58,
+          "score": 116,
+          "conversionRate": "100.0%"
+        },
+        {
+          "file": "V2312-01_-033.MP4",
+          "size": "118.35MB",
+          "preview": 66,
+          "download": 13,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 81,
+          "score": 115,
+          "conversionRate": "19.7%"
+        },
+        {
+          "file": "duR.jpg",
+          "size": "3.71MB",
+          "preview": 35,
+          "download": 23,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 60,
+          "score": 114,
+          "conversionRate": "65.7%"
+        },
+        {
+          "file": "ArtMuseum_newwing_05.jpg",
+          "size": "13.34MB",
+          "preview": 36,
+          "download": 20,
+          "share": 2,
+          "request": 0,
+          "approve": 1,
+          "total": 66,
+          "score": 106,
+          "conversionRate": "55.6%"
+        },
+        {
+          "file": "1 Chief Secretary for Administration.pdf",
+          "size": "1.04MB",
+          "preview": 65,
+          "download": 12,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 79,
+          "score": 106,
+          "conversionRate": "18.5%"
+        },
+        {
+          "file": "V2304-07_045.MP4",
+          "size": "154.07MB",
+          "preview": 61,
+          "download": 11,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 85,
+          "score": 104,
+          "conversionRate": "18.0%"
+        },
+        {
+          "file": "22-1-new-2.jpg",
+          "size": "40.90MB",
+          "preview": 30,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 57,
+          "score": 101,
+          "conversionRate": "73.3%"
+        },
+        {
+          "file": "V2304-07_060.MP4",
+          "size": "114.36MB",
+          "preview": 53,
+          "download": 12,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 77,
+          "score": 99,
+          "conversionRate": "22.6%"
+        },
+        {
+          "file": "14-6-10.jpg",
+          "size": "33.19MB",
+          "preview": 22,
+          "download": 22,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 51,
+          "score": 98,
+          "conversionRate": "100.0%"
+        },
+        {
+          "file": "University of Cape Town.pdf",
+          "size": "32.37KB",
+          "preview": 10,
+          "download": 27,
+          "share": 1,
+          "request": 0,
+          "approve": 3,
+          "total": 49,
+          "score": 96,
+          "conversionRate": "270.0%"
+        },
+        {
+          "file": "13-6-11.jpg",
+          "size": "33.80MB",
+          "preview": 23,
+          "download": 22,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 51,
+          "score": 94,
+          "conversionRate": "95.7%"
+        },
+        {
+          "file": "5al.jpg",
+          "size": "867.16KB",
+          "preview": 23,
+          "download": 20,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 46,
+          "score": 93,
+          "conversionRate": "87.0%"
+        },
+        {
+          "file": "11-6-12.jpg",
+          "size": "21.98MB",
+          "preview": 30,
+          "download": 19,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 55,
+          "score": 92,
+          "conversionRate": "63.3%"
+        },
+        {
+          "file": "C0003.mp4",
+          "size": "110.23MB",
+          "preview": 40,
+          "download": 13,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 55,
+          "score": 89,
+          "conversionRate": "32.5%"
+        },
+        {
+          "file": "campus_1970s_01.jpg",
+          "size": "1.61MB",
+          "preview": 22,
+          "download": 14,
+          "share": 5,
+          "request": 0,
+          "approve": 0,
+          "total": 50,
+          "score": 89,
+          "conversionRate": "63.6%"
+        },
+        {
+          "file": "8-18-6.jpg",
+          "size": "27.53MB",
+          "preview": 21,
+          "download": 22,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 47,
+          "score": 87,
+          "conversionRate": "104.8%"
+        },
+        {
+          "file": "CUHK 2024 Summer-120.jpg",
+          "size": "15.16MB",
+          "preview": 29,
+          "download": 19,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 48,
+          "score": 86,
+          "conversionRate": "65.5%"
+        },
+        {
+          "file": "4DN.jpg",
+          "size": "9.74MB",
+          "preview": 12,
+          "download": 23,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 36,
+          "score": 86,
+          "conversionRate": "191.7%"
+        },
+        {
+          "file": "20220111_A7S5241.mp4",
+          "size": "129.03MB",
+          "preview": 44,
+          "download": 10,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 55,
+          "score": 79,
+          "conversionRate": "22.7%"
+        },
+        {
+          "file": "16-1-1.jpg",
+          "size": "26.41MB",
+          "preview": 29,
+          "download": 15,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 49,
+          "score": 79,
+          "conversionRate": "51.7%"
+        },
+        {
+          "file": "CU-0170.jpg",
+          "size": "52.03MB",
+          "preview": 27,
+          "download": 17,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 44,
+          "score": 78,
+          "conversionRate": "63.0%"
+        },
+        {
+          "file": "198_R.jpg",
+          "size": "868.26KB",
+          "preview": 17,
+          "download": 16,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 36,
+          "score": 75,
+          "conversionRate": "94.1%"
+        },
+        {
+          "file": "21-1-new-4.jpg",
+          "size": "65.24MB",
+          "preview": 32,
+          "download": 13,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 49,
+          "score": 71,
+          "conversionRate": "40.6%"
+        },
+        {
+          "file": "16-2-7.jpg",
+          "size": "23.75MB",
+          "preview": 22,
+          "download": 13,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 42,
+          "score": 71,
+          "conversionRate": "59.1%"
+        },
+        {
+          "file": "University of Ghana.pdf",
+          "size": "28.46KB",
+          "preview": 10,
+          "download": 17,
+          "share": 2,
+          "request": 0,
+          "approve": 3,
+          "total": 44,
+          "score": 71,
+          "conversionRate": "170.0%"
+        },
+        {
+          "file": "V2304-07_020.MP4",
+          "size": "129.69MB",
+          "preview": 41,
+          "download": 8,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 59,
+          "score": 70,
+          "conversionRate": "19.5%"
+        },
+        {
+          "file": "Hong Kong Baptist University.pdf",
+          "size": "390.42KB",
+          "preview": 23,
+          "download": 14,
+          "share": 1,
+          "request": 0,
+          "approve": 2,
+          "total": 45,
+          "score": 70,
+          "conversionRate": "60.9%"
+        },
+        {
+          "file": "d7.jpg",
+          "size": "9.62MB",
+          "preview": 22,
+          "download": 14,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 37,
+          "score": 69,
+          "conversionRate": "63.6%"
+        },
+        {
+          "file": "UL-Glittery ripple light effect at LG Learning Garden_photo by ULS.JPG",
+          "size": "7.27MB",
+          "preview": 24,
+          "download": 15,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 44,
+          "score": 69,
+          "conversionRate": "62.5%"
+        },
+        {
+          "file": "17-6-9.jpg",
+          "size": "56.67MB",
+          "preview": 16,
+          "download": 14,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 37,
+          "score": 68,
+          "conversionRate": "87.5%"
+        },
+        {
+          "file": "YU, Richard, Honorary Clinical Professor of Medicine, CUHK.pdf",
+          "size": "121.59KB",
+          "preview": 14,
+          "download": 16,
+          "share": 1,
+          "request": 0,
+          "approve": 2,
+          "total": 38,
+          "score": 67,
+          "conversionRate": "114.3%"
+        },
+        {
+          "file": "V2501-02_082.mp4",
+          "size": "65.10MB",
+          "preview": 48,
+          "download": 6,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 63,
+          "score": 66,
+          "conversionRate": "12.5%"
+        },
+        {
+          "file": "IMG_3685.jpg",
+          "size": "8.33MB",
+          "preview": 22,
+          "download": 13,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 46,
+          "score": 66,
+          "conversionRate": "59.1%"
+        },
+        {
+          "file": "CUHK 2024 Summer-56.jpg",
+          "size": "2.64MB",
+          "preview": 10,
+          "download": 15,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 29,
+          "score": 65,
+          "conversionRate": "150.0%"
+        },
+        {
+          "file": "10-10-6.jpg",
+          "size": "22.51MB",
+          "preview": 13,
+          "download": 17,
+          "share": 0,
+          "request": 0,
+          "approve": 0,
+          "total": 35,
+          "score": 64,
+          "conversionRate": "130.8%"
+        },
+        {
+          "file": "V2304-07_008.MP4",
+          "size": "271.73MB",
+          "preview": 33,
+          "download": 8,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 52,
+          "score": 62,
+          "conversionRate": "24.2%"
+        },
+        {
+          "file": "mMj.jpg",
+          "size": "6.27MB",
+          "preview": 20,
+          "download": 12,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 33,
+          "score": 61,
+          "conversionRate": "60.0%"
+        },
+        {
+          "file": "V2407-17_60.MP4",
+          "size": "147.16MB",
+          "preview": 35,
+          "download": 7,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 49,
+          "score": 61,
+          "conversionRate": "20.0%"
+        },
+        {
+          "file": "14-4-3.jpg",
+          "size": "16.48MB",
+          "preview": 23,
+          "download": 11,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 40,
+          "score": 61,
+          "conversionRate": "47.8%"
+        },
+        {
+          "file": "CYP_3121.JPG",
+          "size": "4.14MB",
+          "preview": 21,
+          "download": 11,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 37,
+          "score": 59,
+          "conversionRate": "52.4%"
+        },
+        {
+          "file": "10-18-7.jpg",
+          "size": "41.31MB",
+          "preview": 27,
+          "download": 9,
+          "share": 1,
+          "request": 0,
+          "approve": 0,
+          "total": 40,
+          "score": 59,
+          "conversionRate": "33.3%"
+        },
+        {
+          "file": "42-12-6.jpg",
+          "size": "28.46MB",
+          "preview": 12,
+          "download": 12,
+          "share": 2,
+          "request": 0,
+          "approve": 0,
+          "total": 31,
+          "score": 58,
+          "conversionRate": "100.0%"
+        }
+      ]
+    }
   }
 }

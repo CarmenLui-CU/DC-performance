@@ -302,6 +302,7 @@ function App() {
   const [visualsLoading, setVisualsLoading] = useState<boolean>(true);
   const [visualsError, setVisualsError] = useState<string | null>(null);
   const [visualsSubTab, setVisualsSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey' | 'attributes'>('overview');
+  const [damSubTab, setDamSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey' | 'attributes'>('overview');
 
   useEffect(() => {
     // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
@@ -2085,555 +2086,873 @@ function App() {
             })}
           </div>
 
-          {/* CUHK Visuals & DAM Impact Section */}
-          <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <TrendingUp size={24} color="#764393" />
-                <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>CUHK Visuals & DAM Impact</h3>
+          {/* CUHK Visuals & DAM Impact Sections */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', width: '100%' }}>
+            {visualsLoading && (
+              <div className="glass-panel" style={{ padding: '4rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
+                <div className="loader" style={{
+                  border: '4px solid rgba(118, 67, 147, 0.1)',
+                  borderTop: '4px solid #764393',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+                <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  Analyzing 204,239 records to build Journey of Influence...
+                </span>
               </div>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
-                Live analysis of digital asset discovery, interaction, and conversion logs from the CUHK Visuals platform.
-              </p>
-            </div>
+            )}
 
-              {visualsLoading && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '4rem 0', gap: '1.5rem' }}>
-                  <div className="loader" style={{
-                    border: '4px solid rgba(118, 67, 147, 0.1)',
-                    borderTop: '4px solid #764393',
-                    borderRadius: '50%',
-                    width: '36px',
-                    height: '36px',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  <span style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                    Analyzing 204,239 records to build Journey of Influence...
-                  </span>
-                </div>
-              )}
+            {visualsError && (
+              <div className="glass-panel" style={{ padding: '2rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#b91c1c', fontWeight: 600, fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>
+                {visualsError}
+              </div>
+            )}
 
-              {visualsError && (
-                <div style={{ padding: '2rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#b91c1c', fontWeight: 600, fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>
-                  {visualsError}
-                </div>
-              )}
+            {visualsSummary && !visualsLoading && (() => {
+              // Calculate CUHK Visuals scope metrics
+              const c_summary = visualsSummary.cuhkVisuals.summary;
+              const c_pipeline = visualsSummary.cuhkVisuals.pipeline;
+              const c_combinedDownloads = c_summary.totalDownloads + cuhkVisualsAssetRequests.length;
+              const c_totalShares = c_summary.totalShares || 0;
+              const c_totalDistribution = c_combinedDownloads + c_totalShares;
+              const c_combinedConversionRate = c_summary.totalPreviews > 0
+                ? ((c_totalDistribution / c_summary.totalPreviews) * 100).toFixed(2) + '%'
+                : '0.00%';
 
-              {visualsSummary && !visualsLoading && (() => {
-                const combinedDownloads = visualsSummary.summary.totalDownloads + cuhkVisualsAssetRequests.length;
-                const totalShares = visualsSummary.summary.totalShares || 0;
-                const totalDistribution = combinedDownloads + totalShares;
-                const combinedConversionRate = visualsSummary.summary.totalPreviews > 0
-                  ? ((totalDistribution / visualsSummary.summary.totalPreviews) * 100).toFixed(2) + '%'
-                  : '0.00%';
+              // Calculate DAM scope metrics
+              const d_summary = visualsSummary.dam.summary;
+              const d_pipeline = visualsSummary.dam.pipeline;
+              const d_totalShares = d_summary.totalShares || 0;
+              const d_totalDistribution = d_summary.totalDownloads + d_totalShares;
+              const d_combinedConversionRate = d_summary.totalPreviews > 0
+                ? ((d_totalDistribution / d_summary.totalPreviews) * 100).toFixed(2) + '%'
+                : '0.00%';
 
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-                    {/* Visual Funnel Flow */}
-                    <div style={{
-                      background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.03) 0%, rgba(32, 191, 107, 0.03) 100%)',
-                      padding: '2.5rem',
-                      borderRadius: '12px',
-                      border: '1px solid rgba(118, 67, 147, 0.1)',
-                      display: 'flex',
-                      justifyContent: 'space-around',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: '1.5rem',
-                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)'
-                    }}>
-                      {/* Step 0: Pre-Publishing Pipeline (Milestone) */}
-                      <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(118, 67, 147, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(118, 67, 147, 0.15)' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>0. Pre-Publishing Pipeline</span>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
-                          {(visualsSummary.pipeline ? visualsSummary.pipeline.totalPipelineEvents : 0).toLocaleString()}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(118, 67, 147, 0.2)', paddingBottom: '0.25rem' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.1 Setting (Upload/Assign)</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{(visualsSummary.pipeline ? visualsSummary.pipeline.setting : 0).toLocaleString()}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(118, 67, 147, 0.2)', paddingBottom: '0.25rem' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.2 Updating (Metadata/Tags)</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>{(visualsSummary.pipeline ? visualsSummary.pipeline.updating : 0).toLocaleString()}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.3 Removing (Delete/Restrict)</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#b91c1c', fontFamily: 'Montserrat, sans-serif' }}>{(visualsSummary.pipeline ? visualsSummary.pipeline.removing : 0).toLocaleString()}</span>
-                          </div>
-                        </div>
+              return (
+                <>
+                  {/* SECTION 1: CUHK VISUALS IMPACT */}
+                  <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <TrendingUp size={24} color="#764393" />
+                        <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>CUHK Visuals Impact</h3>
                       </div>
-
-                      {/* Arrow 0 -> 1 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="5" y1="12" x2="19" y2="12"></line>
-                          <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                          Publish
-                        </span>
-                      </div>
-
-                      {/* Step 1 */}
-                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                          {visualsSummary.summary.totalEvents.toLocaleString()}
-                        </div>
-                        <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
-                      </div>
-
-                      {/* Arrow 1 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="5" y1="12" x2="19" y2="12"></line>
-                          <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                          {((visualsSummary.summary.totalPreviews / visualsSummary.summary.totalEvents) * 100).toFixed(1)}% Preview Rate
-                        </span>
-                      </div>
-
-                      {/* Step 2 */}
-                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>
-                          {visualsSummary.summary.totalPreviews.toLocaleString()}
-                        </div>
-                        <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
-                      </div>
-
-                      {/* Arrow 2 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20bf6b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="5" y1="12" x2="19" y2="12"></line>
-                          <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>
-                          {combinedConversionRate} Conversion
-                        </span>
-                      </div>
-
-                      {/* Step 3 */}
-                      <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
-                          {totalDistribution.toLocaleString()}
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 "Download Image" (Log)</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{visualsSummary.summary.totalDownloads.toLocaleString()}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Deliverables)</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{cuhkVisualsAssetRequests.length.toLocaleString()}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.3 "Share Image" (Log)</span>
-                            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#9b7d46', fontFamily: 'Montserrat, sans-serif' }}>{totalShares.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Detailed KPI Row */}
-                    <div className="dashboard-grid">
-                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
-                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                          {visualsSummary.summary.totalEvents.toLocaleString()}
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>All digital asset actions</span>
-                      </div>
-                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
-                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                          {visualsSummary.summary.totalPreviews.toLocaleString()}
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
-                      </div>
-                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
-                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                          {combinedDownloads.toLocaleString()}
-                        </div>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                          {visualsSummary.summary.totalDownloads.toLocaleString()} direct + {cuhkVisualsAssetRequests.length.toLocaleString()} request tickets
-                        </span>
-                      </div>
-                      <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
-                        <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                          {combinedConversionRate}
-                        </div>
-                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Combined conversion rate</span>
-                      </div>
-                    </div>
-
-                    {/* Sub-Tab Segmented Controls */}
-                    <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
-                      <button
-                        onClick={() => setVisualsSubTab('overview')}
-                        style={{
-                          padding: '0.75rem 0.5rem',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: visualsSubTab === 'overview' ? '3px solid #764393' : '3px solid transparent',
-                          color: visualsSubTab === 'overview' ? '#764393' : '#64748b',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s',
-                          fontFamily: 'Montserrat, sans-serif'
-                        }}
-                      >
-                        Group View & Trends
-                      </button>
-                      <button
-                        onClick={() => setVisualsSubTab('previews')}
-                        style={{
-                          padding: '0.75rem 0.5rem',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: visualsSubTab === 'previews' ? '3px solid #764393' : '3px solid transparent',
-                          color: visualsSubTab === 'previews' ? '#764393' : '#64748b',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s',
-                          fontFamily: 'Montserrat, sans-serif'
-                        }}
-                      >
-                        Preview Files Log
-                      </button>
-                      <button
-                        onClick={() => setVisualsSubTab('downloads')}
-                        style={{
-                          padding: '0.75rem 0.5rem',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: visualsSubTab === 'downloads' ? '3px solid #764393' : '3px solid transparent',
-                          color: visualsSubTab === 'downloads' ? '#764393' : '#64748b',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s',
-                          fontFamily: 'Montserrat, sans-serif'
-                        }}
-                      >
-                        Downloads Log
-                      </button>
-                      <button
-                        onClick={() => setVisualsSubTab('journey')}
-                        style={{
-                          padding: '0.75rem 0.5rem',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: visualsSubTab === 'journey' ? '3px solid #764393' : '3px solid transparent',
-                          color: visualsSubTab === 'journey' ? '#764393' : '#64748b',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s',
-                          fontFamily: 'Montserrat, sans-serif'
-                        }}
-                      >
-                        Journey of Influence
-                      </button>
-                      <button
-                        onClick={() => setVisualsSubTab('attributes')}
-                        style={{
-                          padding: '0.75rem 0.5rem',
-                          background: 'transparent',
-                          border: 'none',
-                          borderBottom: visualsSubTab === 'attributes' ? '3px solid #764393' : '3px solid transparent',
-                          color: visualsSubTab === 'attributes' ? '#764393' : '#64748b',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          fontSize: '0.9rem',
-                          transition: 'all 0.2s',
-                          fontFamily: 'Montserrat, sans-serif'
-                        }}
-                      >
-                        User attributes
-                      </button>
-                    </div>
-
-                  {/* SUB-TAB CONTENTS */}
-
-                  {/* 1. Group View & Trends */}
-                  {visualsSubTab === 'overview' && (
-                    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                      <div style={{ flex: '1 1 55%', minWidth: '350px' }}>
-                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>CUHK Visuals Engagement Trend</div>
-                        <div style={{ height: 350 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={visualsSummary.monthlyTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                              <defs>
-                                <linearGradient id="colorVisPreviews" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#9174A8" stopOpacity={0.4}/>
-                                  <stop offset="95%" stopColor="#9174A8" stopOpacity={0}/>
-                                </linearGradient>
-                                <linearGradient id="colorVisDownloads" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
-                                  <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(118, 67, 147, 0.08)" />
-                              <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                              <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                              <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
-                              <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                              <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorVisPreviews)" strokeWidth={2} />
-                              <Area type="monotone" dataKey="download" name="Downloads" stroke="#20bf6b" fillOpacity={1} fill="url(#colorVisDownloads)" strokeWidth={2} />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
-
-                      <div style={{ flex: '1 1 35%', minWidth: '280px' }}>
-                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Group Activity by Location</div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                          {visualsSummary.locations.slice(0, 5).map((loc: any, idx: number) => (
-                            <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>{loc.location}</span>
-                                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', background: 'rgba(118, 67, 147, 0.08)', padding: '0.15rem 0.5rem', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif' }}>
-                                  {loc.total.toLocaleString()} events
-                                </span>
-                              </div>
-                              <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.825rem' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Previews</span>
-                                  <span style={{ color: '#9174A8', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.preview.toLocaleString()}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Downloads</span>
-                                  <span style={{ color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                  <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Shares</span>
-                                  <span style={{ color: '#9b7d46', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.share.toLocaleString()}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 2. Top Previewed Files */}
-                  {visualsSubTab === 'previews' && (
-                    <div>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed Creative Assets</div>
-                      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
-                          <thead>
-                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Previews</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {visualsSummary.topPreviews.slice(0, 15).map((file: any, idx: number) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
-                                <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                <td style={{ padding: '1rem', textAlign: 'right', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 3. Top Downloaded Files */}
-                  {visualsSubTab === 'downloads' && (
-                    <div>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded Creative Assets</div>
-                      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
-                          <thead>
-                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Downloads</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {visualsSummary.topDownloads.slice(0, 15).map((file: any, idx: number) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
-                                <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                <td style={{ padding: '1rem', textAlign: 'right', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 4. Journey of Influence (Funnel Table) */}
-                  {visualsSubTab === 'journey' && (
-                    <div>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The Creative Discovery Journey</div>
-                      <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                        Tracing how individual files are discovered (Previewed), requested, and distributed (Downloaded/Shared). Sorted by overall engagement score.
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                        Live audit of public-facing creative materials, wallpapers, and photo-contest assets. Sourced from CUHK Visuals, 中大視野, and 活動素材上載.
                       </p>
-                      
-                      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
-                          <thead>
-                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Previews</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Downloads</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Shares</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Conversion</th>
-                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Score</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {visualsSummary.journeyOfInfluence.slice(0, 15).map((file: any, idx: number) => (
-                              <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
-                                <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
-                                <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                  <span style={{
-                                    display: 'inline-block',
-                                    padding: '0.15rem 0.5rem',
-                                    borderRadius: '12px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 700,
-                                    background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                                    color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
-                                  }}>
-                                    {file.conversionRate}
-                                  </span>
-                                </td>
-                                <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 800, color: '#764393' }}>{file.score.toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
                     </div>
-                  )}
 
-                  {/* 5. User Attributes (Pie Charts) */}
-                  {visualsSubTab === 'attributes' && (
-                    <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                      {/* Locations Pie */}
-                      <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Location / Portal</div>
-                        <div style={{ height: 350 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                              <Pie
-                                data={visualsSummary.locations.map((loc: any) => ({ name: loc.location, value: loc.total }))}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={{ stroke: '#764393', strokeWidth: 1 }}
-                                label={renderCustomPieLabel}
-                                innerRadius={60}
-                                outerRadius={110}
-                                paddingAngle={2}
-                                dataKey="value"
-                              >
-                                {visualsSummary.locations.map((_entry: any, index: number) => {
-                                  const colors = ['#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#f7b731', '#eb3b5a', '#a55eea', '#2bcbba', '#a5b1c2'];
-                                  return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                })}
-                              </Pie>
-                              <Tooltip
-                                formatter={(value: any, name: any) => {
-                                  const total = visualsSummary.summary.totalEvents;
-                                  const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-                                  return [`${value.toLocaleString()} events (${percent}%)`, name];
-                                }}
-                                contentStyle={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                  border: '1px solid rgba(118, 67, 147, 0.25)',
-                                  borderRadius: '12px',
-                                  fontFamily: 'Montserrat, sans-serif',
-                                  fontWeight: 500,
-                                }}
-                              />
-                              <Legend
-                                layout="horizontal"
-                                verticalAlign="bottom"
-                                align="center"
-                                wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                      {/* Visual Funnel Flow */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.03) 0%, rgba(32, 191, 107, 0.03) 100%)',
+                        padding: '2.5rem',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(118, 67, 147, 0.1)',
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '1.5rem',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)'
+                      }}>
+                        {/* Step 0 */}
+                        <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(118, 67, 147, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(118, 67, 147, 0.15)' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>0. Pre-Publishing Pipeline</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                            {c_pipeline.totalPipelineEvents.toLocaleString()}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(118, 67, 147, 0.2)', paddingBottom: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.1 Setting (Upload/Assign)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{c_pipeline.setting.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(118, 67, 147, 0.2)', paddingBottom: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.2 Updating (Metadata/Tags)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>{c_pipeline.updating.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.3 Removing (Delete/Restrict)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#b91c1c', fontFamily: 'Montserrat, sans-serif' }}>{c_pipeline.removing.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Arrow 0 -> 1 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                          </svg>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>Publish</span>
+                        </div>
+
+                        {/* Step 1 */}
+                        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                            {c_summary.totalEvents.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
+                        </div>
+
+                        {/* Arrow 1 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                          </svg>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                            {((c_summary.totalPreviews / c_summary.totalEvents) * 100).toFixed(1)}% Preview Rate
+                          </span>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>
+                            {c_summary.totalPreviews.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
+                        </div>
+
+                        {/* Arrow 2 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20bf6b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                          </svg>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>
+                            {c_combinedConversionRate} Conversion
+                          </span>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                            {c_totalDistribution.toLocaleString()}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 "Download Image" (Log)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{c_summary.totalDownloads.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Deliverables)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{cuhkVisualsAssetRequests.length.toLocaleString()}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Users Pie */}
-                      <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                        <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by User Profile</div>
-                        <div style={{ height: 350 }}>
-                          <ResponsiveContainer width="100%" height="100%">
-                            <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                              <Pie
-                                data={visualsSummary.users}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={{ stroke: '#764393', strokeWidth: 1 }}
-                                label={renderCustomPieLabel}
-                                innerRadius={60}
-                                outerRadius={110}
-                                paddingAngle={2}
-                                dataKey="value"
-                              >
-                                {visualsSummary.users.map((_entry: any, index: number) => {
-                                  const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
-                                  return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
-                                })}
-                              </Pie>
-                              <Tooltip
-                                formatter={(value: any, name: any) => {
-                                  const total = visualsSummary.summary.totalEvents;
-                                  const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-                                  return [`${value.toLocaleString()} events (${percent}%)`, name];
-                                }}
-                                contentStyle={{
-                                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                                  border: '1px solid rgba(118, 67, 147, 0.25)',
-                                  borderRadius: '12px',
-                                  fontFamily: 'Montserrat, sans-serif',
-                                  fontWeight: 500,
-                                }}
-                              />
-                              <Legend
-                                layout="horizontal"
-                                verticalAlign="bottom"
-                                align="center"
-                                wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
+                      {/* Detailed KPI Row */}
+                      <div className="dashboard-grid">
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {c_summary.totalEvents.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Sourced from creative logs</span>
+                        </div>
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {c_summary.totalPreviews.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
+                        </div>
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {c_combinedDownloads.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                            {c_summary.totalDownloads.toLocaleString()} direct + {cuhkVisualsAssetRequests.length.toLocaleString()} requests
+                          </span>
+                        </div>
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {c_combinedConversionRate}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Combined conversion rate</span>
                         </div>
                       </div>
+
+                      {/* Sub-Tab Segmented Controls */}
+                      <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
+                        {['overview', 'previews', 'downloads', 'journey', 'attributes'].map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setVisualsSubTab(tab as any)}
+                            style={{
+                              padding: '0.75rem 0.5rem',
+                              background: 'transparent',
+                              border: 'none',
+                              borderBottom: visualsSubTab === tab ? '3px solid #764393' : '3px solid transparent',
+                              color: visualsSubTab === tab ? '#764393' : '#64748b',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              fontSize: '0.9rem',
+                              textTransform: 'capitalize',
+                              transition: 'all 0.2s',
+                              fontFamily: 'Montserrat, sans-serif'
+                            }}
+                          >
+                            {tab === 'overview' ? 'Group View & Trends' : tab === 'attributes' ? 'User Attributes' : `${tab} log`}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Sub-Tab Contents for CUHK Visuals */}
+                      {visualsSubTab === 'overview' && (
+                        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                          <div style={{ flex: '1 1 55%', minWidth: '350px' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>CUHK Visuals Engagement Trend</div>
+                            <div style={{ height: 350 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={visualsSummary.cuhkVisuals.monthlyTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                  <defs>
+                                    <linearGradient id="colorCVisPreviews" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#9174A8" stopOpacity={0.4}/>
+                                      <stop offset="95%" stopColor="#9174A8" stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorCVisDownloads" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
+                                      <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                                    </linearGradient>
+                                  </defs>
+                                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(118, 67, 147, 0.08)" />
+                                  <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorCVisPreviews)" strokeWidth={2} />
+                                  <Area type="monotone" dataKey="download" name="Downloads" stroke="#20bf6b" fillOpacity={1} fill="url(#colorCVisDownloads)" strokeWidth={2} />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          <div style={{ flex: '1 1 35%', minWidth: '280px' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Group Activity by Location</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                              {visualsSummary.cuhkVisuals.locations.map((loc: any, idx: number) => (
+                                <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>{loc.location}</span>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', background: 'rgba(118, 67, 147, 0.08)', padding: '0.15rem 0.5rem', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif' }}>
+                                      {loc.total.toLocaleString()} events
+                                    </span>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.825rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Previews</span>
+                                      <span style={{ color: '#9174A8', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.preview.toLocaleString()}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Downloads</span>
+                                      <span style={{ color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {visualsSubTab === 'previews' && (
+                        <div>
+                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed Creative Assets</div>
+                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Previews</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {visualsSummary.cuhkVisuals.topPreviews.slice(0, 15).map((file: any, idx: number) => (
+                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {visualsSubTab === 'downloads' && (
+                        <div>
+                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded Creative Assets</div>
+                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Downloads</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {visualsSummary.cuhkVisuals.topDownloads.slice(0, 15).map((file: any, idx: number) => (
+                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {visualsSubTab === 'journey' && (
+                        <div>
+                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The Creative Discovery Journey</div>
+                          <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                            Tracing how individual files are discovered (Previewed), requested, and distributed (Downloaded/Shared). Sorted by overall engagement score.
+                          </p>
+                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Previews</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Downloads</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Shares</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Conversion</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Score</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {visualsSummary.cuhkVisuals.journeyOfInfluence.slice(0, 15).map((file: any, idx: number) => (
+                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                      <span style={{
+                                        display: 'inline-block',
+                                        padding: '0.15rem 0.5rem',
+                                        borderRadius: '12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
+                                        color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
+                                      }}>
+                                        {file.conversionRate}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 800, color: '#764393' }}>{file.score.toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {visualsSubTab === 'attributes' && (
+                        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                          <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Location / Portal</div>
+                            <div style={{ height: 350 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                                  <Pie
+                                    data={visualsSummary.cuhkVisuals.locations.map((loc: any) => ({ name: loc.location, value: loc.total }))}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={{ stroke: '#764393', strokeWidth: 1 }}
+                                    label={renderCustomPieLabel}
+                                    innerRadius={60}
+                                    outerRadius={110}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                  >
+                                    {visualsSummary.cuhkVisuals.locations.map((_entry: any, index: number) => {
+                                      const colors = ['#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#f7b731', '#eb3b5a', '#a55eea', '#2bcbba', '#a5b1c2'];
+                                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                    })}
+                                  </Pie>
+                                  <Tooltip
+                                    formatter={(value: any, name: any) => {
+                                      const total = c_summary.totalEvents;
+                                      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                      return [`${value.toLocaleString()} events (${percent}%)`, name];
+                                    }}
+                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(118, 67, 147, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
+                                  />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by User Profile</div>
+                            <div style={{ height: 350 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                                  <Pie
+                                    data={visualsSummary.cuhkVisuals.users}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={{ stroke: '#764393', strokeWidth: 1 }}
+                                    label={renderCustomPieLabel}
+                                    innerRadius={60}
+                                    outerRadius={110}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                  >
+                                    {visualsSummary.cuhkVisuals.users.map((_entry: any, index: number) => {
+                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                    })}
+                                  </Pie>
+                                  <Tooltip
+                                    formatter={(value: any, name: any) => {
+                                      const total = c_summary.totalEvents;
+                                      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                      return [`${value.toLocaleString()} events (${percent}%)`, name];
+                                    }}
+                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(118, 67, 147, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
+                                  />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+
+                  {/* SECTION 2: DAM IMPACT */}
+                  <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <TrendingUp size={24} color="#472858" />
+                        <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>DAM Impact</h3>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                        Live audit of internal systems, archives, document folders, and general files. Sourced from Main Library and Congratulatory Messages to VC.
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+                      {/* Visual Funnel Flow */}
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(71, 40, 88, 0.03) 0%, rgba(32, 191, 107, 0.03) 100%)',
+                        padding: '2.5rem',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(71, 40, 88, 0.1)',
+                        display: 'flex',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '1.5rem',
+                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)'
+                      }}>
+                        {/* Step 0 */}
+                        <div style={{ flex: '1 1 240px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(71, 40, 88, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(71, 40, 88, 0.15)' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#472858', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>0. Pre-Publishing Pipeline</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#472858', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                            {d_pipeline.totalPipelineEvents.toLocaleString()}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(71, 40, 88, 0.2)', paddingBottom: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.1 Setting (Upload/Assign)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>{d_pipeline.setting.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(71, 40, 88, 0.2)', paddingBottom: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.2 Updating (Metadata/Tags)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>{d_pipeline.updating.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>0.3 Removing (Delete/Restrict)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#b91c1c', fontFamily: 'Montserrat, sans-serif' }}>{d_pipeline.removing.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Arrow 0 -> 1 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#472858" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                          </svg>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>Publish</span>
+                        </div>
+
+                        {/* Step 1 */}
+                        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#472858', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>
+                            {d_summary.totalEvents.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
+                        </div>
+
+                        {/* Arrow 1 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#472858" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                          </svg>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>
+                            {((d_summary.totalPreviews / d_summary.totalEvents) * 100).toFixed(1)}% Preview Rate
+                          </span>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>
+                            {d_summary.totalPreviews.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
+                        </div>
+
+                        {/* Arrow 2 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20bf6b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                          </svg>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>
+                            {d_combinedConversionRate} Conversion
+                          </span>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Distribution Stat</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                            {d_totalDistribution.toLocaleString()}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 Downloads (Log)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{d_summary.totalDownloads.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Shares / Channels (Log)</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>{d_totalShares.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Detailed KPI Row */}
+                      <div className="dashboard-grid">
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#472858', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {d_summary.totalEvents.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Sourced from DAM admin logs</span>
+                        </div>
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {d_summary.totalPreviews.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
+                        </div>
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {d_summary.totalDownloads.toLocaleString()}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Direct folder downloads</span>
+                        </div>
+                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                            {d_combinedConversionRate}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Direct conversion rate</span>
+                        </div>
+                      </div>
+
+                      {/* Sub-Tab Segmented Controls */}
+                      <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
+                        {['overview', 'previews', 'downloads', 'journey', 'attributes'].map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setDamSubTab(tab as any)}
+                            style={{
+                              padding: '0.75rem 0.5rem',
+                              background: 'transparent',
+                              border: 'none',
+                              borderBottom: damSubTab === tab ? '3px solid #472858' : '3px solid transparent',
+                              color: damSubTab === tab ? '#472858' : '#64748b',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              fontSize: '0.9rem',
+                              textTransform: 'capitalize',
+                              transition: 'all 0.2s',
+                              fontFamily: 'Montserrat, sans-serif'
+                            }}
+                          >
+                            {tab === 'overview' ? 'Group View & Trends' : tab === 'attributes' ? 'User Attributes' : `${tab} log`}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Sub-Tab Contents for DAM */}
+                      {damSubTab === 'overview' && (
+                        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                          <div style={{ flex: '1 1 55%', minWidth: '350px' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>DAM Engagement Trend</div>
+                            <div style={{ height: 350 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={visualsSummary.dam.monthlyTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                  <defs>
+                                    <linearGradient id="colorDamPreviews" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#9174A8" stopOpacity={0.4}/>
+                                      <stop offset="95%" stopColor="#9174A8" stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorDamDownloads" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
+                                      <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                                    </linearGradient>
+                                  </defs>
+                                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(71, 40, 88, 0.08)" />
+                                  <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorDamPreviews)" strokeWidth={2} />
+                                  <Area type="monotone" dataKey="download" name="Downloads" stroke="#20bf6b" fillOpacity={1} fill="url(#colorDamDownloads)" strokeWidth={2} />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          <div style={{ flex: '1 1 35%', minWidth: '280px' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Group Activity by Location</div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                              {visualsSummary.dam.locations.slice(0, 5).map((loc: any, idx: number) => (
+                                <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9rem', fontFamily: 'Montserrat, sans-serif' }}>{loc.location}</span>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#472858', background: 'rgba(71, 40, 88, 0.08)', padding: '0.15rem 0.5rem', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif' }}>
+                                      {loc.total.toLocaleString()} events
+                                    </span>
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.825rem' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Previews</span>
+                                      <span style={{ color: '#9174A8', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.preview.toLocaleString()}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Downloads</span>
+                                      <span style={{ color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {damSubTab === 'previews' && (
+                        <div>
+                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed DAM Assets</div>
+                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Previews</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {visualsSummary.dam.topPreviews.slice(0, 15).map((file: any, idx: number) => (
+                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {damSubTab === 'downloads' && (
+                        <div>
+                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded DAM Assets</div>
+                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Downloads</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {visualsSummary.dam.topDownloads.slice(0, 15).map((file: any, idx: number) => (
+                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {damSubTab === 'journey' && (
+                        <div>
+                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The DAM Asset Discovery Journey</div>
+                          <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                            Tracing how individual files are discovered (Previewed), organized, and distributed (Downloaded/Shared). Sorted by overall engagement score.
+                          </p>
+                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              <thead>
+                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Previews</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Downloads</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Shares</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Conversion</th>
+                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Score</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {visualsSummary.dam.journeyOfInfluence.slice(0, 15).map((file: any, idx: number) => (
+                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
+                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                      <span style={{
+                                        display: 'inline-block',
+                                        padding: '0.15rem 0.5rem',
+                                        borderRadius: '12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 700,
+                                        background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
+                                        color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
+                                      }}>
+                                        {file.conversionRate}
+                                      </span>
+                                    </td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 800, color: '#472858' }}>{file.score.toLocaleString()}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
+
+                      {damSubTab === 'attributes' && (
+                        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                          <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Location / Portal</div>
+                            <div style={{ height: 350 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                                  <Pie
+                                    data={visualsSummary.dam.locations.slice(0, 8).map((loc: any) => ({ name: loc.location, value: loc.total }))}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={{ stroke: '#472858', strokeWidth: 1 }}
+                                    label={renderCustomPieLabel}
+                                    innerRadius={60}
+                                    outerRadius={110}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                  >
+                                    {visualsSummary.dam.locations.slice(0, 8).map((_entry: any, index: number) => {
+                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                    })}
+                                  </Pie>
+                                  <Tooltip
+                                    formatter={(value: any, name: any) => {
+                                      const total = d_summary.totalEvents;
+                                      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                      return [`${value.toLocaleString()} events (${percent}%)`, name];
+                                    }}
+                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(71, 40, 88, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
+                                  />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+
+                          <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by User Profile</div>
+                            <div style={{ height: 350 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                                  <Pie
+                                    data={visualsSummary.dam.users}
+                                    cx="50%"
+                                    cy="50%"
+                                    labelLine={{ stroke: '#472858', strokeWidth: 1 }}
+                                    label={renderCustomPieLabel}
+                                    innerRadius={60}
+                                    outerRadius={110}
+                                    paddingAngle={2}
+                                    dataKey="value"
+                                  >
+                                    {visualsSummary.dam.users.map((_entry: any, index: number) => {
+                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                      return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                                    })}
+                                  </Pie>
+                                  <Tooltip
+                                    formatter={(value: any, name: any) => {
+                                      const total = d_summary.totalEvents;
+                                      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                                      return [`${value.toLocaleString()} events (${percent}%)`, name];
+                                    }}
+                                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(71, 40, 88, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
+                                  />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                </PieChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
               );
             })()}
-          </div>
-
-          {/* CUHK in Focus eDM Campaign Impact */}
+          </div>          {/* CUHK in Focus eDM Campaign Impact */}
           <div className="glass-panel" style={{ padding: '2.5rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
