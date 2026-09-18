@@ -2373,23 +2373,25 @@ function App() {
                   {visualsSubTab === 'previews' && (
                     <div>
                       <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed Creative Assets</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                        {visualsSummary.topPreviews.slice(0, 12).map((file: any, idx: number) => (
-                          <div key={idx} className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                              <div style={{ fontWeight: 700, color: '#334155', fontSize: '0.85rem', wordBreak: 'break-all', fontFamily: 'Montserrat, sans-serif' }}>{file.file}</div>
-                              {file.size && (
-                                <span style={{ fontSize: '0.7rem', color: '#64748b', background: '#f1f5f9', padding: '0.1rem 0.4rem', borderRadius: '4px', whiteSpace: 'nowrap', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                                  {file.size}
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '0.5rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Previews</span>
-                              <span style={{ fontSize: '1rem', color: '#9174A8', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{file.preview.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        ))}
+                      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          <thead>
+                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Previews</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visualsSummary.topPreviews.slice(0, 15).map((file: any, idx: number) => (
+                              <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
+                                <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                <td style={{ padding: '1rem', textAlign: 'right', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   )}
@@ -2398,23 +2400,25 @@ function App() {
                   {visualsSubTab === 'downloads' && (
                     <div>
                       <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded Creative Assets</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-                        {visualsSummary.topDownloads.slice(0, 12).map((file: any, idx: number) => (
-                          <div key={idx} className="glass-panel" style={{ padding: '1rem', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
-                              <div style={{ fontWeight: 700, color: '#334155', fontSize: '0.85rem', wordBreak: 'break-all', fontFamily: 'Montserrat, sans-serif' }}>{file.file}</div>
-                              {file.size && (
-                                <span style={{ fontSize: '0.7rem', color: '#64748b', background: '#f1f5f9', padding: '0.1rem 0.4rem', borderRadius: '4px', whiteSpace: 'nowrap', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                                  {file.size}
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', borderTop: '1px solid #f1f5f9', paddingTop: '0.5rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Downloads</span>
-                              <span style={{ fontSize: '1rem', color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{file.download.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        ))}
+                      <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          <thead>
+                            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                              <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'right' }}>Total Downloads</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {visualsSummary.topDownloads.slice(0, 15).map((file: any, idx: number) => (
+                              <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
+                                <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                <td style={{ padding: '1rem', textAlign: 'right', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   )}
