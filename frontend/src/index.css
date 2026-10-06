@@ -354,6 +354,7 @@ tbody tr:hover {
   z-index: 100;
   box-sizing: border-box;
   font-family: 'Montserrat', sans-serif;
+  overflow-y: auto;
 }
 
 .nav-title {
@@ -398,6 +399,86 @@ tbody tr:hover {
   color: #ffffff;
   border-color: #764393;
   box-shadow: 0 4px 12px rgba(118, 67, 147, 0.25);
+}
+
+/* Navigation Jump to Section */
+.nav-jump-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid rgba(118, 67, 147, 0.2);
+}
+
+.nav-jump-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #764393;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem 0.2rem 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  user-select: none;
+}
+
+.nav-jump-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.nav-jump-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #555555;
+  font-size: 0.825rem;
+  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.nav-jump-btn:hover {
+  background: rgba(118, 67, 147, 0.08);
+  color: #764393;
+  border-color: rgba(118, 67, 147, 0.15);
+  transform: translateX(3px);
+}
+
+.nav-jump-btn.active {
+  background: rgba(118, 67, 147, 0.12);
+  color: #764393;
+  font-weight: 700;
+  border-color: rgba(118, 67, 147, 0.25);
+  box-shadow: 0 2px 6px rgba(118, 67, 147, 0.08);
+}
+
+/* Scroll margin for section targets so they don't clip at top */
+#section-graphic-design,
+#section-website,
+#section-cuhk-visuals,
+#section-dam,
+#section-edm,
+#section-req-monthly,
+#section-req-distribution,
+#section-req-yoy,
+#section-req-top-depts,
+#section-req-breakdowns,
+#section-req-table,
+#section-req-active-depts {
+  scroll-margin-top: 2rem;
 }
 
 /* Service Impact Page Cards */
@@ -573,17 +654,38 @@ tbody tr:hover {
     border-left: none;
     border-bottom: 1px solid rgba(118, 67, 147, 0.15);
     height: auto;
-    padding: 1.5rem;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
   .right-sidebar .sidebar-logo, .right-sidebar .nav-title, .right-sidebar div:last-child {
     display: none !important;
   }
   .nav-group {
-    flex-direction: row;
+    flex-direction: column;
     width: 100%;
-    justify-content: space-around;
+    gap: 0.5rem;
+  }
+  .nav-jump-group {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid rgba(118, 67, 147, 0.15);
+    padding-top: 0.5rem;
+  }
+  .nav-jump-group.hidden-mobile {
+    display: none !important;
+  }
+  .nav-jump-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .nav-jump-btn {
+    width: auto;
+    flex: 1 1 calc(50% - 0.5rem);
+    font-size: 0.775rem;
+    padding: 0.5rem 0.65rem;
   }
 }

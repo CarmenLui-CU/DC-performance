@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Eye,
   Sparkles,
+  PieChart as PieChartIcon,
 } from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
@@ -394,6 +395,133 @@ const getGraphicDesignSource = (t: TaskRecord): GraphicDesignCategoryInfo => {
   return GRAPHIC_DESIGN_CATEGORIES['General Creative Design'];
 };
 
+interface WebsiteCategoryInfo {
+  category: string;
+  shortLabel: string;
+  color: string;
+  bg: string;
+  border: string;
+  description: string;
+  examples: string[];
+}
+
+const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
+  'Bespoke Platforms & Systems (Website Development)': {
+    category: 'Bespoke Platforms & Systems (Website Development)',
+    shortLabel: 'Web Development',
+    color: '#6366F1',
+    bg: 'rgba(99, 102, 241, 0.08)',
+    border: 'rgba(99, 102, 241, 0.25)',
+    description: 'Strategic, bespoke digital architecture and web applications built from scratch by CPRO Digital & Creative.',
+    examples: ['Strategic Plan Website (2026-30)', 'CUHK Key Metrics Database (Facts & Figures Online)', 'CUHK Visuals Landing Page', 'CUHK Sticker Website'],
+  },
+  'Online Directory & Staff Lists (OCD)': {
+    category: 'Online Directory & Staff Lists (OCD)',
+    shortLabel: 'Online Directory',
+    color: '#0284C7',
+    bg: 'rgba(2, 132, 199, 0.08)',
+    border: 'rgba(2, 132, 199, 0.25)',
+    description: 'University-wide Online Contact Directory (OCD), departmental staff directories, office phone lists, and faculty profiles.',
+    examples: ['Online Staff List updates', 'OCDA nomination forms', 'Office contact directory refreshes', 'Departmental contact profiles'],
+  },
+  'Homepage Banners & FOCUS Stories': {
+    category: 'Homepage Banners & FOCUS Stories',
+    shortLabel: 'Homepage & FOCUS',
+    color: '#764393',
+    bg: 'rgba(118, 67, 147, 0.08)',
+    border: 'rgba(118, 67, 147, 0.25)',
+    description: 'CUHK official homepage hero banners, CUHK in Focus news articles, breaking announcements, and seasonal themes.',
+    examples: ['CUHK Homepage hero banners', 'CUHK in Focus feature stories', 'CUHK Channel updates', 'Special event homepage takeovers'],
+  },
+  'Governance, Council & Secretariat': {
+    category: 'Governance, Council & Secretariat',
+    shortLabel: 'Governance & SEC',
+    color: '#472858',
+    bg: 'rgba(71, 40, 88, 0.08)',
+    border: 'rgba(71, 40, 88, 0.25)',
+    description: 'Official university governance portals: University Council, Senate, Committees, Statutes, and Secretarial documentation.',
+    examples: ['Council member lists', 'Senate minutes & schedule', 'Committee composition updates', 'Governance statutes updates'],
+  },
+  'Academic, Admissions & Rankings': {
+    category: 'Academic, Admissions & Rankings',
+    shortLabel: 'Admissions & Rankings',
+    color: '#82754B',
+    bg: 'rgba(130, 117, 75, 0.08)',
+    border: 'rgba(130, 117, 75, 0.25)',
+    description: 'Undergraduate & Postgraduate admissions (OAFA), JUPAS program codes, global rankings (QS, THE), and curriculum disclosures.',
+    examples: ['Update THE & QS World Rankings', 'OAFA admission guides', 'JUPAS code integration', 'Faculty academic program updates'],
+  },
+  'Campus Facilities & Dining (Canteen)': {
+    category: 'Campus Facilities & Dining (Canteen)',
+    shortLabel: 'Dining & Facilities',
+    color: '#F59E0B',
+    bg: 'rgba(245, 158, 11, 0.08)',
+    border: 'rgba(245, 158, 11, 0.25)',
+    description: 'Campus catering directory, restaurant opening hours, canteen operations, student facilities, and campus amenities.',
+    examples: ['New Asia Staff Restaurant updates', 'Campus canteen operating hours', 'Catering services directory', 'Campus amenities info'],
+  },
+  'Research & Knowledge Transfer': {
+    category: 'Research & Knowledge Transfer',
+    shortLabel: 'Research & ORKTS',
+    color: '#10B981',
+    bg: 'rgba(16, 185, 129, 0.08)',
+    border: 'rgba(16, 185, 129, 0.25)',
+    description: 'Research institutes, State Key Laboratories, ORKTS knowledge transfer portals, patents, and scientific breakthroughs.',
+    examples: ['Research Institutes & Centres portal', 'ORKTS research funding updates', 'Lab profile updates', 'Research excellence stories'],
+  },
+  'Campaigns, Events & Anniversaries': {
+    category: 'Campaigns, Events & Anniversaries',
+    shortLabel: 'Events & Campaigns',
+    color: '#EC4899',
+    bg: 'rgba(236, 72, 153, 0.08)',
+    border: 'rgba(236, 72, 153, 0.25)',
+    description: 'Milestone celebrations (CUHK 60th Anniversary), strategic campaigns, public lectures, and university ceremonies.',
+    examples: ['60A Celebratory Events portal', 'History Gallery opening page', 'Honorary Fellowships', 'Strategic campaign landing pages'],
+  },
+  'General Web Maintenance & Systems': {
+    category: 'General Web Maintenance & Systems',
+    shortLabel: 'Maintenance & Admin',
+    color: '#64748B',
+    bg: 'rgba(100, 116, 139, 0.08)',
+    border: 'rgba(100, 116, 139, 0.25)',
+    description: 'Security patches, 2FA implementation, CMS updates, Zapier automations, broken link remediation, and administrative web maintenance.',
+    examples: ['Enable 2FA on web portals', 'Zapier email list sync', 'Notion user guides', 'Fillout request forms', 'Web security audits'],
+  },
+};
+
+const getWebsiteSource = (t: TaskRecord): WebsiteCategoryInfo => {
+  const rawType = (t['Task type'] || '').trim().toLowerCase();
+  if (rawType === 'website development') {
+    return WEBSITE_CATEGORIES['Bespoke Platforms & Systems (Website Development)'];
+  }
+  const name = (t['Task Name'] || t['PROJECT NAME'] || '').toLowerCase();
+  const tags = (t.Tags || '').toLowerCase();
+  const dept = (t['Department/ Office'] || t['Dpt/ Office'] || '').toLowerCase();
+
+  if (tags.includes('ocd') || tags.includes('online staff list') || name.includes('online staff list') || name.includes('contact directory') || name.includes('online directory') || name.includes('ocd')) {
+    return WEBSITE_CATEGORIES['Online Directory & Staff Lists (OCD)'];
+  }
+  if (tags.includes('governance') || tags.includes('council') || tags.includes('senate') || tags.includes('committee') || dept.includes('secretariat')) {
+    return WEBSITE_CATEGORIES['Governance, Council & Secretariat'];
+  }
+  if (tags.includes('canteen') || name.includes('canteen') || name.includes('restaurant') || name.includes('catering')) {
+    return WEBSITE_CATEGORIES['Campus Facilities & Dining (Canteen)'];
+  }
+  if (tags.includes('focus') || tags.includes('homepage') || name.includes('focus') || name.includes('homepage') || name.includes('banner') || tags.includes('cuhk channel')) {
+    return WEBSITE_CATEGORIES['Homepage Banners & FOCUS Stories'];
+  }
+  if (tags.includes('ranking') || tags.includes('admission') || tags.includes('oafa') || name.includes('ranking') || name.includes('admission') || tags.includes('jupas')) {
+    return WEBSITE_CATEGORIES['Academic, Admissions & Rankings'];
+  }
+  if (tags.includes('research') || name.includes('research') || dept.includes('research') || dept.includes('orkts')) {
+    return WEBSITE_CATEGORIES['Research & Knowledge Transfer'];
+  }
+  if (tags.includes('60 anniversary') || tags.includes('anniversary') || tags.includes('event') || name.includes('60') || name.includes('anniversary')) {
+    return WEBSITE_CATEGORIES['Campaigns, Events & Anniversaries'];
+  }
+  return WEBSITE_CATEGORIES['General Web Maintenance & Systems'];
+};
+
 const CustomizedAxisTick = (props: any) => {
   const { x, y, payload } = props;
   const value = payload.value || '';
@@ -504,6 +632,58 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 function App() {
   const [activeTab, setActiveTab] = useState<'requests' | 'services'>('requests');
+  const [activeSection, setActiveSection] = useState<string>('section-req-monthly');
+
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const isRequestSection = sectionId.startsWith('section-req-');
+    const targetTab = isRequestSection ? 'requests' : 'services';
+
+    if (activeTab !== targetTab) {
+      setActiveTab(targetTab);
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  useEffect(() => {
+    const servicesSections = ['section-graphic-design', 'section-website', 'section-cuhk-visuals', 'section-dam', 'section-edm'];
+    const requestsSections = [
+      'section-req-monthly',
+      'section-req-distribution',
+      'section-req-yoy',
+      'section-req-top-depts',
+      'section-req-breakdowns',
+      'section-req-table',
+      'section-req-active-depts',
+    ];
+
+    const handleScroll = () => {
+      const sections = activeTab === 'services' ? servicesSections : requestsSections;
+      const scrollPos = window.scrollY + 200;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sections[i]);
+        if (el && el.offsetTop <= scrollPos) {
+          setActiveSection(sections[i]);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeTab]);
+
   const [tasks, setTasks] = useState<TaskRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTimeline, setSelectedTimeline] = useState<string>('All');
@@ -1560,7 +1740,7 @@ function App() {
         </div>
 
         {/* 1. Projects by Task Type & Month (Full-Width Vertical Stacked Bar Chart) */}
-        <div className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+        <div id="section-req-monthly" className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
           <div className="chart-header" style={{ marginBottom: '2.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <Calendar size={24} color="#764393" />
@@ -1621,7 +1801,7 @@ function App() {
         </div>
 
         {/* Double Pie Charts: Task Type & Department Groups side-by-side */}
-        <div style={{ display: 'flex', gap: '2rem', width: '100%', flexWrap: 'wrap' }}>
+        <div id="section-req-distribution" style={{ display: 'flex', gap: '2rem', width: '100%', flexWrap: 'wrap' }}>
           {/* Projects by Task Type (Pie Chart) */}
           <div className="chart-card glass-panel" style={{ flex: '1 1 calc(50% - 1rem)', minWidth: '400px', padding: '2.5rem' }}>
             <div className="chart-header" style={{ marginBottom: '2rem' }}>
@@ -1742,7 +1922,7 @@ function App() {
         </div>
 
         {/* 2. Year-over-Year Comparison Timeline (Full-Width Area/Line Chart with Dynamic Selects) */}
-        <div className="chart-card glass-panel" style={{ width: '100%' }}>
+        <div id="section-req-yoy" className="chart-card glass-panel" style={{ width: '100%' }}>
           <div className="chart-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Calendar size={20} color="#764393" />
@@ -1833,7 +2013,7 @@ function App() {
         </div>
 
         {/* 3. Top 10 Departments, Offices & Units (Full-Width Card) */}
-        <div className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+        <div id="section-req-top-depts" className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '1.65rem', margin: 0 }}>Top 10 Departments, Offices & Units</h3>
             
@@ -1904,7 +2084,7 @@ function App() {
         </div>
 
         {/* 4. Task Type Department Distributions (13+ Pie Charts Grid) */}
-        <div className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+        <div id="section-req-breakdowns" className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
           <h3 style={{ fontSize: '1.65rem', marginBottom: '0.5rem' }}>Task Type Department Distributions</h3>
           <p style={{ color: '#555555', fontWeight: 500, fontSize: '0.9rem', marginBottom: '2.5rem' }}>
             Individual breakdown of projects by departments, offices & units for each of the task types
@@ -2082,7 +2262,7 @@ function App() {
         </div>
 
         {/* Data Table */}
-        <div className="glass-panel table-container" style={{ padding: '2.5rem' }}>
+        <div id="section-req-table" className="glass-panel table-container" style={{ padding: '2.5rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0, fontSize: '1.65rem', color: '#764393' }}>Projects List</h3>
             <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500 }}>
@@ -2224,7 +2404,7 @@ function App() {
         </div>
 
         {/* Active Departments / Units in Current View */}
-        <div className="glass-panel" style={{ padding: '2.5rem' }}>
+        <div id="section-req-active-depts" className="glass-panel" style={{ padding: '2.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <Building size={24} color="#764393" />
             <h3 style={{ margin: 0, fontSize: '1.65rem', color: '#764393' }}>Departments / Units in Current View</h3>
@@ -2382,103 +2562,6 @@ function App() {
             </p>
           </div>
 
-          {/* Quick Jump Bar */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            flexWrap: 'wrap',
-            padding: '0.75rem 1.25rem',
-            background: 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
-          }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
-              <Layers size={14} color="#764393" /> Jump to Section:
-            </span>
-            <button
-              onClick={() => document.getElementById('section-graphic-design')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.4rem 0.85rem',
-                borderRadius: '8px',
-                background: 'rgba(130, 117, 75, 0.1)',
-                border: '1px solid rgba(130, 117, 75, 0.3)',
-                color: '#82754B',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                fontFamily: 'Montserrat, sans-serif',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Palette size={14} /> Graphic Design Impact
-            </button>
-            <button
-              onClick={() => document.getElementById('section-cuhk-visuals')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.4rem 0.85rem',
-                borderRadius: '8px',
-                background: 'rgba(118, 67, 147, 0.08)',
-                border: '1px solid rgba(118, 67, 147, 0.25)',
-                color: '#764393',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                fontFamily: 'Montserrat, sans-serif',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <TrendingUp size={14} /> CUHK Visuals Impact
-            </button>
-            <button
-              onClick={() => document.getElementById('section-dam')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.4rem 0.85rem',
-                borderRadius: '8px',
-                background: 'rgba(71, 40, 88, 0.08)',
-                border: '1px solid rgba(71, 40, 88, 0.25)',
-                color: '#472858',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                fontFamily: 'Montserrat, sans-serif',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <TrendingUp size={14} /> DAM Impact
-            </button>
-            <button
-              onClick={() => document.getElementById('section-edm')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.4rem 0.85rem',
-                borderRadius: '8px',
-                background: 'rgba(32, 191, 107, 0.08)',
-                border: '1px solid rgba(32, 191, 107, 0.25)',
-                color: '#82754B',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                fontFamily: 'Montserrat, sans-serif',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Activity size={14} /> eDM Campaign Impact
-            </button>
-          </div>
-
           {/* ========================================================================= */}
           {/* SECTION: GRAPHIC DESIGN IMPACT (SOURCES: SOCIAL POST, SOUVENIR, ETC.)     */}
           {/* ========================================================================= */}
@@ -2611,7 +2694,7 @@ function App() {
             {/* Sub-Tab Navigation for Graphic Design */}
             <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
               {[
-                { id: 'overview', label: 'Sources Overview & Trends' },
+                { id: 'overview', label: 'Sources Overview' },
                 { id: 'sources', label: 'Design Sources Spotlight ("What Types For")' },
                 { id: 'explorer', label: `Projects Explorer (${filteredGraphicDesignTasks.length})` },
                 { id: 'departments', label: 'Department Demand Matrix' },
@@ -2640,142 +2723,90 @@ function App() {
               ))}
             </div>
 
-            {/* TAB 1: OVERVIEW & TRENDS */}
+            {/* TAB 1: SOURCES OVERVIEW */}
             {gdActiveSubTab === 'overview' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-                  {/* Left: Source Breakdown Donut Chart */}
-                  <div style={{ flex: '1 1 48%', minWidth: '330px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                    <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>
-                      Graphic Design Projects by Source
-                    </div>
-                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
-                      Distribution of outputs by format and purpose (Social Posts, Souvenirs, Events, Publications, etc.).
-                    </p>
-                    <div style={{ height: 320 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                          <Pie
-                            data={graphicDesignData.sourceStats.map((s) => ({
-                              name: s.info.shortLabel,
-                              value: s.count,
-                              category: s.category,
-                              color: s.info.color,
-                            }))}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={{ stroke: '#82754B', strokeWidth: 1 }}
-                            label={renderCustomPieLabel}
-                            innerRadius={60}
-                            outerRadius={105}
-                            paddingAngle={2}
-                            dataKey="value"
-                          >
-                            {graphicDesignData.sourceStats.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.info.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            formatter={(value: any, name: any) => {
-                              const total = graphicDesignData.total;
-                              const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-                              return [`${value.toLocaleString()} projects (${percent}%)`, name];
-                            }}
-                            contentStyle={{
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              border: '1px solid rgba(130, 117, 75, 0.25)',
-                              borderRadius: '12px',
-                              fontFamily: 'Montserrat, sans-serif',
-                              fontWeight: 500,
-                            }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Source Badges Row */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
-                      {graphicDesignData.sourceStats.map((s, idx) => (
-                        <div
-                          key={idx}
-                          onClick={() => {
-                            setGdSelectedCategory(s.category);
-                            setGdActiveSubTab('explorer');
-                            setGdPage(1);
-                          }}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            padding: '0.3rem 0.65rem',
-                            borderRadius: '16px',
-                            background: s.info.bg,
-                            border: `1px solid ${s.info.border}`,
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
+                {/* Source Breakdown Donut Chart */}
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                  <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>
+                    Graphic Design Projects by Source
+                  </div>
+                  <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                    Distribution of outputs by format and purpose (Social Posts, Souvenirs, Events, Publications, etc.).
+                  </p>
+                  <div style={{ height: 320 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                        <Pie
+                          data={graphicDesignData.sourceStats.map((s) => ({
+                            name: s.info.shortLabel,
+                            value: s.count,
+                            category: s.category,
                             color: s.info.color,
-                            cursor: 'pointer',
-                            fontFamily: 'Montserrat, sans-serif',
-                            transition: 'transform 0.15s ease',
-                          }}
-                          title={`Click to filter Projects for ${s.category}`}
+                          }))}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={{ stroke: '#82754B', strokeWidth: 1 }}
+                          label={renderCustomPieLabel}
+                          innerRadius={60}
+                          outerRadius={105}
+                          paddingAngle={2}
+                          dataKey="value"
                         >
-                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.info.color }}></span>
-                          <span>{s.info.shortLabel}:</span>
-                          <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
-                        </div>
-                      ))}
-                    </div>
+                          {graphicDesignData.sourceStats.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.info.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: any, name: any) => {
+                            const total = graphicDesignData.total;
+                            const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                            return [`${value.toLocaleString()} projects (${percent}%)`, name];
+                          }}
+                          contentStyle={{
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            border: '1px solid rgba(130, 117, 75, 0.25)',
+                            borderRadius: '12px',
+                            fontFamily: 'Montserrat, sans-serif',
+                            fontWeight: 500,
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
 
-                  {/* Right: Medium / Format Breakdown & Deliverable Channels */}
-                  <div style={{ flex: '1 1 48%', minWidth: '330px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                    {/* Format Breakdown Card */}
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem' }}>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>
-                        Deliverable Medium (Digital vs. Print)
+                  {/* Source Badges Row */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                    {graphicDesignData.sourceStats.map((s, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setGdSelectedCategory(s.category);
+                          setGdActiveSubTab('explorer');
+                          setGdPage(1);
+                        }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.4rem',
+                          padding: '0.3rem 0.65rem',
+                          borderRadius: '16px',
+                          background: s.info.bg,
+                          border: `1px solid ${s.info.border}`,
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          color: s.info.color,
+                          cursor: 'pointer',
+                          fontFamily: 'Montserrat, sans-serif',
+                          transition: 'transform 0.15s ease',
+                        }}
+                        title={`Click to filter Projects for ${s.category}`}
+                      >
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.info.color }}></span>
+                        <span>{s.info.shortLabel}:</span>
+                        <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                        {graphicDesignData.formatBreakdown.map((item, idx) => {
-                          const pct = graphicDesignData.total > 0 ? ((item.value / graphicDesignData.total) * 100).toFixed(1) : '0.0';
-                          return (
-                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                <span style={{ fontWeight: 700, color: '#334155' }}>{item.name}</span>
-                                <span style={{ fontWeight: 800, color: item.color }}>{item.value} ({pct}%)</span>
-                              </div>
-                              <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                                <div style={{ width: `${pct}%`, height: '100%', background: item.color, borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Timeline Volume AreaChart */}
-                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', flex: 1 }}>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>
-                        Graphic Design Projects Over Time
-                      </div>
-                      <div style={{ height: 210 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={graphicDesignData.monthlyTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="colorGDTotal" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#82754B" stopOpacity={0.45} />
-                                <stop offset="95%" stopColor="#82754B" stopOpacity={0.02} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(130, 117, 75, 0.08)" />
-                            <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                            <YAxis tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                            <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12px' }} />
-                            <Area type="monotone" dataKey="total" name="Projects" stroke="#82754B" fillOpacity={1} fill="url(#colorGDTotal)" strokeWidth={2.5} />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -2877,21 +2908,6 @@ function App() {
                               ))}
                             </div>
                           </div>
-
-                          {s.topDepts.length > 0 && (
-                            <div>
-                              <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                Top Requesting Units
-                              </div>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                                {s.topDepts.map((d, dIdx) => (
-                                  <span key={dIdx} style={{ fontSize: '0.75rem', color: '#475569', background: '#f8fafc', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
-                                    {d.name} ({d.count})
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
 
                           <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
                             <button
@@ -3936,7 +3952,7 @@ function App() {
                   </div>
 
                   {/* SECTION 2: DAM IMPACT */}
-                  <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div id="section-dam" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <TrendingUp size={24} color="#472858" />
@@ -4318,8 +4334,10 @@ function App() {
                 </>
               );
             })()}
-          </div>          {/* CUHK in Focus eDM Campaign Impact */}
-          <div className="glass-panel" style={{ padding: '2.5rem' }}>
+          </div>
+
+          {/* CUHK in Focus eDM Campaign Impact */}
+          <div id="section-edm" className="glass-panel" style={{ padding: '2.5rem' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Activity size={24} color="#764393" />
@@ -4351,13 +4369,19 @@ function App() {
               </div>
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
                 <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Delivered</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>{(edmSummary.totalDelivered / 1000000).toFixed(2)}M</div>
+                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Clicks</h3>
+                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B' }}>{edmSummary.totalClicks >= 1000000 ? (edmSummary.totalClicks / 1000000).toFixed(2) + 'M' : (edmSummary.totalClicks >= 1000 ? (edmSummary.totalClicks / 1000).toFixed(1) + 'K' : edmSummary.totalClicks)}</div>
                 </div>
               </div>
             </div>
 
             <div className="dashboard-grid" style={{ marginBottom: '2.5rem' }}>
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
+                <div className="kpi-info" style={{ flex: 1 }}>
+                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Delivered</h3>
+                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>{(edmSummary.totalDelivered / 1000000).toFixed(2)}M</div>
+                </div>
+              </div>
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
                 <div className="kpi-info" style={{ flex: 1 }}>
                   <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Opens / Issue</h3>
@@ -4402,9 +4426,9 @@ function App() {
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(118, 67, 147, 0.08)" />
                       <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                      <YAxis yAxisId="left" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                      <YAxis yAxisId="right" orientation="right" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                      <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                      <YAxis yAxisId="left" tickFormatter={(val) => `${val}%`} tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                      <YAxis yAxisId="right" orientation="right" tickFormatter={(val) => `${val}%`} tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
                       <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                       <Area yAxisId="left" type="monotone" dataKey="Open Rate (OTR)" stroke="#764393" fillOpacity={1} fill="url(#colorOR)" strokeWidth={2} />
                       <Area yAxisId="right" type="monotone" dataKey="Click-Through Rate (CTR)" stroke="#82754B" fillOpacity={1} fill="url(#colorCTR)" strokeWidth={2} />
@@ -4484,20 +4508,127 @@ function App() {
 
           <div className="nav-title">Navigation</div>
           <div className="nav-group">
-            <button
-              className={`nav-button ${activeTab === 'requests' ? 'active' : ''}`}
-              onClick={() => setActiveTab('requests')}
-            >
-              <ListTodo size={20} />
-              Fulfilling Requests
-            </button>
-            <button
-              className={`nav-button ${activeTab === 'services' ? 'active' : ''}`}
-              onClick={() => setActiveTab('services')}
-            >
-              <Layers size={20} />
-              Services Impacted
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
+              <button
+                className={`nav-button ${activeTab === 'requests' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('requests');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                <ListTodo size={20} />
+                Fulfilling Requests
+              </button>
+
+              {/* Jump to Section */}
+              <div className={`nav-jump-group ${activeTab !== 'requests' ? 'hidden-mobile' : ''}`}>
+                <div className="nav-jump-header">
+                  <ListTodo size={13} color="#764393" />
+                  <span>Jump to Section:</span>
+                </div>
+                <div className="nav-jump-list">
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-monthly' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-monthly')}
+                  >
+                    <Calendar size={15} color="#764393" />
+                    <span>Projects by Month</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-distribution' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-distribution')}
+                  >
+                    <PieChartIcon size={15} color="#82754B" />
+                    <span>Projects Distribution</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-yoy' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-yoy')}
+                  >
+                    <TrendingUp size={15} color="#764393" />
+                    <span>YoY Comparison</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-top-depts' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-top-depts')}
+                  >
+                    <Building size={15} color="#82754B" />
+                    <span>Top 10 Departments</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-breakdowns' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-breakdowns')}
+                  >
+                    <Layers size={15} color="#764393" />
+                    <span>Task Type Distributions</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-table' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-table')}
+                  >
+                    <Search size={15} color="#82754B" />
+                    <span>Projects List</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-active-depts' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-req-active-depts')}
+                  >
+                    <Building size={15} color="#764393" />
+                    <span>Active Departments</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
+              <button
+                className={`nav-button ${activeTab === 'services' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('services');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                <Layers size={20} />
+                Services Impacted
+              </button>
+
+              {/* Jump to Section */}
+              <div className={`nav-jump-group ${activeTab !== 'services' ? 'hidden-mobile' : ''}`}>
+                <div className="nav-jump-header">
+                  <Layers size={13} color="#764393" />
+                  <span>Jump to Section:</span>
+                </div>
+                <div className="nav-jump-list">
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-graphic-design' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-graphic-design')}
+                  >
+                    <Palette size={15} color="#82754B" />
+                    <span>Graphic Design Impact</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-cuhk-visuals' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-cuhk-visuals')}
+                  >
+                    <TrendingUp size={15} color="#764393" />
+                    <span>CUHK Visuals Impact</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-dam' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-dam')}
+                  >
+                    <TrendingUp size={15} color="#472858" />
+                    <span>DAM Impact</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-edm' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-edm')}
+                  >
+                    <Activity size={15} color="#82754B" />
+                    <span>eDM Campaign Impact</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(118, 67, 147, 0.15)', paddingTop: '1.5rem', fontSize: '0.8rem', color: '#777777', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
