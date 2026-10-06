@@ -17,8 +17,6 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
   Eye,
   Sparkles,
 } from 'lucide-react';
@@ -1105,101 +1103,6 @@ function App() {
     });
   }, [activeTasks, selectedTimeline]);
 
-  const servicesImpactStats = useMemo(() => {
-    const isGraphicDesign = (t: TaskRecord) => (t['Task type'] || '').trim().toLowerCase() === 'graphic design';
-    const isVisuals = (t: TaskRecord) => (t['Task type'] || '').trim() === 'CUHK Visuals';
-    const isFocus = (t: TaskRecord) => {
-      const name = (t['PROJECT NAME'] || '').toLowerCase();
-      const tags = (t['Tags'] || '').toLowerCase();
-      const type = (t['Task type'] || '').toLowerCase();
-      return name.includes('focus') || tags.includes('focus') || type.includes('focus');
-    };
-    const isStickers = (t: TaskRecord) => {
-      const name = (t['PROJECT NAME'] || '').toLowerCase();
-      const tags = (t['Tags'] || '').toLowerCase();
-      const type = (t['Task type'] || '').toLowerCase();
-      return name.includes('sticker') || tags.includes('sticker') || type.includes('sticker');
-    };
-
-    const categories = {
-      graphicDesign: { title: 'Graphic Design', color: '#82754B', icon: 'palette', tasks: [] as TaskRecord[] },
-      visuals: { title: 'CUHK Visuals', color: '#764393', icon: 'visuals', tasks: [] as TaskRecord[] },
-      focus: { title: 'CUHK in Focus', color: '#9b7d46', icon: 'focus', tasks: [] as TaskRecord[] },
-      stickers: { title: 'CUHK Stickers', color: '#20bf6b', icon: 'stickers', tasks: [] as TaskRecord[] },
-    };
-
-    filteredActiveTasksByCPR.forEach((t) => {
-      const period = t.Period?.trim() || '';
-      const fy = getFinancialYear(period);
-      if (selectedTimeline !== 'All' && fy !== selectedTimeline) {
-        return;
-      }
-
-      if (isGraphicDesign(t)) {
-        categories.graphicDesign.tasks.push(t);
-      }
-      if (isVisuals(t)) {
-        categories.visuals.tasks.push(t);
-      }
-      if (isFocus(t)) {
-        categories.focus.tasks.push(t);
-      }
-      if (isStickers(t)) {
-        categories.stickers.tasks.push(t);
-      }
-    });
-
-    const getStatsForGroup = (tasks: TaskRecord[]) => {
-      let completed = 0;
-      let inProgress = 0;
-      const deptCounts: Record<string, number> = {};
-
-      tasks.forEach((t) => {
-        const s = t.Status?.trim().toLowerCase();
-        if (s === 'done' || s === 'completed') {
-          completed++;
-        } else {
-          inProgress++;
-        }
-
-        const dept = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
-        if (dept !== 'Unassigned') {
-          deptCounts[dept] = (deptCounts[dept] || 0) + 1;
-        }
-      });
-
-      const uniqueDeptsCount = Object.keys(deptCounts).length;
-      const deptsList = Object.entries(deptCounts)
-        .map(([name, count]) => ({ name, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
-
-      const latestTasks = [...tasks]
-        .sort((a, b) => {
-          const dateA = a['Created Date & Time'] || a['Created Date'] || '';
-          const dateB = b['Created Date & Time'] || b['Created Date'] || '';
-          return dateB.localeCompare(dateA);
-        })
-        .slice(0, 5);
-
-      return {
-        total: tasks.length,
-        completed,
-        inProgress,
-        uniqueDeptsCount,
-        deptsList,
-        latestTasks,
-      };
-    };
-
-    return {
-      graphicDesign: { ...categories.graphicDesign, stats: getStatsForGroup(categories.graphicDesign.tasks) },
-      visuals: { ...categories.visuals, stats: getStatsForGroup(categories.visuals.tasks) },
-      focus: { ...categories.focus, stats: getStatsForGroup(categories.focus.tasks) },
-      stickers: { ...categories.stickers, stats: getStatsForGroup(categories.stickers.tasks) },
-    };
-  }, [filteredActiveTasksByCPR, selectedTimeline]);
-
   // Graphic Design analysis for Services Impacted
   const graphicDesignData = useMemo(() => {
     const gdTasks = filteredActiveTasksByCPR.filter((t) => {
@@ -1621,9 +1524,6 @@ function App() {
         {/* KPI Cards */}
         <div className="dashboard-grid">
           <div className="kpi-card glass-panel">
-            <div className="kpi-icon kpi-icon-purple">
-              <ListTodo size={28} />
-            </div>
             <div className="kpi-info">
               <h3>Total Projects</h3>
               <div className="kpi-value">{stats.total}</div>
@@ -1631,9 +1531,6 @@ function App() {
           </div>
 
           <div className="kpi-card glass-panel">
-            <div className="kpi-icon kpi-icon-gold">
-              <Calendar size={28} />
-            </div>
             <div className="kpi-info">
               <h3>Avg. Projects Per Year</h3>
               <div className="kpi-value">{stats.avgProjectsPerYear}</div>
@@ -1641,9 +1538,6 @@ function App() {
           </div>
 
           <div className="kpi-card glass-panel">
-            <div className="kpi-icon kpi-icon-blue">
-              <TrendingUp size={28} />
-            </div>
             <div className="kpi-info">
               <h3>Avg. Projects Per Month</h3>
               <div className="kpi-value">{stats.avgProjectsPerMonth}</div>
@@ -1651,9 +1545,6 @@ function App() {
           </div>
 
           <div className="kpi-card glass-panel">
-            <div className="kpi-icon kpi-icon-green">
-              <Building size={28} />
-            </div>
             <div className="kpi-info">
               <h3>Depts / Offices / Units</h3>
               <div className="kpi-value">{stats.uniqueDeptsCount}</div>
@@ -1661,9 +1552,6 @@ function App() {
           </div>
 
           <div className="kpi-card glass-panel">
-            <div className="kpi-icon kpi-icon-gold">
-              <Layers size={28} />
-            </div>
             <div className="kpi-info">
               <h3>Task Types</h3>
               <div className="kpi-value">{stats.taskTypeData.length}</div>
@@ -2579,7 +2467,7 @@ function App() {
                 borderRadius: '8px',
                 background: 'rgba(32, 191, 107, 0.08)',
                 border: '1px solid rgba(32, 191, 107, 0.25)',
-                color: '#20bf6b',
+                color: '#82754B',
                 fontSize: '0.8rem',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -2589,53 +2477,6 @@ function App() {
             >
               <Activity size={14} /> eDM Campaign Impact
             </button>
-          </div>
-
-          <div className="services-grid">
-            {Object.entries(servicesImpactStats).map(([key, cat]) => {
-              return (
-                <div
-                  className="service-card"
-                  key={key}
-                  style={{
-                    border: '1px solid #e2e8f0',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                >
-                  <div className="service-card-header" style={{ backgroundColor: cat.color }}>
-                    <h3>{cat.title}</h3>
-                    {cat.icon === 'palette' ? <Palette size={20} /> : <Layers size={20} />}
-                  </div>
-                  
-                  <div className="service-card-content">
-                    <div className="service-kpi-row">
-                      <div className="service-kpi-box">
-                        <div className="service-kpi-label">Projects</div>
-                        <div className="service-kpi-value">{cat.stats.total}</div>
-                      </div>
-                      <div className="service-kpi-box">
-                        <div className="service-kpi-label">Depts Served</div>
-                        <div className="service-kpi-value">{cat.stats.uniqueDeptsCount}</div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="service-section-title">Top Impacted Departments</div>
-                      {cat.stats.deptsList.length === 0 ? (
-                        <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No departments served in current timeline</div>
-                      ) : (
-                        cat.stats.deptsList.map((d, i) => (
-                          <div className="service-list-item" key={i}>
-                            <span className="service-list-item-name" title={d.name}>{d.name}</span>
-                            <span className="service-list-item-count">{d.count}</span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
 
           {/* ========================================================================= */}
@@ -3283,25 +3124,20 @@ function App() {
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Design Source</th>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Purpose / What It's For</th>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Department / Unit</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Platform / Channel</th>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Format</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Status</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Brief & Details</th>
                       </tr>
                     </thead>
                     <tbody>
                       {paginatedGdTasks.length === 0 ? (
                         <tr>
-                          <td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>
+                          <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>
                             No graphic design Projects match the selected filters.
                           </td>
                         </tr>
                       ) : (
                         paginatedGdTasks.map((t, idx) => {
                           const catInfo = getGraphicDesignSource(t);
-                          const isDone = (t.Status || '').trim().toLowerCase() === 'done' || (t.Status || '').trim().toLowerCase() === 'completed';
                           const dop = (t['digital or print'] || '').trim();
-                          const channels = t['For this Platform'] || t.Tags || '-';
                           const taskId = `${t['PROJECT NAME'] || t['Task Name']}_${t['Created Date'] || t.Period}_${idx}`;
                           const isExpanded = expandedGdTaskId === taskId;
 
@@ -3368,9 +3204,6 @@ function App() {
                                 <td style={{ padding: '0.85rem 1rem', color: '#334155', fontWeight: 600, maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t['Department/ Office'] || t['Dpt/ Office']}>
                                   {t['Department/ Office'] || t['Dpt/ Office'] || 'Unassigned'}
                                 </td>
-                                <td style={{ padding: '0.85rem 1rem', color: '#64748b', fontSize: '0.775rem', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={channels}>
-                                  {channels}
-                                </td>
                                 <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
                                   <span style={{
                                     padding: '0.15rem 0.5rem',
@@ -3384,50 +3217,11 @@ function App() {
                                     {dop || 'Digital'}
                                   </span>
                                 </td>
-                                <td style={{ padding: '0.85rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                                  <span style={{
-                                    display: 'inline-block',
-                                    padding: '0.15rem 0.55rem',
-                                    borderRadius: '12px',
-                                    fontSize: '0.725rem',
-                                    fontWeight: 700,
-                                    background: isDone ? 'rgba(32, 191, 107, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-                                    color: isDone ? '#20bf6b' : '#f59e0b',
-                                    border: `1px solid ${isDone ? 'rgba(32, 191, 107, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
-                                  }}>
-                                    {isDone ? 'Completed' : 'In Progress'}
-                                  </span>
-                                </td>
-                                <td style={{ padding: '0.85rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setExpandedGdTaskId(isExpanded ? null : taskId);
-                                    }}
-                                    style={{
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '0.2rem',
-                                      padding: '0.25rem 0.55rem',
-                                      borderRadius: '6px',
-                                      border: '1px solid #cbd5e1',
-                                      background: isExpanded ? '#82754B' : '#ffffff',
-                                      color: isExpanded ? '#ffffff' : '#475569',
-                                      fontSize: '0.725rem',
-                                      fontWeight: 700,
-                                      cursor: 'pointer',
-                                      fontFamily: 'Montserrat, sans-serif',
-                                    }}
-                                  >
-                                    {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                                    {isExpanded ? 'Close' : 'Details'}
-                                  </button>
-                                </td>
                               </tr>
 
                               {isExpanded && (
                                 <tr key={`${idx}-expanded`} style={{ background: 'rgba(130, 117, 75, 0.03)', borderBottom: '2px solid rgba(130, 117, 75, 0.2)' }}>
-                                  <td colSpan={8} style={{ padding: '1.25rem 1.5rem' }}>
+                                  <td colSpan={5} style={{ padding: '1.25rem 1.5rem' }}>
                                     <div style={{
                                       background: '#ffffff',
                                       border: '1px solid #e2e8f0',
@@ -3790,25 +3584,25 @@ function App() {
 
                         {/* Arrow 2 */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20bf6b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82754B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                           </svg>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', fontFamily: 'Montserrat, sans-serif' }}>
                             {c_combinedConversionRate} Conversion
                           </span>
                         </div>
 
                         {/* Step 3 */}
                         <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#82754B', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
                             {c_totalDistribution.toLocaleString()}
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
                               <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 "Download Image" (Log)</span>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{c_summary.totalDownloads.toLocaleString()}</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#82754B', fontFamily: 'Montserrat, sans-serif' }}>{c_summary.totalDownloads.toLocaleString()}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
                               <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Projects)</span>
@@ -3861,8 +3655,8 @@ function App() {
                                       <stop offset="95%" stopColor="#9174A8" stopOpacity={0}/>
                                     </linearGradient>
                                     <linearGradient id="colorCVisDownloads" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
-                                      <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                                      <stop offset="5%" stopColor="#82754B" stopOpacity={0.4}/>
+                                      <stop offset="95%" stopColor="#82754B" stopOpacity={0}/>
                                     </linearGradient>
                                     <linearGradient id="colorCVisShares" x1="0" y1="0" x2="0" y2="1">
                                       <stop offset="5%" stopColor="#9b7d46" stopOpacity={0.4}/>
@@ -3875,7 +3669,7 @@ function App() {
                                   <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
                                   <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                   <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorCVisPreviews)" strokeWidth={2} />
-                                  <Area type="monotone" dataKey="download" name="Downloads" stroke="#20bf6b" fillOpacity={1} fill="url(#colorCVisDownloads)" strokeWidth={2} />
+                                  <Area type="monotone" dataKey="download" name="Downloads" stroke="#82754B" fillOpacity={1} fill="url(#colorCVisDownloads)" strokeWidth={2} />
                                   <Area type="monotone" dataKey="share" name="Shares" stroke="#9b7d46" fillOpacity={1} fill="url(#colorCVisShares)" strokeWidth={2} />
                                 </AreaChart>
                               </ResponsiveContainer>
@@ -3900,7 +3694,7 @@ function App() {
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                       <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Downloads</span>
-                                      <span style={{ color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
+                                      <span style={{ color: '#82754B', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                       <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Shares</span>
@@ -3957,7 +3751,7 @@ function App() {
                                   <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
                                     <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
                                     <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#82754B', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -4041,7 +3835,7 @@ function App() {
                                       <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
                                       <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
                                       <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
-                                      <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                      <td style={{ padding: '1rem', textAlign: 'center', color: '#82754B', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
                                       <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
                                       <td style={{ padding: '1rem', textAlign: 'center' }}>
                                         <span style={{
@@ -4051,7 +3845,7 @@ function App() {
                                           fontSize: '0.75rem',
                                           fontWeight: 700,
                                           background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                                          color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
+                                          color: parseFloat(file.conversionRate) > 30 ? '#82754B' : '#64748b'
                                         }}>
                                           {file.conversionRate}
                                         </span>
@@ -4084,7 +3878,7 @@ function App() {
                                     dataKey="value"
                                   >
                                     {visualsSummary.cuhkVisuals.locations.map((_entry: any, index: number) => {
-                                      const colors = ['#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#f7b731', '#eb3b5a', '#a55eea', '#2bcbba', '#a5b1c2'];
+                                      const colors = ['#764393', '#9174A8', '#9b7d46', '#82754B', '#2d98da', '#f7b731', '#eb3b5a', '#a55eea', '#2bcbba', '#a5b1c2'];
                                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
                                   </Pie>
@@ -4119,7 +3913,7 @@ function App() {
                                     dataKey="value"
                                   >
                                     {visualsSummary.cuhkVisuals.users.map((_entry: any, index: number) => {
-                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#82754B', '#2d98da', '#eb3b5a', '#4b6584'];
                                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
                                   </Pie>
@@ -4198,25 +3992,25 @@ function App() {
 
                         {/* Arrow 2 */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#20bf6b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82754B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                           </svg>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', fontFamily: 'Montserrat, sans-serif' }}>
                             {d_combinedConversionRate} Conversion
                           </span>
                         </div>
 
                         {/* Step 3 */}
                         <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#20bf6b', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Distribution Stat</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Distribution Stat</span>
+                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#82754B', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
                             {d_totalDistribution.toLocaleString()}
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
                               <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 Downloads (Log)</span>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{d_summary.totalDownloads.toLocaleString()}</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#82754B', fontFamily: 'Montserrat, sans-serif' }}>{d_summary.totalDownloads.toLocaleString()}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Shares / Channels (Log)</span>
@@ -4244,7 +4038,7 @@ function App() {
                         </div>
                         <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                           <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
-                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
                             {d_summary.totalDownloads.toLocaleString()}
                           </div>
                           <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Direct folder downloads</span>
@@ -4297,8 +4091,8 @@ function App() {
                                       <stop offset="95%" stopColor="#9174A8" stopOpacity={0}/>
                                     </linearGradient>
                                     <linearGradient id="colorDamDownloads" x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
-                                      <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                                      <stop offset="5%" stopColor="#82754B" stopOpacity={0.4}/>
+                                      <stop offset="95%" stopColor="#82754B" stopOpacity={0}/>
                                     </linearGradient>
                                   </defs>
                                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(71, 40, 88, 0.08)" />
@@ -4307,7 +4101,7 @@ function App() {
                                   <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
                                   <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                   <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorDamPreviews)" strokeWidth={2} />
-                                  <Area type="monotone" dataKey="download" name="Downloads" stroke="#20bf6b" fillOpacity={1} fill="url(#colorDamDownloads)" strokeWidth={2} />
+                                  <Area type="monotone" dataKey="download" name="Downloads" stroke="#82754B" fillOpacity={1} fill="url(#colorDamDownloads)" strokeWidth={2} />
                                 </AreaChart>
                               </ResponsiveContainer>
                             </div>
@@ -4331,7 +4125,7 @@ function App() {
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                       <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Downloads</span>
-                                      <span style={{ color: '#20bf6b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
+                                      <span style={{ color: '#82754B', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>{loc.download.toLocaleString()}</span>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                       <span style={{ color: '#64748b', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Shares</span>
@@ -4388,7 +4182,7 @@ function App() {
                                   <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
                                     <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '400px' }}>{file.file}</td>
                                     <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'right', color: '#82754B', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -4422,7 +4216,7 @@ function App() {
                                     <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
                                     <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
                                     <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#82754B', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
                                     <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
                                     <td style={{ padding: '1rem', textAlign: 'center' }}>
                                       <span style={{
@@ -4432,7 +4226,7 @@ function App() {
                                         fontSize: '0.75rem',
                                         fontWeight: 700,
                                         background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                                        color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
+                                        color: parseFloat(file.conversionRate) > 30 ? '#82754B' : '#64748b'
                                       }}>
                                         {file.conversionRate}
                                       </span>
@@ -4465,7 +4259,7 @@ function App() {
                                     dataKey="value"
                                   >
                                     {visualsSummary.dam.locations.slice(0, 8).map((_entry: any, index: number) => {
-                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#82754B', '#2d98da', '#eb3b5a', '#4b6584'];
                                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
                                   </Pie>
@@ -4500,7 +4294,7 @@ function App() {
                                     dataKey="value"
                                   >
                                     {visualsSummary.dam.users.map((_entry: any, index: number) => {
-                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#20bf6b', '#2d98da', '#eb3b5a', '#4b6584'];
+                                      const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#82754B', '#2d98da', '#eb3b5a', '#4b6584'];
                                       return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                                     })}
                                   </Pie>
@@ -4546,7 +4340,7 @@ function App() {
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
                 <div className="kpi-info" style={{ flex: 1 }}>
                   <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Click-Through (CTR)</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b' }}>{edmSummary.avgCTR}%</div>
+                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B' }}>{edmSummary.avgCTR}%</div>
                 </div>
               </div>
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
@@ -4575,7 +4369,7 @@ function App() {
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
                 <div className="kpi-info" style={{ flex: 1 }}>
                   <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Click-Through / Issue</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b' }}>
+                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B' }}>
                     {Math.round(edmSummary.avgClicksPerIssue).toLocaleString()}
                   </div>
                 </div>
@@ -4590,8 +4384,8 @@ function App() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-              <div style={{ flex: '1 1 60%', minWidth: '400px' }}>
+            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
+              <div style={{ flex: '1 1 100%', minWidth: '400px' }}>
                 <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>Engagement Trend Over Time</div>
                 <div style={{ height: 350 }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -4602,8 +4396,8 @@ function App() {
                           <stop offset="95%" stopColor="#764393" stopOpacity={0}/>
                         </linearGradient>
                         <linearGradient id="colorCTR" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#20bf6b" stopOpacity={0.4}/>
-                          <stop offset="95%" stopColor="#20bf6b" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#82754B" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#82754B" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(118, 67, 147, 0.08)" />
@@ -4613,33 +4407,65 @@ function App() {
                       <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
                       <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                       <Area yAxisId="left" type="monotone" dataKey="Open Rate (OTR)" stroke="#764393" fillOpacity={1} fill="url(#colorOR)" strokeWidth={2} />
-                      <Area yAxisId="right" type="monotone" dataKey="Click-Through Rate (CTR)" stroke="#20bf6b" fillOpacity={1} fill="url(#colorCTR)" strokeWidth={2} />
+                      <Area yAxisId="right" type="monotone" dataKey="Click-Through Rate (CTR)" stroke="#82754B" fillOpacity={1} fill="url(#colorCTR)" strokeWidth={2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
               </div>
-              
-              <div style={{ flex: '1 1 35%', minWidth: '300px' }}>
-                <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>Performance by Target List</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {edmSummary.audienceBreakdown.map((item, idx) => (
-                    <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.9rem' }}>{item.target}</span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', background: '#e2e8f0', padding: '0.15rem 0.5rem', borderRadius: '12px' }}>{item.count} sent</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' }}>OTR</span>
-                          <span style={{ color: '#764393', fontWeight: 800 }}>{item.or}%</span>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <span style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase' }}>CTR</span>
-                          <span style={{ color: '#20bf6b', fontWeight: 800 }}>{item.ctr}%</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+                <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>OTR by Target List</div>
+                <div style={{ height: 350 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                      <Pie
+                        data={edmSummary.audienceBreakdown.map(item => ({ name: item.target, value: item.or }))}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={{ stroke: '#764393', strokeWidth: 1 }}
+                        label={renderCustomPieLabel}
+                        innerRadius={60}
+                        outerRadius={110}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {edmSummary.audienceBreakdown.map((_entry, index) => {
+                          const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#82754B', '#2d98da', '#eb3b5a', '#4b6584'];
+                          return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                        })}
+                      </Pie>
+                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+                <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>CTR by Target List</div>
+                <div style={{ height: 350 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                      <Pie
+                        data={edmSummary.audienceBreakdown.map(item => ({ name: item.target, value: item.ctr }))}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={{ stroke: '#82754B', strokeWidth: 1 }}
+                        label={renderCustomPieLabel}
+                        innerRadius={60}
+                        outerRadius={110}
+                        paddingAngle={2}
+                        dataKey="value"
+                      >
+                        {edmSummary.audienceBreakdown.map((_entry, index) => {
+                          const colors = ['#472858', '#764393', '#9174A8', '#9b7d46', '#82754B', '#2d98da', '#eb3b5a', '#4b6584'];
+                          return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                        })}
+                      </Pie>
+                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>

@@ -124,7 +124,7 @@ body {
 
 .kpi-icon-green {
   background: rgba(46, 213, 115, 0.04);
-  color: #20bf6b;
+  color: #82754B;
   border-color: rgba(46, 213, 115, 0.15);
 }
 
@@ -291,8 +291,8 @@ tbody tr:hover {
 
 .status-done { 
   background: #f4fdf8; 
-  color: #20bf6b; 
-  border: 1px solid #20bf6b;
+  color: #82754B; 
+  border: 1px solid #82754B;
 }
 
 .status-progress { 
@@ -549,7 +549,7 @@ tbody tr:hover {
 
 .status-badge.done {
   background: rgba(32, 191, 107, 0.1);
-  color: #20bf6b;
+  color: #82754B;
 }
 
 .status-badge.pending {
