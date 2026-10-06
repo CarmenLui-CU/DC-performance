@@ -20,6 +20,14 @@ import {
   Eye,
   Sparkles,
   PieChart as PieChartIcon,
+  Code,
+  Laptop,
+  CheckCircle2,
+  Filter,
+  Server,
+  Zap,
+  ArrowRight,
+  RotateCcw,
 } from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
@@ -510,7 +518,7 @@ const getWebsiteSource = (t: TaskRecord): WebsiteCategoryInfo => {
   if (tags.includes('focus') || tags.includes('homepage') || name.includes('focus') || name.includes('homepage') || name.includes('banner') || tags.includes('cuhk channel')) {
     return WEBSITE_CATEGORIES['Homepage Banners & FOCUS Stories'];
   }
-  if (tags.includes('ranking') || tags.includes('admission') || tags.includes('oafa') || name.includes('ranking') || name.includes('admission') || tags.includes('jupas')) {
+  if (tags.includes('ranking') || tags.includes('admission') || tags.includes('oafa') || name.includes('ranking') || name.includes('admission') || tags.includes('jupas') || dept.includes('oafa') || name.includes('oafa')) {
     return WEBSITE_CATEGORIES['Academic, Admissions & Rankings'];
   }
   if (tags.includes('research') || name.includes('research') || dept.includes('research') || dept.includes('orkts')) {
@@ -520,6 +528,30 @@ const getWebsiteSource = (t: TaskRecord): WebsiteCategoryInfo => {
     return WEBSITE_CATEGORIES['Campaigns, Events & Anniversaries'];
   }
   return WEBSITE_CATEGORIES['General Web Maintenance & Systems'];
+};
+
+const renderWebsiteCategoryIcon = (category: string, color: string, size = 16) => {
+  switch (category) {
+    case 'Bespoke Platforms & Systems (Website Development)':
+      return <Laptop size={size} color={color} />;
+    case 'Online Directory & Staff Lists (OCD)':
+      return <Building size={size} color={color} />;
+    case 'Homepage Banners & FOCUS Stories':
+      return <Globe size={size} color={color} />;
+    case 'Governance, Council & Secretariat':
+      return <Layers size={size} color={color} />;
+    case 'Academic, Admissions & Rankings':
+      return <BookOpen size={size} color={color} />;
+    case 'Campus Facilities & Dining (Canteen)':
+      return <Tag size={size} color={color} />;
+    case 'Research & Knowledge Transfer':
+      return <Sparkles size={size} color={color} />;
+    case 'Campaigns, Events & Anniversaries':
+      return <Calendar size={size} color={color} />;
+    case 'General Web Maintenance & Systems':
+    default:
+      return <Server size={size} color={color} />;
+  }
 };
 
 const CustomizedAxisTick = (props: any) => {
@@ -723,6 +755,16 @@ function App() {
   const [gdPage, setGdPage] = useState<number>(1);
   const [gdActiveSubTab, setGdActiveSubTab] = useState<'overview' | 'sources' | 'explorer' | 'departments'>('overview');
   const [expandedGdTaskId, setExpandedGdTaskId] = useState<string | null>(null);
+
+  // Website Impact section states
+  const [webSelectedCategory, setWebSelectedCategory] = useState<string>('All');
+  const [webServiceTypeFilter, setWebServiceTypeFilter] = useState<'All' | 'Website Update' | 'Website Development'>('All');
+  const [webSearchQuery, setWebSearchQuery] = useState<string>('');
+  const [webStatusFilter, setWebStatusFilter] = useState<'All' | 'Done' | 'In Progress'>('All');
+  const [webDeptFilter, setWebDeptFilter] = useState<string>('All');
+  const [webPage, setWebPage] = useState<number>(1);
+  const [webActiveSubTab, setWebActiveSubTab] = useState<'overview' | 'platforms' | 'categories' | 'explorer' | 'departments'>('overview');
+  const [expandedWebTaskId, setExpandedWebTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
@@ -1489,6 +1531,240 @@ function App() {
     return filteredGraphicDesignTasks.slice(start, start + 12);
   }, [filteredGraphicDesignTasks, gdPage]);
 
+  // Website Impact analysis (Website Update + Website Development)
+  const websiteData = useMemo(() => {
+    const webTasks = filteredActiveTasksByCPR.filter((t) => {
+      const period = t.Period?.trim() || '';
+      const fy = getFinancialYear(period);
+      if (selectedTimeline !== 'All' && fy !== selectedTimeline) {
+        return false;
+      }
+      const rawType = (t['Task type'] || '').trim().toLowerCase();
+      return rawType === 'website update' || rawType === 'website development';
+    });
+
+    let completedCount = 0;
+    let inProgressCount = 0;
+    let updateCount = 0;
+    let devCount = 0;
+    const deptCounts: Record<string, number> = {};
+    const categoryBuckets: Record<string, {
+      info: WebsiteCategoryInfo;
+      tasks: TaskRecord[];
+      updateTasks: TaskRecord[];
+      devTasks: TaskRecord[];
+      depts: Record<string, number>;
+    }> = {};
+
+    Object.keys(WEBSITE_CATEGORIES).forEach((key) => {
+      categoryBuckets[key] = {
+        info: WEBSITE_CATEGORIES[key],
+        tasks: [],
+        updateTasks: [],
+        devTasks: [],
+        depts: {},
+      };
+    });
+
+    const monthlySourceMap: Record<string, { update: number; dev: number; total: number; categories: Record<string, number> }> = {};
+
+    webTasks.forEach((t) => {
+      const s = t.Status?.trim().toLowerCase();
+      if (s === 'done' || s === 'completed') {
+        completedCount++;
+      } else {
+        inProgressCount++;
+      }
+
+      const rawType = (t['Task type'] || '').trim().toLowerCase();
+      const isDev = rawType === 'website development';
+      if (isDev) {
+        devCount++;
+      } else {
+        updateCount++;
+      }
+
+      const dept = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
+      if (dept !== 'Unassigned') {
+        deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+      }
+
+      const catInfo = getWebsiteSource(t);
+      const bucket = categoryBuckets[catInfo.category] || categoryBuckets['General Web Maintenance & Systems'];
+      bucket.tasks.push(t);
+      if (isDev) {
+        bucket.devTasks.push(t);
+      } else {
+        bucket.updateTasks.push(t);
+      }
+      if (dept !== 'Unassigned') {
+        bucket.depts[dept] = (bucket.depts[dept] || 0) + 1;
+      }
+
+      const period = t.Period?.trim() || '';
+      if (period.length === 6) {
+        if (!monthlySourceMap[period]) {
+          monthlySourceMap[period] = { update: 0, dev: 0, total: 0, categories: {} };
+        }
+        if (isDev) {
+          monthlySourceMap[period].dev++;
+        } else {
+          monthlySourceMap[period].update++;
+        }
+        monthlySourceMap[period].total++;
+        monthlySourceMap[period].categories[catInfo.shortLabel] = (monthlySourceMap[period].categories[catInfo.shortLabel] || 0) + 1;
+      }
+    });
+
+    const total = webTasks.length;
+
+    const categoryStats = Object.entries(categoryBuckets).map(([category, bucket]) => {
+      const count = bucket.tasks.length;
+      const percentage = total > 0 ? parseFloat(((count / total) * 100).toFixed(1)) : 0;
+      const topDepts = Object.entries(bucket.depts)
+        .map(([name, deptCount]) => ({ name, count: deptCount }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 4);
+
+      let bucketCompleted = 0;
+      bucket.tasks.forEach((item) => {
+        const status = item.Status?.trim().toLowerCase();
+        if (status === 'done' || status === 'completed') bucketCompleted++;
+      });
+
+      return {
+        category,
+        info: bucket.info,
+        count,
+        percentage,
+        updateCount: bucket.updateTasks.length,
+        devCount: bucket.devTasks.length,
+        completed: bucketCompleted,
+        inProgress: count - bucketCompleted,
+        topDepts,
+        tasks: bucket.tasks,
+        uniqueDeptsCount: Object.keys(bucket.depts).length,
+      };
+    }).sort((a, b) => b.count - a.count);
+
+    const topDepartments = Object.entries(deptCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    const sortedPeriods = Object.keys(monthlySourceMap).sort();
+    const monthlyTrend = sortedPeriods.map((period) => {
+      const dataObj = monthlySourceMap[period];
+      const entry: any = {
+        period,
+        name: formatPeriod(period),
+        'Website Update': dataObj.update,
+        'Website Development': dataObj.dev,
+        total: dataObj.total,
+      };
+      Object.entries(dataObj.categories).forEach(([shortLabel, catCount]) => {
+        entry[shortLabel] = catCount;
+      });
+      return entry;
+    });
+
+    const bespokeDevProjects = webTasks.filter((t) => (t['Task type'] || '').trim().toLowerCase() === 'website development');
+
+    return {
+      total,
+      updateCount,
+      devCount,
+      completedCount,
+      inProgressCount,
+      uniqueDeptsCount: Object.keys(deptCounts).length,
+      categoryStats,
+      topDepartments,
+      monthlyTrend,
+      bespokeDevProjects,
+      allTasks: webTasks,
+    };
+  }, [filteredActiveTasksByCPR, selectedTimeline]);
+
+  // Available departments in the web dataset for the dropdown filter
+  const availableWebDepartments = useMemo(() => {
+    const set = new Set<string>();
+    websiteData.allTasks.forEach((t) => {
+      const d = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim();
+      if (d && d !== 'null' && d !== 'Unassigned') {
+        set.add(d);
+      }
+    });
+    return Array.from(set).sort();
+  }, [websiteData.allTasks]);
+
+  // Filtered website tasks for the interactive explorer
+  const filteredWebsiteTasks = useMemo(() => {
+    return websiteData.allTasks.filter((t) => {
+      const rawType = (t['Task type'] || '').trim().toLowerCase();
+
+      // Service Stream Filter: All | Website Update | Website Development
+      if (webServiceTypeFilter === 'Website Update' && rawType !== 'website update') {
+        return false;
+      }
+      if (webServiceTypeFilter === 'Website Development' && rawType !== 'website development') {
+        return false;
+      }
+
+      // Category filter
+      if (webSelectedCategory !== 'All') {
+        const catInfo = getWebsiteSource(t);
+        if (catInfo.category !== webSelectedCategory) return false;
+      }
+
+      // Status filter
+      if (webStatusFilter !== 'All') {
+        const s = (t.Status || '').trim().toLowerCase();
+        const isDone = s === 'done' || s === 'completed';
+        if (webStatusFilter === 'Done' && !isDone) return false;
+        if (webStatusFilter === 'In Progress' && isDone) return false;
+      }
+
+      // Department filter
+      if (webDeptFilter !== 'All') {
+        const dept = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
+        if (dept !== webDeptFilter) return false;
+      }
+
+      // Search query
+      if (webSearchQuery.trim()) {
+        const q = webSearchQuery.trim().toLowerCase();
+        const name = (t['PROJECT NAME'] || t['Task Name'] || '').toLowerCase();
+        const dept = (t['Department/ Office'] || t['Dpt/ Office'] || '').toLowerCase();
+        const tags = (t.Tags || '').toLowerCase();
+        const handler = (t.Handler || '').toLowerCase();
+        const platform = (t['For this Platform'] || '').toLowerCase();
+        const obj = (t['Objectives '] || '').toLowerCase();
+        const supplied = (t['Supplied Text'] || '').toLowerCase();
+        const owner = (t['Project Owner/Manager'] || '').toLowerCase();
+        if (
+          !name.includes(q) &&
+          !dept.includes(q) &&
+          !tags.includes(q) &&
+          !handler.includes(q) &&
+          !platform.includes(q) &&
+          !obj.includes(q) &&
+          !supplied.includes(q) &&
+          !owner.includes(q)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [websiteData.allTasks, webServiceTypeFilter, webSelectedCategory, webStatusFilter, webDeptFilter, webSearchQuery]);
+
+  const webTotalPages = Math.max(1, Math.ceil(filteredWebsiteTasks.length / 12));
+  const paginatedWebTasks = useMemo(() => {
+    const start = (webPage - 1) * 12;
+    return filteredWebsiteTasks.slice(start, start + 12);
+  }, [filteredWebsiteTasks, webPage]);
+
   const edmSummary = useMemo(() => {
     let totalDelivered = 0;
     let totalOpens = 0;
@@ -1623,63 +1899,50 @@ function App() {
 
       <div className="layout-wrapper">
         <div className="main-content-area">
-          <header className="header glass-panel">
+          <header className="header glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div className="header-title-area">
             <Activity size={32} color="#764393" />
-            <h1>Creative & Digital Projects</h1>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span style={{ fontSize: '0.95rem', color: '#555555', fontWeight: 600 }}>Timeline:</span>
-              <select
-                className="glass-select"
-                value={selectedTimeline}
-                onChange={(e) => setSelectedTimeline(e.target.value)}
-              >
-                {availableFinancialYears.map((fy) => {
-                  if (fy === 'All') return <option key="All" value="All">All Years</option>;
-                  const startYear = fy.substring(3, 7);
-                  const endYearStr = fy.substring(8);
-                  const endYear = startYear.substring(0, 2) + endYearStr;
-                  return (
-                    <option key={fy} value={fy}>
-                      {fy} (Jul 1, {startYear} - Jun 30, {endYear})
-                    </option>
-                  );
-                })}
-              </select>
+            <div>
+              <h1 style={{ margin: 0 }}>Creative & Digital Projects</h1>
+              <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                CPRO Performance Dashboard & Institutional Service Operations
+              </p>
             </div>
-            
-            {/* Exclude Checkbox */}
-            <label style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.6rem', 
-              cursor: 'pointer',
-              fontFamily: 'Montserrat, sans-serif',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              color: '#764393',
-              background: 'rgba(118, 67, 147, 0.05)',
-              padding: '0.4rem 0.9rem',
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.4rem 0.85rem',
               borderRadius: '20px',
-              border: '1px solid rgba(118, 67, 147, 0.15)',
-              userSelect: 'none',
-              transition: 'all 0.2s ease',
+              background: 'rgba(118, 67, 147, 0.08)',
+              border: '1px solid rgba(118, 67, 147, 0.2)',
+              color: '#764393',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              fontFamily: 'Montserrat, sans-serif'
             }}>
-              <input
-                type="checkbox"
-                checked={excludeCPR}
-                onChange={(e) => setExcludeCPR(e.target.checked)}
-                style={{
-                  accentColor: '#764393',
-                  cursor: 'pointer',
-                  width: '14px',
-                  height: '14px',
-                }}
-              />
-              EXCLUDE CPR DIGITAL & CREATIVE
-            </label>
+              <Calendar size={13} color="#764393" />
+              Timeline: {selectedTimeline === 'All' ? 'All Years' : selectedTimeline}
+            </span>
+            {excludeCPR && (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '20px',
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                color: '#dc2626',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                fontFamily: 'Montserrat, sans-serif'
+              }}>
+                CPR Digital & Creative Excluded
+              </span>
+            )}
           </div>
         </header>
 
@@ -3499,6 +3762,1731 @@ function App() {
             )}
           </div>
 
+          {/* ========================================================================= */}
+          {/* SECTION: WEBSITE IMPACT (WEBSITE UPDATE & WEBSITE DEVELOPMENT)            */}
+          {/* ========================================================================= */}
+          <div id="section-website" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.15) 0%, rgba(94, 54, 118, 0.12) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(118, 67, 147, 0.3)',
+                  boxShadow: '0 2px 8px rgba(118, 67, 147, 0.08)'
+                }}>
+                  <Globe size={24} color="#764393" />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                    <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                      Website Impact
+                    </h3>
+                    <span style={{
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '12px',
+                      background: 'rgba(118, 67, 147, 0.12)',
+                      color: '#764393',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}>
+                      Institutional Web Infrastructure & Digital Development
+                    </span>
+                  </div>
+                  <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                    Performance audit of CUHK public web systems: high-frequency institutional updates, faculty & staff directories, governance portals, and bespoke web platforms engineered by CPRO Digital & Creative.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span style={{
+                  padding: '0.45rem 0.9rem',
+                  borderRadius: '20px',
+                  background: 'rgba(118, 67, 147, 0.08)',
+                  color: '#764393',
+                  fontWeight: 700,
+                  fontSize: '0.825rem',
+                  fontFamily: 'Montserrat, sans-serif',
+                  border: '1px solid rgba(118, 67, 147, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <Sparkles size={14} color="#764393" />
+                  {websiteData.total.toLocaleString()} Total Web Requests
+                </span>
+                <span style={{
+                  padding: '0.45rem 0.9rem',
+                  borderRadius: '20px',
+                  background: 'rgba(130, 117, 75, 0.08)',
+                  color: '#82754B',
+                  fontWeight: 700,
+                  fontSize: '0.825rem',
+                  fontFamily: 'Montserrat, sans-serif',
+                  border: '1px solid rgba(130, 117, 75, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <Calendar size={14} color="#82754B" />
+                  Timeline: {selectedTimeline}
+                </span>
+              </div>
+            </div>
+
+            {/* Top KPI Cards for Website Impact */}
+            <div className="dashboard-grid">
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Total Web Operations
+                </h4>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {websiteData.total.toLocaleString()}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  {websiteData.completedCount} completed · {websiteData.inProgressCount} in progress
+                </span>
+              </div>
+
+              <div
+                className="kpi-card glass-panel"
+                onClick={() => {
+                  setWebServiceTypeFilter('Website Update');
+                  setWebActiveSubTab('explorer');
+                  setWebPage(1);
+                }}
+                style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                title="Click to view all Website Updates"
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                    Website Updates
+                  </h4>
+                  <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                    Effort 7/10
+                  </span>
+                </div>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {websiteData.updateCount.toLocaleString()}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#764393', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  High-frequency maintenance, OCD & announcements
+                </span>
+              </div>
+
+              <div
+                className="kpi-card glass-panel"
+                onClick={() => {
+                  setWebActiveSubTab('platforms');
+                }}
+                style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', cursor: 'pointer', transition: 'all 0.2s', borderColor: 'rgba(99, 102, 241, 0.3)' }}
+                title="Click to showcase Bespoke Platforms"
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h4 style={{ color: '#6366F1', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    Website Development
+                  </h4>
+                  <span style={{ fontSize: '0.7rem', color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.45rem', borderRadius: '8px', fontWeight: 700 }}>
+                    Effort 10/10
+                  </span>
+                </div>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#6366F1', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {websiteData.devCount.toLocaleString()} Platforms
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#6366F1', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  Strategic bespoke platforms built from scratch
+                </span>
+              </div>
+
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Departments Reached
+                </h4>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {websiteData.uniqueDeptsCount}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  Across faculties, CPRO, colleges & central admin
+                </span>
+              </div>
+            </div>
+
+            {/* Quick Service Stream Switcher Bar (User Flow Enhancement) */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.04) 0%, rgba(99, 102, 241, 0.04) 100%)',
+              border: '1px solid rgba(118, 67, 147, 0.15)',
+              borderRadius: '12px',
+              padding: '0.85rem 1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '0.75rem'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#475569', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
+                  <Filter size={14} color="#764393" />
+                  <span>Service Stream Focus:</span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                  <button
+                    className="web-stream-pill"
+                    onClick={() => {
+                      setWebServiceTypeFilter('All');
+                      setWebPage(1);
+                    }}
+                    style={{
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '20px',
+                      background: webServiceTypeFilter === 'All' ? '#764393' : '#ffffff',
+                      color: webServiceTypeFilter === 'All' ? '#ffffff' : '#475569',
+                      border: `1px solid ${webServiceTypeFilter === 'All' ? '#764393' : '#cbd5e1'}`,
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      boxShadow: webServiceTypeFilter === 'All' ? '0 2px 6px rgba(118, 67, 147, 0.2)' : 'none',
+                    }}
+                  >
+                    🌐 All Web Services ({websiteData.total})
+                  </button>
+                  <button
+                    className="web-stream-pill"
+                    onClick={() => {
+                      setWebServiceTypeFilter('Website Update');
+                      setWebPage(1);
+                    }}
+                    style={{
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '20px',
+                      background: webServiceTypeFilter === 'Website Update' ? '#764393' : '#ffffff',
+                      color: webServiceTypeFilter === 'Website Update' ? '#ffffff' : '#475569',
+                      border: `1px solid ${webServiceTypeFilter === 'Website Update' ? '#764393' : '#cbd5e1'}`,
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      boxShadow: webServiceTypeFilter === 'Website Update' ? '0 2px 6px rgba(118, 67, 147, 0.2)' : 'none',
+                    }}
+                  >
+                    ⚡ Website Updates ({websiteData.updateCount})
+                  </button>
+                  <button
+                    className="web-stream-pill"
+                    onClick={() => {
+                      setWebServiceTypeFilter('Website Development');
+                      setWebPage(1);
+                    }}
+                    style={{
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '20px',
+                      background: webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#ffffff',
+                      color: webServiceTypeFilter === 'Website Development' ? '#ffffff' : '#475569',
+                      border: `1px solid ${webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#cbd5e1'}`,
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      boxShadow: webServiceTypeFilter === 'Website Development' ? '0 2px 6px rgba(99, 102, 241, 0.25)' : 'none',
+                    }}
+                  >
+                    🚀 Website Development ({websiteData.devCount} Bespoke Platforms)
+                  </button>
+                </div>
+              </div>
+
+              {webServiceTypeFilter !== 'All' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.775rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                    Active View Filter: <strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#764393' }}>{webServiceTypeFilter}</strong>
+                  </span>
+                  <button
+                    onClick={() => {
+                      setWebServiceTypeFilter('All');
+                      setWebPage(1);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#64748b',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      fontWeight: 700,
+                      padding: 0,
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
+                  >
+                    Reset to All
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Sub-Tab Navigation for Website Impact */}
+            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
+              {[
+                { id: 'overview', label: 'Service Overview & Velocity' },
+                { id: 'platforms', label: `Bespoke Platforms Showcase (${websiteData.devCount})` },
+                { id: 'categories', label: `Web Services Spotlight (${websiteData.categoryStats.length})` },
+                { id: 'explorer', label: `Projects Explorer (${filteredWebsiteTasks.length})` },
+                { id: 'departments', label: 'Department Demand Matrix' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setWebActiveSubTab(tab.id as any);
+                    if (tab.id === 'explorer') setWebPage(1);
+                  }}
+                  style={{
+                    padding: '0.75rem 0.5rem',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: webActiveSubTab === tab.id ? '3px solid #764393' : '3px solid transparent',
+                    color: webActiveSubTab === tab.id ? '#764393' : '#64748b',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s',
+                    fontFamily: 'Montserrat, sans-serif',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* TAB 1: SERVICE OVERVIEW & VELOCITY */}
+            {webActiveSubTab === 'overview' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {/* Visual Charts Grid: Category Distribution Donut & Monthly Activity Area Chart */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.5rem' }}>
+                  {/* Chart 1: Category Distribution Donut */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <div className="service-section-title" style={{ fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>
+                        Web Services by Institutional Purpose
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                        {websiteData.categoryStats.length} Categories
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                      Breakdown of web outputs across staff directories, governance portals, homepage features, and bespoke development.
+                    </p>
+                    <div style={{ height: 300 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                          <Pie
+                            data={websiteData.categoryStats.map((s) => ({
+                              name: s.info.shortLabel,
+                              value: s.count,
+                              category: s.category,
+                              color: s.info.color,
+                            }))}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={{ stroke: '#764393', strokeWidth: 1 }}
+                            label={renderCustomPieLabel}
+                            innerRadius={55}
+                            outerRadius={95}
+                            paddingAngle={2}
+                            dataKey="value"
+                          >
+                            {websiteData.categoryStats.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.info.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(value: any, name: any) => {
+                              const total = websiteData.total;
+                              const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                              return [`${value.toLocaleString()} requests (${percent}%)`, name];
+                            }}
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid rgba(118, 67, 147, 0.25)',
+                              borderRadius: '12px',
+                              fontFamily: 'Montserrat, sans-serif',
+                              fontWeight: 500,
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Category Interactive Filter Pills */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                      {websiteData.categoryStats.map((s, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            setWebSelectedCategory(s.category);
+                            setWebActiveSubTab('explorer');
+                            setWebPage(1);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '16px',
+                            background: s.info.bg,
+                            border: `1px solid ${s.info.border}`,
+                            fontSize: '0.725rem',
+                            fontWeight: 700,
+                            color: s.info.color,
+                            cursor: 'pointer',
+                            fontFamily: 'Montserrat, sans-serif',
+                            transition: 'transform 0.15s ease',
+                          }}
+                          title={`Click to filter web projects for ${s.category}`}
+                        >
+                          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: s.info.color }}></span>
+                          <span>{s.info.shortLabel}:</span>
+                          <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Chart 2: Monthly Web Activity & Velocity Area Chart */}
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <div className="service-section-title" style={{ fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>
+                        Monthly Web Activity & Delivery Velocity
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                        Updates vs. Bespoke Development
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                      Sustained delivery cadence illustrating high-volume continuous updates alongside strategic bespoke platform launches.
+                    </p>
+                    <div style={{ height: 300 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={websiteData.monthlyTrend} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                          <defs>
+                            <linearGradient id="colorWebUpdate" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#764393" stopOpacity={0.4} />
+                              <stop offset="95%" stopColor="#764393" stopOpacity={0.02} />
+                            </linearGradient>
+                            <linearGradient id="colorWebDev" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#6366F1" stopOpacity={0.6} />
+                              <stop offset="95%" stopColor="#6366F1" stopOpacity={0.05} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(118, 67, 147, 0.08)" />
+                          <XAxis
+                            dataKey="name"
+                            tick={{ fill: '#475569', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                          />
+                          <YAxis
+                            tick={{ fill: '#475569', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                          />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid rgba(118, 67, 147, 0.25)',
+                              borderRadius: '12px',
+                              fontFamily: 'Montserrat, sans-serif',
+                              fontSize: '0.825rem',
+                              fontWeight: 500,
+                            }}
+                          />
+                          <Legend wrapperStyle={{ paddingTop: 10, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }} />
+                          <Area
+                            type="monotone"
+                            dataKey="Website Update"
+                            stroke="#764393"
+                            strokeWidth={2}
+                            fillOpacity={1}
+                            fill="url(#colorWebUpdate)"
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="Website Development"
+                            stroke="#6366F1"
+                            strokeWidth={2.5}
+                            fillOpacity={1}
+                            fill="url(#colorWebDev)"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9', fontSize: '0.75rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                      <span>
+                        Peak Update Month: <strong style={{ color: '#764393' }}>
+                          {(() => {
+                            if (!websiteData.monthlyTrend.length) return 'N/A';
+                            const topMonth = [...websiteData.monthlyTrend].sort((a, b) => b['Website Update'] - a['Website Update'])[0];
+                            return `${topMonth.name} (${topMonth['Website Update']} updates)`;
+                          })()}
+                        </strong>
+                      </span>
+                      <span>
+                        Dev Deployments: <strong style={{ color: '#6366F1' }}>{websiteData.devCount} Major Milestones</strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Service Stream Comparison Matrix: Website Update vs. Website Development */}
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                        Operational Comparison: Website Update vs. Website Development
+                      </h4>
+                      <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.825rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                        Understanding the distinct engineering complexity, iteration cycles, and institutional scope of each web pillar.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                    {/* Column 1: Website Update */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.04) 0%, rgba(118, 67, 147, 0.01) 100%)',
+                      border: '1px solid rgba(118, 67, 147, 0.2)',
+                      borderRadius: '10px',
+                      padding: '1.5rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '1rem',
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#764393' }}></span>
+                          <h5 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                            ⚡ Website Update
+                          </h5>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#764393', background: 'rgba(118, 67, 147, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                          {websiteData.updateCount} Projects ({((websiteData.updateCount / (websiteData.total || 1)) * 100).toFixed(1)}%)
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', color: '#334155', fontFamily: 'Montserrat, sans-serif' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Operational Profile:</span>
+                          <strong style={{ color: '#1e293b' }}>High Frequency & Agile Iteration</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Average Effort Level:</span>
+                          <strong style={{ color: '#764393' }}>7 / 10</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Key Turnaround Scope:</span>
+                          <strong style={{ color: '#1e293b' }}>OCD directory, hero banners, rankings, Senate/Council</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Departments Served:</span>
+                          <strong style={{ color: '#1e293b' }}>{websiteData.uniqueDeptsCount} University Units</strong>
+                        </div>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+                        Essential continuous operational artery ensuring zero university downtime, real-time news propagation, and authoritative directory records across all faculties and administrative offices.
+                      </p>
+
+                      <button
+                        onClick={() => {
+                          setWebServiceTypeFilter('Website Update');
+                          setWebActiveSubTab('explorer');
+                          setWebPage(1);
+                        }}
+                        style={{
+                          marginTop: 'auto',
+                          padding: '0.6rem 0.85rem',
+                          borderRadius: '8px',
+                          background: '#ffffff',
+                          border: '1px solid rgba(118, 67, 147, 0.3)',
+                          color: '#764393',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        Explore {websiteData.updateCount} Website Updates
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+
+                    {/* Column 2: Website Development */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.01) 100%)',
+                      border: '1px solid rgba(99, 102, 241, 0.25)',
+                      borderRadius: '10px',
+                      padding: '1.5rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '1rem',
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#6366F1' }}></span>
+                          <h5 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#6366F1', fontFamily: 'Montserrat, sans-serif' }}>
+                            🚀 Website Development
+                          </h5>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ffffff', background: '#6366F1', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                          {websiteData.devCount} Bespoke Platforms
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', color: '#334155', fontFamily: 'Montserrat, sans-serif' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Operational Profile:</span>
+                          <strong style={{ color: '#1e293b' }}>Enterprise Engineering & Architecture</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Average Effort Level:</span>
+                          <strong style={{ color: '#6366F1' }}>10 / 10 (Maximum Complexity)</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Key Platform Deliverables:</span>
+                          <strong style={{ color: '#1e293b' }}>Strategic Plan, Facts & Figures Online, Visuals, Stickers</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
+                          <span style={{ color: '#64748b', fontWeight: 600 }}>Client Units:</span>
+                          <strong style={{ color: '#1e293b' }}>Vice-Chancellor's Office & CPRO Digital</strong>
+                        </div>
+                      </div>
+
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+                        High-stakes bespoke systems built from the ground up: customized full-stack architecture, dynamic data visualizations, and high-visibility digital real estate representing university leadership.
+                      </p>
+
+                      <button
+                        onClick={() => {
+                          setWebActiveSubTab('platforms');
+                        }}
+                        style={{
+                          marginTop: 'auto',
+                          padding: '0.6rem 0.85rem',
+                          borderRadius: '8px',
+                          background: '#6366F1',
+                          border: 'none',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          transition: 'all 0.15s ease',
+                          boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)'
+                        }}
+                      >
+                        View Bespoke Platforms Showcase
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: BESPOKE PLATFORMS SHOWCASE (WEBSITE DEVELOPMENT) */}
+            {webActiveSubTab === 'platforms' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(118, 67, 147, 0.06) 100%)',
+                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  borderRadius: '12px',
+                  padding: '1.5rem',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '1rem',
+                }}>
+                  <div style={{ maxWidth: '800px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
+                      <Code size={18} color="#6366F1" />
+                      <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                        Bespoke Platforms & Systems (Website Development)
+                      </h4>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '12px' }}>
+                        Effort: 10/10
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
+                      Flagship digital systems engineered from the ground up by CPRO Digital & Creative. Unlike routine content updates, these platforms involve custom user experience design, responsive frontend frameworks, scalable database integration, and high-visibility university impact.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <span style={{
+                      padding: '0.5rem 1rem',
+                      borderRadius: '20px',
+                      background: '#ffffff',
+                      border: '1px solid rgba(99, 102, 241, 0.3)',
+                      color: '#6366F1',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      fontFamily: 'Montserrat, sans-serif',
+                      boxShadow: '0 2px 6px rgba(99, 102, 241, 0.1)'
+                    }}>
+                      {websiteData.devCount} Enterprise Platforms
+                    </span>
+                  </div>
+                </div>
+
+                {/* Grid of Bespoke Development Platforms */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
+                  {websiteData.bespokeDevProjects.map((proj, idx) => {
+                    const name = proj['PROJECT NAME'] || proj['Task Name'] || 'Bespoke Web Platform';
+                    const dept = proj['Department/ Office'] || proj['Dpt/ Office'] || 'CPR Digital & Creative';
+                    const period = formatPeriod(proj.Period) || proj.Period || 'Active';
+                    const obj = proj['Objectives '] || proj.Tags || 'Strategic bespoke platform engineered for university-wide digital communication and stakeholder reach.';
+                    const handler = proj.Handler || 'CPRO Digital & Creative';
+                    const owner = proj['Project Owner/Manager'] || 'Digital & Creative Lead';
+
+                    return (
+                      <div
+                        key={idx}
+                        className="web-platform-card"
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid rgba(99, 102, 241, 0.25)',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          boxShadow: '0 4px 16px rgba(99, 102, 241, 0.06)',
+                        }}
+                      >
+                        {/* Platform Header */}
+                        <div style={{
+                          padding: '1.25rem 1.5rem',
+                          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(118, 67, 147, 0.08) 100%)',
+                          borderBottom: '1px solid rgba(99, 102, 241, 0.2)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          gap: '1rem',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                            <div style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '10px',
+                              background: '#6366F1',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 2px 6px rgba(99, 102, 241, 0.3)',
+                              flexShrink: 0,
+                            }}>
+                              <Laptop size={18} color="#ffffff" />
+                            </div>
+                            <div>
+                              <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                                {name}
+                              </h4>
+                              <span style={{ fontSize: '0.75rem', color: '#6366F1', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>
+                                Client: {dept}
+                              </span>
+                            </div>
+                          </div>
+
+                          <span style={{
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '12px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            color: '#10B981',
+                            fontWeight: 800,
+                            fontSize: '0.725rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            fontFamily: 'Montserrat, sans-serif',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            <CheckCircle2 size={12} />
+                            Live Platform
+                          </span>
+                        </div>
+
+                        {/* Platform Details */}
+                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                          <div>
+                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              Strategic Impact & Engineering Scope
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#334155', lineHeight: 1.55, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                              {obj}
+                            </p>
+                          </div>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', padding: '0.75rem 0', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}>
+                            <div>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Timeline Period</span>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                {period}
+                              </div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Effort Rating</span>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#6366F1', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                10 / 10 Enterprise
+                              </div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Development & Owner</span>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                {handler} {owner ? `(Lead: ${owner})` : ''}
+                              </div>
+                            </div>
+                            <div>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Architecture Scope</span>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#764393', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                Full-Stack Bespoke
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#BespokeWeb</span>
+                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#ResponsiveUI</span>
+                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#Institutional</span>
+                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#CPROCreative</span>
+                          </div>
+
+                          <div style={{ marginTop: 'auto', paddingTop: '0.75rem' }}>
+                            <button
+                              onClick={() => {
+                                setWebServiceTypeFilter('Website Development');
+                                setWebSearchQuery(name);
+                                setWebActiveSubTab('explorer');
+                                setWebPage(1);
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '0.65rem 0.75rem',
+                                borderRadius: '8px',
+                                background: '#f8fafc',
+                                color: '#6366F1',
+                                border: '1px solid rgba(99, 102, 241, 0.3)',
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.4rem',
+                                fontFamily: 'Montserrat, sans-serif',
+                                transition: 'all 0.2s',
+                              }}
+                            >
+                              <Eye size={14} />
+                              Inspect Platform in Explorer
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: WEB SERVICES SPOTLIGHT ("WHAT TYPES OF WEB SERVICES") */}
+            {webActiveSubTab === 'categories' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    What Types of Web Services Are Requested?
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                    Every website service fulfills a crucial institutional mission, from campus directory governance to world university rankings and bespoke digital applications. Select any category to filter all matching projects.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                  {websiteData.categoryStats.map((s, idx) => {
+                    const isSelected = webSelectedCategory === s.category;
+                    return (
+                      <div
+                        key={idx}
+                        className="web-category-card"
+                        style={{
+                          background: '#ffffff',
+                          border: isSelected ? `2px solid ${s.info.color}` : '1px solid #e2e8f0',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          boxShadow: isSelected ? `0 6px 20px ${s.info.bg}` : 'none',
+                        }}
+                      >
+                        {/* Card Header */}
+                        <div style={{
+                          padding: '1.25rem 1.5rem',
+                          background: s.info.bg,
+                          borderBottom: `1px solid ${s.info.border}`,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                            <div style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '8px',
+                              background: '#ffffff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: `1px solid ${s.info.border}`,
+                            }}>
+                              {renderWebsiteCategoryIcon(s.category, s.info.color, 16)}
+                            </div>
+                            <h4 style={{ margin: 0, fontSize: '0.975rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                              {s.category}
+                            </h4>
+                          </div>
+
+                          <span style={{
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '12px',
+                            background: '#ffffff',
+                            color: s.info.color,
+                            fontWeight: 800,
+                            fontSize: '0.75rem',
+                            border: `1px solid ${s.info.border}`,
+                            fontFamily: 'Montserrat, sans-serif',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {s.count} ({s.percentage}%)
+                          </span>
+                        </div>
+
+                        {/* Card Body */}
+                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                          <p style={{ margin: 0, fontSize: '0.825rem', color: '#475569', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                            {s.info.description}
+                          </p>
+
+                          {/* Updates vs Development Split Badge */}
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}>
+                            <span style={{ background: 'rgba(118, 67, 147, 0.08)', color: '#764393', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                              {s.updateCount} Updates
+                            </span>
+                            {s.devCount > 0 && (
+                              <span style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                                🚀 {s.devCount} Dev Platforms
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              Key Output Examples
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                              {s.info.examples.slice(0, 3).map((ex, exIdx) => (
+                                <div key={exIdx} style={{ fontSize: '0.8rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
+                                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: s.info.color }}></span>
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
+                            <button
+                              onClick={() => {
+                                setWebSelectedCategory(s.category);
+                                setWebActiveSubTab('explorer');
+                                setWebPage(1);
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '0.6rem 0.75rem',
+                                borderRadius: '8px',
+                                background: isSelected ? s.info.color : '#f8fafc',
+                                color: isSelected ? '#ffffff' : s.info.color,
+                                border: `1px solid ${isSelected ? s.info.color : s.info.border}`,
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem',
+                                fontFamily: 'Montserrat, sans-serif',
+                                transition: 'all 0.2s',
+                              }}
+                            >
+                              <Eye size={14} />
+                              Explore {s.count} Projects
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 4: PROJECTS EXPLORER */}
+            {webActiveSubTab === 'explorer' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {/* Search & Filter Header */}
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                }}>
+                  {/* Search bar & filter dropdowns */}
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ flex: '1 1 280px', position: 'relative' }}>
+                      <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text"
+                        placeholder="Search web projects by name, department, objectives, handler, tags..."
+                        value={webSearchQuery}
+                        onChange={(e) => {
+                          setWebSearchQuery(e.target.value);
+                          setWebPage(1);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.75rem 0.65rem 2.25rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '0.85rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          boxSizing: 'border-box',
+                          background: '#ffffff',
+                          color: '#1e293b',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.65rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      {/* Service Stream Dropdown */}
+                      <select
+                        value={webServiceTypeFilter}
+                        onChange={(e) => {
+                          setWebServiceTypeFilter(e.target.value as any);
+                          setWebPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                        }}
+                      >
+                        <option value="All">All Streams (Updates & Dev)</option>
+                        <option value="Website Update">⚡ Website Updates Only</option>
+                        <option value="Website Development">🚀 Website Development Only</option>
+                      </select>
+
+                      {/* Category Dropdown */}
+                      <select
+                        value={webSelectedCategory}
+                        onChange={(e) => {
+                          setWebSelectedCategory(e.target.value);
+                          setWebPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          maxWidth: '220px',
+                        }}
+                      >
+                        <option value="All">All Categories ({websiteData.total})</option>
+                        {websiteData.categoryStats.map((c, cIdx) => (
+                          <option key={cIdx} value={c.category}>
+                            {c.info.shortLabel} ({c.count})
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Status Dropdown */}
+                      <select
+                        value={webStatusFilter}
+                        onChange={(e) => {
+                          setWebStatusFilter(e.target.value as any);
+                          setWebPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                        }}
+                      >
+                        <option value="All">All Statuses</option>
+                        <option value="Done">Completed Only</option>
+                        <option value="In Progress">In Progress Only</option>
+                      </select>
+
+                      {/* Department Dropdown */}
+                      <select
+                        value={webDeptFilter}
+                        onChange={(e) => {
+                          setWebDeptFilter(e.target.value);
+                          setWebPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          maxWidth: '200px',
+                        }}
+                      >
+                        <option value="All">All Departments ({availableWebDepartments.length})</option>
+                        {availableWebDepartments.map((d, dIdx) => (
+                          <option key={dIdx} value={d}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
+
+                      {(webSelectedCategory !== 'All' || webServiceTypeFilter !== 'All' || webSearchQuery || webStatusFilter !== 'All' || webDeptFilter !== 'All') && (
+                        <button
+                          onClick={() => {
+                            setWebSelectedCategory('All');
+                            setWebServiceTypeFilter('All');
+                            setWebSearchQuery('');
+                            setWebStatusFilter('All');
+                            setWebDeptFilter('All');
+                            setWebPage(1);
+                          }}
+                          style={{
+                            padding: '0.65rem 0.9rem',
+                            borderRadius: '8px',
+                            background: '#e2e8f0',
+                            border: 'none',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            color: '#475569',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem',
+                            fontFamily: 'Montserrat, sans-serif',
+                          }}
+                        >
+                          <RotateCcw size={12} />
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Active Filter Breadcrumbs (User Flow Improvement) */}
+                  {(webSelectedCategory !== 'All' || webServiceTypeFilter !== 'All' || webSearchQuery || webStatusFilter !== 'All' || webDeptFilter !== 'All') && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.5rem', borderTop: '1px dashed #e2e8f0' }}>
+                      <span style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>
+                        Active Filters:
+                      </span>
+                      {webServiceTypeFilter !== 'All' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          background: 'rgba(118, 67, 147, 0.1)',
+                          color: '#764393',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}>
+                          Stream: {webServiceTypeFilter}
+                          <button onClick={() => setWebServiceTypeFilter('All')} style={{ background: 'none', border: 'none', color: '#764393', cursor: 'pointer', padding: 0, fontWeight: 900, fontSize: '0.8rem' }}>×</button>
+                        </span>
+                      )}
+                      {webSelectedCategory !== 'All' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          background: 'rgba(118, 67, 147, 0.1)',
+                          color: '#764393',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}>
+                          Category: {webSelectedCategory}
+                          <button onClick={() => setWebSelectedCategory('All')} style={{ background: 'none', border: 'none', color: '#764393', cursor: 'pointer', padding: 0, fontWeight: 900, fontSize: '0.8rem' }}>×</button>
+                        </span>
+                      )}
+                      {webStatusFilter !== 'All' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          color: '#2563eb',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}>
+                          Status: {webStatusFilter}
+                          <button onClick={() => setWebStatusFilter('All')} style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', padding: 0, fontWeight: 900, fontSize: '0.8rem' }}>×</button>
+                        </span>
+                      )}
+                      {webDeptFilter !== 'All' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          background: 'rgba(130, 117, 75, 0.1)',
+                          color: '#82754B',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}>
+                          Dept: {webDeptFilter}
+                          <button onClick={() => setWebDeptFilter('All')} style={{ background: 'none', border: 'none', color: '#82754B', cursor: 'pointer', padding: 0, fontWeight: 900, fontSize: '0.8rem' }}>×</button>
+                        </span>
+                      )}
+                      {webSearchQuery && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          background: '#f1f5f9',
+                          color: '#334155',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}>
+                          Search: "{webSearchQuery}"
+                          <button onClick={() => setWebSearchQuery('')} style={{ background: 'none', border: 'none', color: '#334155', cursor: 'pointer', padding: 0, fontWeight: 900, fontSize: '0.8rem' }}>×</button>
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Category Pills Bar */}
+                  <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', marginRight: '0.25rem' }}>
+                      Filter by Category:
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        setWebSelectedCategory('All');
+                        setWebPage(1);
+                      }}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '20px',
+                        background: webSelectedCategory === 'All' ? '#764393' : '#ffffff',
+                        color: webSelectedCategory === 'All' ? '#ffffff' : '#64748b',
+                        border: '1px solid',
+                        borderColor: webSelectedCategory === 'All' ? '#764393' : '#cbd5e1',
+                        fontSize: '0.775rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontFamily: 'Montserrat, sans-serif',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      All Categories ({websiteData.total})
+                    </button>
+
+                    {websiteData.categoryStats.map((s, idx) => {
+                      const isSelected = webSelectedCategory === s.category;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setWebSelectedCategory(s.category);
+                            setWebPage(1);
+                          }}
+                          style={{
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '20px',
+                            background: isSelected ? s.info.color : '#ffffff',
+                            color: isSelected ? '#ffffff' : '#475569',
+                            border: '1px solid',
+                            borderColor: isSelected ? s.info.color : '#cbd5e1',
+                            fontSize: '0.775rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            fontFamily: 'Montserrat, sans-serif',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isSelected ? '#ffffff' : s.info.color }}></span>
+                          <span>{s.info.shortLabel} ({s.count})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Results count label */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
+                  <span>
+                    Showing <strong style={{ color: '#1e293b' }}>{paginatedWebTasks.length}</strong> of <strong style={{ color: '#1e293b' }}>{filteredWebsiteTasks.length}</strong> Website Projects
+                    {webSelectedCategory !== 'All' && <span> in <strong style={{ color: '#764393' }}>{webSelectedCategory}</strong></span>}
+                    {webServiceTypeFilter !== 'All' && <span> (<strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#764393' }}>{webServiceTypeFilter}</strong>)</span>}
+                  </span>
+                  <span>
+                    Page {webPage} of {webTotalPages}
+                  </span>
+                </div>
+
+                {/* Projects Table */}
+                <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Project Name</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Service Stream</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Category</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Department / Unit</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedWebTasks.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>
+                            No website projects match the selected filters.
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedWebTasks.map((t, idx) => {
+                          const catInfo = getWebsiteSource(t);
+                          const rawType = (t['Task type'] || '').trim();
+                          const isDev = rawType.toLowerCase() === 'website development';
+                          const statusStr = (t.Status || '').trim().toLowerCase();
+                          const isDone = statusStr === 'done' || statusStr === 'completed';
+                          const taskId = `${t['PROJECT NAME'] || t['Task Name']}_${t['Created Date'] || t.Period}_${idx}`;
+                          const isExpanded = expandedWebTaskId === taskId;
+
+                          return (
+                            <>
+                              <tr
+                                key={idx}
+                                onClick={() => setExpandedWebTaskId(isExpanded ? null : taskId)}
+                                style={{
+                                  borderBottom: isExpanded ? 'none' : '1px solid #f1f5f9',
+                                  background: isExpanded ? 'rgba(118, 67, 147, 0.04)' : 'transparent',
+                                  cursor: 'pointer',
+                                  transition: 'background 0.15s',
+                                }}
+                              >
+                                <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: '#1e293b', maxWidth: '280px', wordBreak: 'break-word' }}>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                    <span>{t['PROJECT NAME'] || t['Task Name'] || 'Untitled Web Project'}</span>
+                                    {t.Tags && (
+                                      <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t.Tags}>
+                                        #{t.Tags.split(/[,;]/).map((x: string) => x.trim()).filter(Boolean).slice(0, 3).join(' #')}
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    padding: '0.25rem 0.65rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 800,
+                                    background: isDev ? 'rgba(99, 102, 241, 0.12)' : 'rgba(118, 67, 147, 0.1)',
+                                    color: isDev ? '#6366F1' : '#764393',
+                                    border: `1px solid ${isDev ? 'rgba(99, 102, 241, 0.3)' : 'rgba(118, 67, 147, 0.25)'}`,
+                                  }}>
+                                    {isDev ? <Laptop size={12} /> : <Zap size={12} />}
+                                    {rawType || 'Website Update'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    padding: '0.2rem 0.6rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 700,
+                                    background: catInfo.bg,
+                                    color: catInfo.color,
+                                    border: `1px solid ${catInfo.border}`,
+                                  }}>
+                                    {renderWebsiteCategoryIcon(catInfo.category, catInfo.color, 12)}
+                                    {catInfo.shortLabel}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#334155', fontWeight: 600, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t['Department/ Office'] || t['Dpt/ Office']}>
+                                  {t['Department/ Office'] || t['Dpt/ Office'] || 'Unassigned'}
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    padding: '0.15rem 0.55rem',
+                                    borderRadius: '6px',
+                                    fontSize: '0.725rem',
+                                    fontWeight: 700,
+                                    background: isDone ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                    color: isDone ? '#10B981' : '#d97706',
+                                    border: `1px solid ${isDone ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
+                                  }}>
+                                    {isDone ? 'Completed' : 'In Progress'}
+                                  </span>
+                                </td>
+                              </tr>
+
+                              {isExpanded && (
+                                <tr key={`${idx}-expanded`} style={{ background: 'rgba(118, 67, 147, 0.03)', borderBottom: '2px solid rgba(118, 67, 147, 0.2)' }}>
+                                  <td colSpan={5} style={{ padding: '1.25rem 1.5rem' }}>
+                                    <div style={{
+                                      background: '#ffffff',
+                                      border: '1px solid #e2e8f0',
+                                      borderRadius: '8px',
+                                      padding: '1.25rem',
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: '0.85rem',
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                                    }}>
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
+                                            Web Project Brief & Objectives
+                                          </div>
+                                          <h4 style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['PROJECT NAME'] || t['Task Name']}
+                                          </h4>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isDev ? '#6366F1' : '#764393', background: isDev ? 'rgba(99, 102, 241, 0.1)' : 'rgba(118, 67, 147, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                                            {rawType}
+                                          </span>
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: catInfo.color, background: catInfo.bg, padding: '0.2rem 0.6rem', borderRadius: '12px', border: `1px solid ${catInfo.border}` }}>
+                                            {catInfo.category}
+                                          </span>
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                                            {formatPeriod(t.Period) || t.Period}
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      <div>
+                                        <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                          What This Web Request Was For (Objectives):
+                                        </div>
+                                        <div style={{
+                                          fontSize: '0.85rem',
+                                          color: '#1e293b',
+                                          lineHeight: 1.6,
+                                          background: '#f8fafc',
+                                          padding: '0.85rem 1rem',
+                                          borderRadius: '6px',
+                                          border: '1px solid #e2e8f0',
+                                          whiteSpace: 'pre-wrap',
+                                          fontFamily: 'Montserrat, sans-serif',
+                                          fontWeight: 500
+                                        }}>
+                                          {t['Objectives '] || 'No detailed written brief provided. Request processed and categorized based on project title, platform tags, and departmental workflow.'}
+                                        </div>
+                                      </div>
+
+                                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', paddingTop: '0.5rem' }}>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Platforms / Destination</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['For this Platform'] || 'CUHK Public Web / CMS / Departmental Site'}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Requesting Department</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['Department/ Office'] || t['Dpt/ Office'] || 'Unassigned'}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Handler & Project Manager</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            Handler: {t.Handler || 'Unassigned'} {t['Project Owner/Manager'] ? `(Owner: ${t['Project Owner/Manager']})` : ''}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Priority & Completion</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            Priority: {t.Priority || 'Normal'} · {isDone ? 'Finished' : 'In Progress'}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {t['Supplied Text'] && (
+                                        <div style={{ paddingTop: '0.5rem', borderTop: '1px dashed #e2e8f0' }}>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Supplied Text / Content:</div>
+                                          <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '0.25rem', maxHeight: '100px', overflowY: 'auto', whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['Supplied Text']}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Controls */}
+                {webTotalPages > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
+                    <button
+                      disabled={webPage === 1}
+                      onClick={() => setWebPage((p) => Math.max(1, p - 1))}
+                      style={{
+                        padding: '0.5rem 0.85rem',
+                        borderRadius: '6px',
+                        background: webPage === 1 ? '#f1f5f9' : '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: webPage === 1 ? '#94a3b8' : '#334155',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        cursor: webPage === 1 ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    >
+                      <ChevronLeft size={16} />
+                      Previous
+                    </button>
+
+                    <span style={{ fontSize: '0.825rem', fontWeight: 700, color: '#475569', fontFamily: 'Montserrat, sans-serif' }}>
+                      Page {webPage} of {webTotalPages}
+                    </span>
+
+                    <button
+                      disabled={webPage === webTotalPages}
+                      onClick={() => setWebPage((p) => Math.min(webTotalPages, p + 1))}
+                      style={{
+                        padding: '0.5rem 0.85rem',
+                        borderRadius: '6px',
+                        background: webPage === webTotalPages ? '#f1f5f9' : '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: webPage === webTotalPages ? '#94a3b8' : '#334155',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        cursor: webPage === webTotalPages ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    >
+                      Next
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 5: DEPARTMENT DEMAND MATRIX */}
+            {webActiveSubTab === 'departments' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    Which Departments Rely Most on Web Support?
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                    Institutional demand distribution showing how internal and external university departments consume website update and development services across directory listings, news, admissions, and dining.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                  {websiteData.topDepartments.map((dept, idx) => {
+                    const deptTasks = websiteData.allTasks.filter((t) => {
+                      const d = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
+                      return d === dept.name;
+                    });
+                    const deptTotal = deptTasks.length;
+                    let deptUpdates = 0;
+                    let deptDevs = 0;
+                    const catCounts: Record<string, number> = {};
+                    deptTasks.forEach((t) => {
+                      const rawType = (t['Task type'] || '').trim().toLowerCase();
+                      if (rawType === 'website development') {
+                        deptDevs++;
+                      } else {
+                        deptUpdates++;
+                      }
+                      const cat = getWebsiteSource(t).shortLabel;
+                      catCounts[cat] = (catCounts[cat] || 0) + 1;
+                    });
+                    const sortedCatCounts = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '12px',
+                          padding: '1.5rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '1rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                          <div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
+                              #{idx + 1} Requisition Unit
+                            </span>
+                            <h4 style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                              {dept.name}
+                            </h4>
+                          </div>
+                          <span style={{
+                            padding: '0.25rem 0.65rem',
+                            borderRadius: '14px',
+                            background: 'rgba(118, 67, 147, 0.1)',
+                            color: '#764393',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            fontFamily: 'Montserrat, sans-serif',
+                          }}>
+                            {deptTotal} requests
+                          </span>
+                        </div>
+
+                        {/* Stream breakdown tag */}
+                        <div style={{ display: 'flex', gap: '0.4rem', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          <span style={{ background: 'rgba(118, 67, 147, 0.08)', color: '#764393', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
+                            {deptUpdates} Updates
+                          </span>
+                          {deptDevs > 0 && (
+                            <span style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
+                              🚀 {deptDevs} Dev Platforms
+                            </span>
+                          )}
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'Montserrat, sans-serif' }}>
+                            Top Web Services Requested
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            {sortedCatCounts.slice(0, 4).map(([catName, count], cIdx) => {
+                              const share = ((count / deptTotal) * 100).toFixed(0);
+                              return (
+                                <div key={cIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                  <span style={{ fontWeight: 600, color: '#334155' }}>{catName}</span>
+                                  <span style={{ fontWeight: 800, color: '#764393' }}>{count} ({share}%)</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
+                          <button
+                            onClick={() => {
+                              setWebDeptFilter(dept.name);
+                              setWebSelectedCategory('All');
+                              setWebServiceTypeFilter('All');
+                              setWebSearchQuery('');
+                              setWebActiveSubTab('explorer');
+                              setWebPage(1);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem',
+                              borderRadius: '6px',
+                              background: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                              color: '#764393',
+                              fontWeight: 700,
+                              fontSize: '0.775rem',
+                              cursor: 'pointer',
+                              fontFamily: 'Montserrat, sans-serif',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '0.35rem',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            Filter All Projects for {dept.name}
+                            <ArrowRight size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* CUHK Visuals & DAM Impact Sections */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem', width: '100%' }}>
             {visualsLoading && (
@@ -4499,11 +6487,128 @@ function App() {
         </div> {/* closes main-content-area */}
 
         <aside className="right-sidebar">
-          <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem', borderBottom: '1px solid rgba(118, 67, 147, 0.15)', paddingBottom: '1.5rem' }}>
-            <Activity size={24} color="#764393" />
-            <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: '0.9rem', color: '#764393', letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
-              DC PERFORMANCE
-            </span>
+          {/* Global Scope Controls: Timeline & Exclude CPR */}
+          <div className="nav-controls" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.85rem',
+            background: 'rgba(118, 67, 147, 0.04)',
+            border: '1px solid rgba(118, 67, 147, 0.16)',
+            borderRadius: '10px',
+            padding: '1rem',
+            marginBottom: '0.5rem',
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              color: '#764393',
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              fontFamily: 'Montserrat, sans-serif',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Filter size={12} color="#764393" />
+                <span>Scope Controls</span>
+              </div>
+              {selectedTimeline !== 'All' && (
+                <span style={{
+                  fontSize: '0.65rem',
+                  padding: '0.1rem 0.4rem',
+                  borderRadius: '10px',
+                  background: 'rgba(118, 67, 147, 0.12)',
+                  color: '#764393',
+                  fontWeight: 800,
+                }}>
+                  {selectedTimeline}
+                </span>
+              )}
+            </div>
+
+            {/* Timeline Selector */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                color: '#475569',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                fontFamily: 'Montserrat, sans-serif',
+              }}>
+                <Calendar size={13} color="#764393" />
+                <span>Timeline:</span>
+              </label>
+              <select
+                className="glass-select"
+                value={selectedTimeline}
+                onChange={(e) => setSelectedTimeline(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.55rem 0.7rem',
+                  fontSize: '0.8rem',
+                  borderRadius: '6px',
+                  background: '#ffffff',
+                  border: '1px solid rgba(118, 67, 147, 0.25)',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontFamily: 'Montserrat, sans-serif',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                }}
+              >
+                {availableFinancialYears.map((fy) => {
+                  if (fy === 'All') return <option key="All" value="All">All Years</option>;
+                  const startYear = fy.substring(3, 7);
+                  const endYearStr = fy.substring(8);
+                  const endYear = startYear.substring(0, 2) + endYearStr;
+                  return (
+                    <option key={fy} value={fy}>
+                      {fy} ({startYear}-{endYear})
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
+            {/* Exclude Checkbox */}
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.55rem', 
+              cursor: 'pointer',
+              fontFamily: 'Montserrat, sans-serif',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: excludeCPR ? '#764393' : '#475569',
+              background: excludeCPR ? 'rgba(118, 67, 147, 0.12)' : '#ffffff',
+              padding: '0.55rem 0.75rem',
+              borderRadius: '8px',
+              border: `1px solid ${excludeCPR ? '#764393' : 'rgba(118, 67, 147, 0.2)'}`,
+              userSelect: 'none',
+              transition: 'all 0.15s ease',
+              boxShadow: excludeCPR ? '0 2px 6px rgba(118, 67, 147, 0.15)' : '0 1px 2px rgba(0,0,0,0.03)',
+            }}>
+              <input
+                type="checkbox"
+                checked={excludeCPR}
+                onChange={(e) => setExcludeCPR(e.target.checked)}
+                style={{
+                  accentColor: '#764393',
+                  cursor: 'pointer',
+                  width: '15px',
+                  height: '15px',
+                  margin: 0,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ lineHeight: 1.35 }}>
+                Exclude CPR Digital & Creative
+              </span>
+            </label>
           </div>
 
           <div className="nav-title">Navigation</div>
@@ -4522,10 +6627,6 @@ function App() {
 
               {/* Jump to Section */}
               <div className={`nav-jump-group ${activeTab !== 'requests' ? 'hidden-mobile' : ''}`}>
-                <div className="nav-jump-header">
-                  <ListTodo size={13} color="#764393" />
-                  <span>Jump to Section:</span>
-                </div>
                 <div className="nav-jump-list">
                   <button
                     className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-monthly' ? 'active' : ''}`}
@@ -4593,10 +6694,6 @@ function App() {
 
               {/* Jump to Section */}
               <div className={`nav-jump-group ${activeTab !== 'services' ? 'hidden-mobile' : ''}`}>
-                <div className="nav-jump-header">
-                  <Layers size={13} color="#764393" />
-                  <span>Jump to Section:</span>
-                </div>
                 <div className="nav-jump-list">
                   <button
                     className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-graphic-design' ? 'active' : ''}`}
@@ -4604,6 +6701,13 @@ function App() {
                   >
                     <Palette size={15} color="#82754B" />
                     <span>Graphic Design Impact</span>
+                  </button>
+                  <button
+                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-website' ? 'active' : ''}`}
+                    onClick={() => scrollToSection('section-website')}
+                  >
+                    <Globe size={15} color="#764393" />
+                    <span>Website Impact</span>
                   </button>
                   <button
                     className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-cuhk-visuals' ? 'active' : ''}`}
