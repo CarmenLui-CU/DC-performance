@@ -5,6 +5,7 @@ export interface TaskRecord {
   'Dpt/ Office': string;
   'Created Date & Time': string;
   'PROJECT NAME': string;
+  'Task Name'?: string;
   'Department/ Office': string;
   Status: string;
   'Task type': string;
@@ -13,4 +14,7 @@ export interface TaskRecord {
   'Project Owner/Manager': string;
   Tags: string;
   'digital or print': string;
+  'For this Platform'?: string;
+  'Objectives '?: string;
+  [key: string]: any;
 }

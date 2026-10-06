@@ -352,9 +352,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                         </div>
 
                         <div>
-                          <div className="service-section-title">Latest Deliverables</div>
+                          <div className="service-section-title">Latest Projects</div>
                           {cat.stats.latestTasks.length === 0 ? (
-                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent deliverables</div>
+                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent Projects</div>
                           ) : (
                             cat.stats.latestTasks.map((t, i) => {
                               const s = t.Status?.trim().toLowerCase();
@@ -1205,7 +1205,7 @@ function App() {
           <header className="header glass-panel">
           <div className="header-title-area">
             <Activity size={32} color="#764393" />
-            <h1>Creative & Digital Deliverables</h1>
+            <h1>Creative & Digital Projects</h1>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -1860,7 +1860,7 @@ function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0, fontSize: '1.65rem', color: '#764393' }}>Projects List</h3>
             <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500 }}>
-              Showing {Math.min(15, filteredTasksForTable.length)} of {filteredTasksForTable.length} filtered deliverables
+              Showing {Math.min(15, filteredTasksForTable.length)} of {filteredTasksForTable.length} filtered Projects
             </p>
           </div>
 
@@ -1989,7 +1989,7 @@ function App() {
               ) : (
                 <tr>
                   <td colSpan={4} style={{ textAlign: 'center', padding: '3rem', color: '#555555', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                    No deliverables match your search criteria.
+                    No Projects match your search criteria.
                   </td>
                 </tr>
               )}
@@ -2218,9 +2218,9 @@ function App() {
                     </div>
 
                     <div>
-                      <div className="service-section-title">Latest Deliverables</div>
+                      <div className="service-section-title">Latest Projects</div>
                       {cat.stats.latestTasks.length === 0 ? (
-                        <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent deliverables</div>
+                        <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent Projects</div>
                       ) : (
                         cat.stats.latestTasks.map((t, i) => {
                           return (

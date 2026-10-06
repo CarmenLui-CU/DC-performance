@@ -1,6 +1,27 @@
 import { useEffect, useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
-import { ListTodo, Activity, Calendar, Building, TrendingUp, Layers } from 'lucide-react';
+import {
+  ListTodo,
+  Activity,
+  Calendar,
+  Building,
+  TrendingUp,
+  Layers,
+  Palette,
+  Gift,
+  Share2,
+  BookOpen,
+  Globe,
+  Tag,
+  Megaphone,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Sparkles,
+} from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
 
@@ -163,6 +184,218 @@ const renderCustomPieLabel = ({ cx, cy, midAngle, outerRadius, percent, value, n
   );
 };
 
+interface GraphicDesignCategoryInfo {
+  category: string;
+  shortLabel: string;
+  color: string;
+  bg: string;
+  border: string;
+  description: string;
+  examples: string[];
+}
+
+const GRAPHIC_DESIGN_CATEGORIES: Record<string, GraphicDesignCategoryInfo> = {
+  'Social Post': {
+    category: 'Social Post',
+    shortLabel: 'Social Post',
+    color: '#3B82F6',
+    bg: 'rgba(59, 130, 246, 0.08)',
+    border: 'rgba(59, 130, 246, 0.25)',
+    description: 'Instagram, Facebook, WeChat, RedNote, LinkedIn & Weibo posts, feeds, reels, and stories.',
+    examples: ['Mooncake Social media posts', 'CUHK in Pixels social reels', 'WeChat articles cover', 'RedNote campus features', 'IG feed & story announcements'],
+  },
+  'Souvenir & Merchandise': {
+    category: 'Souvenir & Merchandise',
+    shortLabel: 'Souvenir',
+    color: '#F59E0B',
+    bg: 'rgba(245, 158, 11, 0.08)',
+    border: 'rgba(245, 158, 11, 0.25)',
+    description: 'Custom university souvenirs, Mooncake gift boxes, Red packets (Lai See), Annual calendars, 60A gifts, and merchandise.',
+    examples: ['Design mooncake box', 'CUHK 60A souvenirs online sales', 'Compliment slip for CUHK Calendar', 'Red packets & Festive stationery', 'Congregation souvenir booth items'],
+  },
+  'Event & Exhibition': {
+    category: 'Event & Exhibition',
+    shortLabel: 'Event Collateral',
+    color: '#8B5CF6',
+    bg: 'rgba(139, 92, 246, 0.08)',
+    border: 'rgba(139, 92, 246, 0.25)',
+    description: 'Stage backdrops, Campus LED screen graphics, Info Day panels, Congregation stage visuals, and ceremonial banners.',
+    examples: ['Inaugural Lecture backdrops', 'Campus LED screen visuals', 'Info Day exhibition panels', 'Congregation stage banners', 'Flag-raising ceremony displays'],
+  },
+  'Publication & Editorial': {
+    category: 'Publication & Editorial',
+    shortLabel: 'Publication',
+    color: '#10B981',
+    bg: 'rgba(16, 185, 129, 0.08)',
+    border: 'rgba(16, 185, 129, 0.25)',
+    description: 'CUHK Bulletin, Facts & Figures booklets, Annual reports, Mainland visit brochures, and informational leaflets.',
+    examples: ['Bulletin 2023 Issue #2', 'Facts and Figures booklet', 'Mainland Media Visit Brochure', 'Annual Financial Report', 'Information leaflets & pamphlets'],
+  },
+  'Digital & Web Graphics': {
+    category: 'Digital & Web Graphics',
+    shortLabel: 'Digital / Web',
+    color: '#06B6D4',
+    bg: 'rgba(6, 182, 212, 0.08)',
+    border: 'rgba(6, 182, 212, 0.25)',
+    description: 'CUHK Main Site hero banners, CUHK in Focus visual headers, eDM graphics, digital wallpapers, and portal UI graphics.',
+    examples: ['CUHK Main Site Hero Banner', 'CUHK in Focus graphics', 'eDM header banners', 'Desktop & mobile wallpapers', 'Portal UI & thumbnail graphics'],
+  },
+  'Media & Research Publicity': {
+    category: 'Media & Research Publicity',
+    shortLabel: 'Media & PR',
+    color: '#82754B',
+    bg: 'rgba(130, 117, 75, 0.08)',
+    border: 'rgba(130, 117, 75, 0.25)',
+    description: 'Press release graphics, academic & research breakthroughs, World university rankings (QS/THE), and award announcements.',
+    examples: ['QS / Times Higher Ed rankings graphic', 'RGC / Ministry of Education award graphics', 'Press release on scientific discoveries', 'JUPAS & admission data infographics', 'Scholarship & fellowship announcements'],
+  },
+  'Branding & Print Collateral': {
+    category: 'Branding & Print Collateral',
+    shortLabel: 'Branding / Print',
+    color: '#EC4899',
+    bg: 'rgba(236, 72, 153, 0.08)',
+    border: 'rgba(236, 72, 153, 0.25)',
+    description: 'University greeting & festive cards, posters, event certificates, brand guidelines, and print advertisements.',
+    examples: ["VC's Season's Greetings Cards", 'University Event Posters', 'Honorary Fellow & Award Certificates', 'Sing Tao & HK01 newspaper print ads', 'Brand identity guidelines'],
+  },
+  'General Creative Design': {
+    category: 'General Creative Design',
+    shortLabel: 'General Creative',
+    color: '#64748B',
+    bg: 'rgba(100, 116, 139, 0.08)',
+    border: 'rgba(100, 116, 139, 0.25)',
+    description: 'Specialized design mockups, asset conversion, photo preparation, and administrative graphic requests.',
+    examples: ['Photo retouch & asset prep', 'Specialized campaign templates', 'University campus maps', 'Creative concept mockups', 'Administrative chart graphics'],
+  },
+};
+
+const getGraphicDesignSource = (t: TaskRecord): GraphicDesignCategoryInfo => {
+  const name = (t['Task Name'] || t['PROJECT NAME'] || '').toLowerCase();
+  const tags = (t.Tags || '').toLowerCase();
+  const plat = (t['For this Platform'] || '').toLowerCase();
+  const dop = (t['digital or print'] || '').toLowerCase();
+
+  // 1. Souvenir & Merchandise (High Priority check)
+  if (
+    tags.includes('souvenir') || name.includes('souvenir') || 
+    tags.includes('mooncake') || name.includes('mooncake') ||
+    tags.includes('redpacket') || name.includes('redpacket') || name.includes('red packet') ||
+    name.includes('compliment slip') || tags.includes('stationery') ||
+    name.includes('calendar') || tags.includes('calendar') ||
+    name.includes('greeting') || tags.includes('greeting') ||
+    name.includes("season's greetings") || name.includes('seasons greetings') ||
+    name.includes('christmas card') || tags.includes('christmas card') ||
+    name.includes('cny card') || tags.includes('cny card') ||
+    tags.includes('printed card') || tags.includes('ecard') ||
+    name.includes('farewell card') || name.includes('jumbo card') ||
+    name.includes('t-shirt') || name.includes('tee') || name.includes('tote') ||
+    name.includes('badge') || name.includes('umbrella') || name.includes('gift') ||
+    tags.includes('stickers') || name.includes('sticker') ||
+    name.includes('pin ') || name.includes('mug') || name.includes('scarf') || name.includes('tie ') ||
+    name.includes('medal') || name.includes('trophy') || name.includes('packaging') || tags.includes('packaging') ||
+    name.includes('merchandise') || tags.includes('merchandise')
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Souvenir & Merchandise'];
+  }
+
+  // 2. Social Post (Prevent poster collision)
+  const isPosterOnly = (plat.includes('poster') || name.includes('poster') || tags.includes('poster')) &&
+    !plat.includes('facebook') && !plat.includes('instagram') && !plat.includes('wechat') && !plat.includes('rednote') && !plat.includes('weibo') && !plat.includes('linkedin') && !tags.includes('social');
+
+  if (
+    !isPosterOnly &&
+    (
+      tags.includes('social') || tags.includes('wechat') || tags.includes('rednote') ||
+      (plat.includes('post') && !plat.includes('poster')) || plat.includes('instagram') || plat.includes('facebook') ||
+      plat.includes('wechat') || plat.includes('rednote') || plat.includes('weibo') ||
+      plat.includes('twitter') || plat.includes('linkedin') || plat.includes('reel') ||
+      plat.includes('stories') || name.includes('social') || name.includes('ig ') ||
+      name.includes('fb ') || name.includes('feed post') || name.includes('ig reel') ||
+      name.includes('story') || (name.includes('post') && !name.includes('poster') && !name.includes('postgraduate')) ||
+      name.includes('cover_') || name.includes('wechat cover')
+    )
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Social Post'];
+  }
+
+  // 3. Event & Exhibition Collateral
+  if (
+    tags.includes('backdrop') || tags.includes('ebanner') || plat.includes('backdrop') ||
+    plat.includes('led') || tags.includes('signage') || tags.includes('congregation') ||
+    tags.includes('ceremony') || tags.includes('lecture') || tags.includes('flag-raising') ||
+    tags.includes('exhibition') || name.includes('backdrop') || name.includes('led') ||
+    name.includes('banner') || name.includes('signage') || name.includes('booth') ||
+    name.includes('stage') || name.includes('panel') || name.includes('screen') ||
+    name.includes('roll up') || name.includes('rollup') || tags.includes('event') ||
+    name.includes('congratulat') || name.includes('ceremony') || name.includes('inauguration') ||
+    name.includes('flag raising') || tags.includes('sports') || name.includes('congregation') ||
+    name.includes('orientation day') || name.includes('luncheon') || name.includes('workshop') ||
+    name.includes('celebrat') || tags.includes('info day')
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Event & Exhibition'];
+  }
+
+  // 4. Publication & Editorial
+  if (
+    tags.includes('publication') || tags.includes('bulletin') || tags.includes('annual report') ||
+    tags.includes('pamphlet') || tags.includes('leaflet') || tags.includes('book') ||
+    tags.includes('enewsletter') || tags.includes('facts and figures') || name.includes('brochure') ||
+    name.includes('bulletin') || name.includes('report') || name.includes('leaflet') ||
+    name.includes('pamphlet') || name.includes('book') || name.includes('newsletter') ||
+    name.includes('handbook') || name.includes('manual') || name.includes('guideline') ||
+    tags.includes('guideline') || name.includes('map') || tags.includes('map')
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Publication & Editorial'];
+  }
+
+  // 5. Digital & Web Graphics
+  if (
+    plat.includes('site') || plat.includes('hero banner') || plat.includes('pixels') ||
+    tags.includes('website') || tags.includes('hero banner') || tags.includes('edm') ||
+    tags.includes('wallpaper') || tags.includes('user interface') || name.includes('hero banner') ||
+    name.includes('web') || name.includes('edm') || name.includes('portal') ||
+    name.includes('thumbnail') || name.includes('icon') || tags.includes('icons') ||
+    name.includes('wallpaper') || name.includes('touch') || tags.includes('cuhk in touch') ||
+    name.includes('canto') || name.includes('infographic') || tags.includes('infographic') ||
+    name.includes('podcast') || name.includes('designed backgrounds')
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Digital & Web Graphics'];
+  }
+
+  // 6. Media & Research Publicity
+  if (
+    tags.includes('press release') || tags.includes('press conference') || tags.includes('media') ||
+    name.includes('press release') || name.includes('press conference') || tags.includes('news') ||
+    tags.includes('research') || name.includes('interview') || tags.includes('rankings') ||
+    tags.includes('qs') || tags.includes('times higher ed') || tags.includes('us news') ||
+    name.includes('scholarship') || name.includes('jupas') || name.includes('fellow') ||
+    name.includes('award') || name.includes('rgc') || name.includes('ranking') ||
+    name.includes('satellite') || name.includes('dr.') || name.includes('prof.') ||
+    name.includes('professor') || tags.includes('academic') || tags.includes('admission') ||
+    name.includes('science') || name.includes('chemistry') || name.includes('astronomy') ||
+    name.includes('standout')
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Media & Research Publicity'];
+  }
+
+  // 7. Branding & Print Collateral
+  if (
+    tags.includes('branding') || tags.includes('logo') || tags.includes('poster') ||
+    tags.includes('certificates') || tags.includes('card') || tags.includes('name card') ||
+    tags.includes('advertisement') || name.includes('poster') || name.includes('card') ||
+    name.includes('certificate') || name.includes('logo') || name.includes('flyer') ||
+    name.includes('ppt') || tags.includes('ppt') || name.includes('presentation') ||
+    name.includes('badge') || name.includes('chart') || dop.includes('print') ||
+    name.includes('obituary') || name.includes('memory') || name.includes('mourning') ||
+    name.includes('ad') || name.includes('advertisement') || name.includes('proposal') ||
+    name.includes('photo request')
+  ) {
+    return GRAPHIC_DESIGN_CATEGORIES['Branding & Print Collateral'];
+  }
+
+  return GRAPHIC_DESIGN_CATEGORIES['General Creative Design'];
+};
+
 const CustomizedAxisTick = (props: any) => {
   const { x, y, payload } = props;
   const value = payload.value || '';
@@ -303,6 +536,15 @@ function App() {
   const [visualsError, setVisualsError] = useState<string | null>(null);
   const [visualsSubTab, setVisualsSubTab] = useState<'overview' | 'previews' | 'downloads' | 'shares' | 'journey' | 'attributes'>('overview');
   const [damSubTab, setDamSubTab] = useState<'overview' | 'previews' | 'downloads' | 'journey' | 'attributes'>('overview');
+
+  // Graphic Design section states
+  const [gdSelectedCategory, setGdSelectedCategory] = useState<string>('All');
+  const [gdSearchQuery, setGdSearchQuery] = useState<string>('');
+  const [gdMediumFilter, setGdMediumFilter] = useState<'All' | 'Digital' | 'Print' | 'Digital & Print'>('All');
+  const [gdStatusFilter, setGdStatusFilter] = useState<'All' | 'Done' | 'In Progress'>('All');
+  const [gdPage, setGdPage] = useState<number>(1);
+  const [gdActiveSubTab, setGdActiveSubTab] = useState<'overview' | 'sources' | 'explorer' | 'departments'>('overview');
+  const [expandedGdTaskId, setExpandedGdTaskId] = useState<string | null>(null);
 
   useEffect(() => {
     // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
@@ -864,6 +1106,7 @@ function App() {
   }, [activeTasks, selectedTimeline]);
 
   const servicesImpactStats = useMemo(() => {
+    const isGraphicDesign = (t: TaskRecord) => (t['Task type'] || '').trim().toLowerCase() === 'graphic design';
     const isVisuals = (t: TaskRecord) => (t['Task type'] || '').trim() === 'CUHK Visuals';
     const isFocus = (t: TaskRecord) => {
       const name = (t['PROJECT NAME'] || '').toLowerCase();
@@ -879,6 +1122,7 @@ function App() {
     };
 
     const categories = {
+      graphicDesign: { title: 'Graphic Design', color: '#82754B', icon: 'palette', tasks: [] as TaskRecord[] },
       visuals: { title: 'CUHK Visuals', color: '#764393', icon: 'visuals', tasks: [] as TaskRecord[] },
       focus: { title: 'CUHK in Focus', color: '#9b7d46', icon: 'focus', tasks: [] as TaskRecord[] },
       stickers: { title: 'CUHK Stickers', color: '#20bf6b', icon: 'stickers', tasks: [] as TaskRecord[] },
@@ -891,6 +1135,9 @@ function App() {
         return;
       }
 
+      if (isGraphicDesign(t)) {
+        categories.graphicDesign.tasks.push(t);
+      }
       if (isVisuals(t)) {
         categories.visuals.tasks.push(t);
       }
@@ -946,11 +1193,218 @@ function App() {
     };
 
     return {
+      graphicDesign: { ...categories.graphicDesign, stats: getStatsForGroup(categories.graphicDesign.tasks) },
       visuals: { ...categories.visuals, stats: getStatsForGroup(categories.visuals.tasks) },
       focus: { ...categories.focus, stats: getStatsForGroup(categories.focus.tasks) },
       stickers: { ...categories.stickers, stats: getStatsForGroup(categories.stickers.tasks) },
     };
   }, [filteredActiveTasksByCPR, selectedTimeline]);
+
+  // Graphic Design analysis for Services Impacted
+  const graphicDesignData = useMemo(() => {
+    const gdTasks = filteredActiveTasksByCPR.filter((t) => {
+      const period = t.Period?.trim() || '';
+      const fy = getFinancialYear(period);
+      if (selectedTimeline !== 'All' && fy !== selectedTimeline) {
+        return false;
+      }
+      return (t['Task type'] || '').trim().toLowerCase() === 'graphic design';
+    });
+
+    let completedCount = 0;
+    let inProgressCount = 0;
+    const deptCounts: Record<string, number> = {};
+    const sourceBuckets: Record<string, { info: GraphicDesignCategoryInfo; tasks: TaskRecord[]; depts: Record<string, number> }> = {};
+
+    Object.keys(GRAPHIC_DESIGN_CATEGORIES).forEach((key) => {
+      sourceBuckets[key] = {
+        info: GRAPHIC_DESIGN_CATEGORIES[key],
+        tasks: [],
+        depts: {},
+      };
+    });
+
+    const formatCounts = {
+      Digital: 0,
+      Print: 0,
+      'Digital & Print': 0,
+      Unspecified: 0,
+    };
+
+    const monthlySourceMap: Record<string, Record<string, number>> = {};
+
+    gdTasks.forEach((t) => {
+      const s = t.Status?.trim().toLowerCase();
+      if (s === 'done' || s === 'completed') {
+        completedCount++;
+      } else {
+        inProgressCount++;
+      }
+
+      const dept = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
+      if (dept !== 'Unassigned') {
+        deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+      }
+
+      const dop = (t['digital or print'] || '').toLowerCase();
+      if (dop.includes('digital') && dop.includes('print')) {
+        formatCounts['Digital & Print']++;
+      } else if (dop.includes('digital')) {
+        formatCounts.Digital++;
+      } else if (dop.includes('print')) {
+        formatCounts.Print++;
+      } else {
+        formatCounts.Unspecified++;
+      }
+
+      const catInfo = getGraphicDesignSource(t);
+      const bucket = sourceBuckets[catInfo.category] || sourceBuckets['General Creative Design'];
+      bucket.tasks.push(t);
+      if (dept !== 'Unassigned') {
+        bucket.depts[dept] = (bucket.depts[dept] || 0) + 1;
+      }
+
+      const period = t.Period?.trim() || '';
+      if (period.length === 6) {
+        if (!monthlySourceMap[period]) {
+          monthlySourceMap[period] = {};
+        }
+        monthlySourceMap[period][catInfo.shortLabel] = (monthlySourceMap[period][catInfo.shortLabel] || 0) + 1;
+      }
+    });
+
+    const total = gdTasks.length;
+
+    const sourceStats = Object.entries(sourceBuckets).map(([category, bucket]) => {
+      const count = bucket.tasks.length;
+      const percentage = total > 0 ? parseFloat(((count / total) * 100).toFixed(1)) : 0;
+      const topDepts = Object.entries(bucket.depts)
+        .map(([name, deptCount]) => ({ name, count: deptCount }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 4);
+
+      let bucketCompleted = 0;
+      bucket.tasks.forEach((item) => {
+        const status = item.Status?.trim().toLowerCase();
+        if (status === 'done' || status === 'completed') bucketCompleted++;
+      });
+
+      return {
+        category,
+        info: bucket.info,
+        count,
+        percentage,
+        completed: bucketCompleted,
+        inProgress: count - bucketCompleted,
+        topDepts,
+        tasks: bucket.tasks,
+        uniqueDeptsCount: Object.keys(bucket.depts).length,
+      };
+    }).sort((a, b) => b.count - a.count);
+
+    const topDepartments = Object.entries(deptCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    const sortedPeriods = Object.keys(monthlySourceMap).sort();
+    const monthlyTrend = sortedPeriods.map((period) => {
+      const entry: any = {
+        period,
+        name: formatPeriod(period),
+      };
+      let periodTotal = 0;
+      Object.keys(monthlySourceMap[period]).forEach((label) => {
+        const val = monthlySourceMap[period][label];
+        entry[label] = val;
+        periodTotal += val;
+      });
+      entry.total = periodTotal;
+      return entry;
+    });
+
+    const formatBreakdown = [
+      { name: 'Digital Projects', value: formatCounts.Digital, color: '#3B82F6' },
+      { name: 'Print Collateral', value: formatCounts.Print, color: '#F59E0B' },
+      { name: 'Digital & Print Hybrid', value: formatCounts['Digital & Print'], color: '#10B981' },
+      { name: 'General / Multi-Format', value: formatCounts.Unspecified, color: '#8B5CF6' },
+    ].filter((f) => f.value > 0);
+
+    return {
+      total,
+      completedCount,
+      inProgressCount,
+      uniqueDeptsCount: Object.keys(deptCounts).length,
+      sourceStats,
+      topDepartments,
+      monthlyTrend,
+      formatCounts,
+      formatBreakdown,
+      allTasks: gdTasks,
+    };
+  }, [filteredActiveTasksByCPR, selectedTimeline]);
+
+  // Filtered graphic design tasks for the interactive explorer
+  const filteredGraphicDesignTasks = useMemo(() => {
+    return graphicDesignData.allTasks.filter((t) => {
+      // Source filter
+      if (gdSelectedCategory !== 'All') {
+        const catInfo = getGraphicDesignSource(t);
+        if (catInfo.category !== gdSelectedCategory) return false;
+      }
+
+      // Medium filter
+      if (gdMediumFilter !== 'All') {
+        const dop = (t['digital or print'] || '').toLowerCase();
+        if (gdMediumFilter === 'Digital & Print') {
+          if (!dop.includes('digital') || !dop.includes('print')) return false;
+        } else if (gdMediumFilter === 'Digital') {
+          if (!dop.includes('digital') || dop.includes('print')) return false;
+        } else if (gdMediumFilter === 'Print') {
+          if (!dop.includes('print') || dop.includes('digital')) return false;
+        }
+      }
+
+      // Status filter
+      if (gdStatusFilter !== 'All') {
+        const s = (t.Status || '').trim().toLowerCase();
+        const isDone = s === 'done' || s === 'completed';
+        if (gdStatusFilter === 'Done' && !isDone) return false;
+        if (gdStatusFilter === 'In Progress' && isDone) return false;
+      }
+
+      // Search query
+      if (gdSearchQuery.trim()) {
+        const q = gdSearchQuery.trim().toLowerCase();
+        const name = (t['PROJECT NAME'] || t['Task Name'] || '').toLowerCase();
+        const dept = (t['Department/ Office'] || t['Dpt/ Office'] || '').toLowerCase();
+        const tags = (t.Tags || '').toLowerCase();
+        const handler = (t.Handler || '').toLowerCase();
+        const platform = (t['For this Platform'] || '').toLowerCase();
+        const obj = (t['Objectives '] || '').toLowerCase();
+        const supplied = (t['Supplied Text'] || '').toLowerCase();
+        if (
+          !name.includes(q) &&
+          !dept.includes(q) &&
+          !tags.includes(q) &&
+          !handler.includes(q) &&
+          !platform.includes(q) &&
+          !obj.includes(q) &&
+          !supplied.includes(q)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [graphicDesignData.allTasks, gdSelectedCategory, gdMediumFilter, gdStatusFilter, gdSearchQuery]);
+
+  const gdTotalPages = Math.max(1, Math.ceil(filteredGraphicDesignTasks.length / 12));
+  const paginatedGdTasks = useMemo(() => {
+    const start = (gdPage - 1) * 12;
+    return filteredGraphicDesignTasks.slice(start, start + 12);
+  }, [filteredGraphicDesignTasks, gdPage]);
 
   const edmSummary = useMemo(() => {
     let totalDelivered = 0;
@@ -1027,6 +1481,7 @@ function App() {
       totalClicks,
       avgOpensPerIssue: issuesCount > 0 ? totalOpens / issuesCount : 0,
       avgDeliveredPerIssue: issuesCount > 0 ? totalDelivered / issuesCount : 0,
+      avgClicksPerIssue: issuesCount > 0 ? totalClicks / issuesCount : 0,
       audienceBreakdown,
     };
   }, [edmTasks]);
@@ -1088,7 +1543,7 @@ function App() {
           <header className="header glass-panel">
           <div className="header-title-area">
             <Activity size={32} color="#764393" />
-            <h1>Creative & Digital Deliverables</h1>
+            <h1>Creative & Digital Projects</h1>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -1743,7 +2198,7 @@ function App() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: 0, fontSize: '1.65rem', color: '#764393' }}>Projects List</h3>
             <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500 }}>
-              Showing {Math.min(15, filteredTasksForTable.length)} of {filteredTasksForTable.length} filtered deliverables
+              Showing {Math.min(15, filteredTasksForTable.length)} of {filteredTasksForTable.length} filtered Projects
             </p>
           </div>
 
@@ -1872,7 +2327,7 @@ function App() {
               ) : (
                 <tr>
                   <td colSpan={4} style={{ textAlign: 'center', padding: '3rem', color: '#555555', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                    No deliverables match your search criteria.
+                    No Projects match your search criteria.
                   </td>
                 </tr>
               )}
@@ -2039,6 +2494,103 @@ function App() {
             </p>
           </div>
 
+          {/* Quick Jump Bar */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            flexWrap: 'wrap',
+            padding: '0.75rem 1.25rem',
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
+          }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
+              <Layers size={14} color="#764393" /> Jump to Section:
+            </span>
+            <button
+              onClick={() => document.getElementById('section-graphic-design')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '8px',
+                background: 'rgba(130, 117, 75, 0.1)',
+                border: '1px solid rgba(130, 117, 75, 0.3)',
+                color: '#82754B',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Montserrat, sans-serif',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Palette size={14} /> Graphic Design Impact
+            </button>
+            <button
+              onClick={() => document.getElementById('section-cuhk-visuals')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '8px',
+                background: 'rgba(118, 67, 147, 0.08)',
+                border: '1px solid rgba(118, 67, 147, 0.25)',
+                color: '#764393',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Montserrat, sans-serif',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <TrendingUp size={14} /> CUHK Visuals Impact
+            </button>
+            <button
+              onClick={() => document.getElementById('section-dam')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '8px',
+                background: 'rgba(71, 40, 88, 0.08)',
+                border: '1px solid rgba(71, 40, 88, 0.25)',
+                color: '#472858',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Montserrat, sans-serif',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <TrendingUp size={14} /> DAM Impact
+            </button>
+            <button
+              onClick={() => document.getElementById('section-edm')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.4rem 0.85rem',
+                borderRadius: '8px',
+                background: 'rgba(32, 191, 107, 0.08)',
+                border: '1px solid rgba(32, 191, 107, 0.25)',
+                color: '#20bf6b',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'Montserrat, sans-serif',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Activity size={14} /> eDM Campaign Impact
+            </button>
+          </div>
+
           <div className="services-grid">
             {Object.entries(servicesImpactStats).map(([key, cat]) => {
               return (
@@ -2052,7 +2604,7 @@ function App() {
                 >
                   <div className="service-card-header" style={{ backgroundColor: cat.color }}>
                     <h3>{cat.title}</h3>
-                    <Layers size={20} />
+                    {cat.icon === 'palette' ? <Palette size={20} /> : <Layers size={20} />}
                   </div>
                   
                   <div className="service-card-content">
@@ -2084,6 +2636,1057 @@ function App() {
                 </div>
               );
             })}
+          </div>
+
+          {/* ========================================================================= */}
+          {/* SECTION: GRAPHIC DESIGN IMPACT (SOURCES: SOCIAL POST, SOUVENIR, ETC.)     */}
+          {/* ========================================================================= */}
+          <div id="section-graphic-design" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, rgba(130, 117, 75, 0.15) 0%, rgba(118, 67, 147, 0.12) 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(130, 117, 75, 0.3)',
+                  boxShadow: '0 2px 8px rgba(130, 117, 75, 0.08)'
+                }}>
+                  <Palette size={24} color="#82754B" />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                    <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                      Graphic Design Impact
+                    </h3>
+                    <span style={{
+                      padding: '0.2rem 0.6rem',
+                      borderRadius: '12px',
+                      background: 'rgba(130, 117, 75, 0.12)',
+                      color: '#82754B',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}>
+                      Creative Projects & Channels Audit
+                    </span>
+                  </div>
+                  <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                    Analysis of design outputs by deliverable source & channel (Social Posts, Souvenirs & Merchandise, Publications, Events, Web Graphics, etc.) to evaluate what types of Graphic Design are requested.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span style={{
+                  padding: '0.45rem 0.9rem',
+                  borderRadius: '20px',
+                  background: 'rgba(130, 117, 75, 0.08)',
+                  color: '#82754B',
+                  fontWeight: 700,
+                  fontSize: '0.825rem',
+                  fontFamily: 'Montserrat, sans-serif',
+                  border: '1px solid rgba(130, 117, 75, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <Sparkles size={14} color="#82754B" />
+                  {graphicDesignData.total.toLocaleString()} Total Projects
+                </span>
+                <span style={{
+                  padding: '0.45rem 0.9rem',
+                  borderRadius: '20px',
+                  background: 'rgba(118, 67, 147, 0.08)',
+                  color: '#764393',
+                  fontWeight: 700,
+                  fontSize: '0.825rem',
+                  fontFamily: 'Montserrat, sans-serif',
+                  border: '1px solid rgba(118, 67, 147, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <Calendar size={14} color="#764393" />
+                  Timeline: {selectedTimeline}
+                </span>
+              </div>
+            </div>
+
+            {/* Top KPI Cards for Graphic Design */}
+            <div className="dashboard-grid">
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Total Projects
+                </h4>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {graphicDesignData.total.toLocaleString()}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  {graphicDesignData.completedCount} completed · {graphicDesignData.inProgressCount} in progress
+                </span>
+              </div>
+
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Top Source: Social Post
+                </h4>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#3B82F6', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {graphicDesignData.sourceStats.find((s) => s.category === 'Social Post')?.count || 0}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#3B82F6', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  {graphicDesignData.sourceStats.find((s) => s.category === 'Social Post')?.percentage || 0}% of all design requests
+                </span>
+              </div>
+
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Souvenirs & Merchandise
+                </h4>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#F59E0B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {graphicDesignData.sourceStats.find((s) => s.category === 'Souvenir & Merchandise')?.count || 0}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#F59E0B', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  Mooncake boxes, calendars, 60A gifts
+                </span>
+              </div>
+
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Departments Reached
+                </h4>
+                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  {graphicDesignData.uniqueDeptsCount}
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                  Across faculties, CPRO & colleges
+                </span>
+              </div>
+            </div>
+
+            {/* Sub-Tab Navigation for Graphic Design */}
+            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
+              {[
+                { id: 'overview', label: 'Sources Overview & Trends' },
+                { id: 'sources', label: 'Design Sources Spotlight ("What Types For")' },
+                { id: 'explorer', label: `Projects Explorer (${filteredGraphicDesignTasks.length})` },
+                { id: 'departments', label: 'Department Demand Matrix' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setGdActiveSubTab(tab.id as any);
+                    if (tab.id === 'explorer') setGdPage(1);
+                  }}
+                  style={{
+                    padding: '0.75rem 0.5rem',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: gdActiveSubTab === tab.id ? '3px solid #82754B' : '3px solid transparent',
+                    color: gdActiveSubTab === tab.id ? '#82754B' : '#64748b',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s',
+                    fontFamily: 'Montserrat, sans-serif',
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* TAB 1: OVERVIEW & TRENDS */}
+            {gdActiveSubTab === 'overview' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                  {/* Left: Source Breakdown Donut Chart */}
+                  <div style={{ flex: '1 1 48%', minWidth: '330px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                    <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>
+                      Graphic Design Projects by Source
+                    </div>
+                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                      Distribution of outputs by format and purpose (Social Posts, Souvenirs, Events, Publications, etc.).
+                    </p>
+                    <div style={{ height: 320 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                          <Pie
+                            data={graphicDesignData.sourceStats.map((s) => ({
+                              name: s.info.shortLabel,
+                              value: s.count,
+                              category: s.category,
+                              color: s.info.color,
+                            }))}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={{ stroke: '#82754B', strokeWidth: 1 }}
+                            label={renderCustomPieLabel}
+                            innerRadius={60}
+                            outerRadius={105}
+                            paddingAngle={2}
+                            dataKey="value"
+                          >
+                            {graphicDesignData.sourceStats.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.info.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(value: any, name: any) => {
+                              const total = graphicDesignData.total;
+                              const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                              return [`${value.toLocaleString()} projects (${percent}%)`, name];
+                            }}
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: '1px solid rgba(130, 117, 75, 0.25)',
+                              borderRadius: '12px',
+                              fontFamily: 'Montserrat, sans-serif',
+                              fontWeight: 500,
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Source Badges Row */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                      {graphicDesignData.sourceStats.map((s, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            setGdSelectedCategory(s.category);
+                            setGdActiveSubTab('explorer');
+                            setGdPage(1);
+                          }}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '16px',
+                            background: s.info.bg,
+                            border: `1px solid ${s.info.border}`,
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: s.info.color,
+                            cursor: 'pointer',
+                            fontFamily: 'Montserrat, sans-serif',
+                            transition: 'transform 0.15s ease',
+                          }}
+                          title={`Click to filter Projects for ${s.category}`}
+                        >
+                          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.info.color }}></span>
+                          <span>{s.info.shortLabel}:</span>
+                          <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right: Medium / Format Breakdown & Deliverable Channels */}
+                  <div style={{ flex: '1 1 48%', minWidth: '330px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    {/* Format Breakdown Card */}
+                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem' }}>
+                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>
+                        Deliverable Medium (Digital vs. Print)
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                        {graphicDesignData.formatBreakdown.map((item, idx) => {
+                          const pct = graphicDesignData.total > 0 ? ((item.value / graphicDesignData.total) * 100).toFixed(1) : '0.0';
+                          return (
+                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                <span style={{ fontWeight: 700, color: '#334155' }}>{item.name}</span>
+                                <span style={{ fontWeight: 800, color: item.color }}>{item.value} ({pct}%)</span>
+                              </div>
+                              <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                                <div style={{ width: `${pct}%`, height: '100%', background: item.color, borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Timeline Volume AreaChart */}
+                    <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', flex: 1 }}>
+                      <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>
+                        Graphic Design Projects Over Time
+                      </div>
+                      <div style={{ height: 210 }}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={graphicDesignData.monthlyTrend} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="colorGDTotal" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#82754B" stopOpacity={0.45} />
+                                <stop offset="95%" stopColor="#82754B" stopOpacity={0.02} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(130, 117, 75, 0.08)" />
+                            <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                            <YAxis tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                            <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12px' }} />
+                            <Area type="monotone" dataKey="total" name="Projects" stroke="#82754B" fillOpacity={1} fill="url(#colorGDTotal)" strokeWidth={2.5} />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: SOURCES SPOTLIGHT ("WHAT TYPES OF GRAPHIC DESIGN FOR") */}
+            {gdActiveSubTab === 'sources' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    What Types of Graphic Design Are Requested?
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                    Every graphic design project is tailored to a specific channel, audience, and deliverable format. Select any category card to inspect and filter all Projects created for that source.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                  {graphicDesignData.sourceStats.map((s, idx) => {
+                    const isSelected = gdSelectedCategory === s.category;
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          background: '#ffffff',
+                          border: isSelected ? `2px solid ${s.info.color}` : '1px solid #e2e8f0',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          boxShadow: isSelected ? `0 6px 20px ${s.info.bg}` : 'none',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        {/* Card Header */}
+                        <div style={{
+                          padding: '1.25rem 1.5rem',
+                          background: s.info.bg,
+                          borderBottom: `1px solid ${s.info.border}`,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                            <div style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '8px',
+                              background: '#ffffff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: `1px solid ${s.info.border}`,
+                            }}>
+                              {s.category === 'Social Post' && <Share2 size={16} color={s.info.color} />}
+                              {s.category === 'Souvenir & Merchandise' && <Gift size={16} color={s.info.color} />}
+                              {s.category === 'Event & Exhibition' && <Calendar size={16} color={s.info.color} />}
+                              {s.category === 'Publication & Editorial' && <BookOpen size={16} color={s.info.color} />}
+                              {s.category === 'Digital & Web Graphics' && <Globe size={16} color={s.info.color} />}
+                              {s.category === 'Media & Research Publicity' && <Megaphone size={16} color={s.info.color} />}
+                              {s.category === 'Branding & Print Collateral' && <Tag size={16} color={s.info.color} />}
+                              {s.category === 'General Creative Design' && <Palette size={16} color={s.info.color} />}
+                            </div>
+                            <h4 style={{ margin: 0, fontSize: '1rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                              {s.category}
+                            </h4>
+                          </div>
+
+                          <span style={{
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '12px',
+                            background: '#ffffff',
+                            color: s.info.color,
+                            fontWeight: 800,
+                            fontSize: '0.75rem',
+                            border: `1px solid ${s.info.border}`,
+                            fontFamily: 'Montserrat, sans-serif',
+                          }}>
+                            {s.count} ({s.percentage}%)
+                          </span>
+                        </div>
+
+                        {/* Card Body */}
+                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                          <p style={{ margin: 0, fontSize: '0.825rem', color: '#475569', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                            {s.info.description}
+                          </p>
+
+                          <div>
+                            <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                              Key Output Examples
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                              {s.info.examples.slice(0, 3).map((ex, exIdx) => (
+                                <div key={exIdx} style={{ fontSize: '0.8rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
+                                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: s.info.color }}></span>
+                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {s.topDepts.length > 0 && (
+                            <div>
+                              <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                Top Requesting Units
+                              </div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                                {s.topDepts.map((d, dIdx) => (
+                                  <span key={dIdx} style={{ fontSize: '0.75rem', color: '#475569', background: '#f8fafc', padding: '0.15rem 0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
+                                    {d.name} ({d.count})
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
+                            <button
+                              onClick={() => {
+                                setGdSelectedCategory(s.category);
+                                setGdActiveSubTab('explorer');
+                                setGdPage(1);
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '0.6rem 0.75rem',
+                                borderRadius: '8px',
+                                background: isSelected ? s.info.color : '#f8fafc',
+                                color: isSelected ? '#ffffff' : s.info.color,
+                                border: `1px solid ${isSelected ? s.info.color : s.info.border}`,
+                                fontWeight: 700,
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem',
+                                fontFamily: 'Montserrat, sans-serif',
+                                transition: 'all 0.2s',
+                              }}
+                            >
+                              <Eye size={14} />
+                              Explore {s.count} Projects
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: Projects EXPLORER */}
+            {gdActiveSubTab === 'explorer' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {/* Search & Filter Header */}
+                <div style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                }}>
+                  {/* Search bar & medium/status dropdowns */}
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ flex: '1 1 300px', position: 'relative' }}>
+                      <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text"
+                        placeholder="Search Projects by name, department, tags, handler, purpose..."
+                        value={gdSearchQuery}
+                        onChange={(e) => {
+                          setGdSearchQuery(e.target.value);
+                          setGdPage(1);
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.75rem 0.65rem 2.25rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          fontSize: '0.85rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          boxSizing: 'border-box',
+                          background: '#ffffff',
+                          color: '#1e293b',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <select
+                        value={gdMediumFilter}
+                        onChange={(e) => {
+                          setGdMediumFilter(e.target.value as any);
+                          setGdPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 1rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                        }}
+                      >
+                        <option value="All">All Formats (Digital & Print)</option>
+                        <option value="Digital">Digital Only</option>
+                        <option value="Print">Print Only</option>
+                        <option value="Digital & Print">Hybrid (Digital & Print)</option>
+                      </select>
+
+                      <select
+                        value={gdStatusFilter}
+                        onChange={(e) => {
+                          setGdStatusFilter(e.target.value as any);
+                          setGdPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 1rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                        }}
+                      >
+                        <option value="All">All Statuses</option>
+                        <option value="Done">Completed Only</option>
+                        <option value="In Progress">In Progress Only</option>
+                      </select>
+
+                      {(gdSelectedCategory !== 'All' || gdSearchQuery || gdMediumFilter !== 'All' || gdStatusFilter !== 'All') && (
+                        <button
+                          onClick={() => {
+                            setGdSelectedCategory('All');
+                            setGdSearchQuery('');
+                            setGdMediumFilter('All');
+                            setGdStatusFilter('All');
+                            setGdPage(1);
+                          }}
+                          style={{
+                            padding: '0.65rem 0.9rem',
+                            borderRadius: '8px',
+                            background: '#e2e8f0',
+                            border: 'none',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            color: '#475569',
+                            cursor: 'pointer',
+                            fontFamily: 'Montserrat, sans-serif',
+                          }}
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Category Pills Bar */}
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', marginRight: '0.25rem' }}>
+                      Filter by Source:
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        setGdSelectedCategory('All');
+                        setGdPage(1);
+                      }}
+                      style={{
+                        padding: '0.35rem 0.75rem',
+                        borderRadius: '20px',
+                        background: gdSelectedCategory === 'All' ? '#82754B' : '#ffffff',
+                        color: gdSelectedCategory === 'All' ? '#ffffff' : '#64748b',
+                        border: '1px solid',
+                        borderColor: gdSelectedCategory === 'All' ? '#82754B' : '#cbd5e1',
+                        fontSize: '0.775rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontFamily: 'Montserrat, sans-serif',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      All Sources ({graphicDesignData.total})
+                    </button>
+
+                    {graphicDesignData.sourceStats.map((s, idx) => {
+                      const isSelected = gdSelectedCategory === s.category;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setGdSelectedCategory(s.category);
+                            setGdPage(1);
+                          }}
+                          style={{
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '20px',
+                            background: isSelected ? s.info.color : '#ffffff',
+                            color: isSelected ? '#ffffff' : '#475569',
+                            border: '1px solid',
+                            borderColor: isSelected ? s.info.color : '#cbd5e1',
+                            fontSize: '0.775rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            fontFamily: 'Montserrat, sans-serif',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            transition: 'all 0.15s ease',
+                          }}
+                        >
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isSelected ? '#ffffff' : s.info.color }}></span>
+                          <span>{s.info.shortLabel} ({s.count})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Results count label */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
+                  <span>
+                    Showing <strong style={{ color: '#1e293b' }}>{paginatedGdTasks.length}</strong> of <strong style={{ color: '#1e293b' }}>{filteredGraphicDesignTasks.length}</strong> Graphic Design Projects
+                    {gdSelectedCategory !== 'All' && <span> in <strong style={{ color: '#82754B' }}>{gdSelectedCategory}</strong></span>}
+                  </span>
+                  <span>
+                    Page {gdPage} of {gdTotalPages}
+                  </span>
+                </div>
+
+                {/* Projects Table */}
+                <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Project Name</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Design Source</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Purpose / What It's For</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Department / Unit</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Platform / Channel</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Format</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Status</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Brief & Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedGdTasks.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} style={{ padding: '3rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>
+                            No graphic design Projects match the selected filters.
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedGdTasks.map((t, idx) => {
+                          const catInfo = getGraphicDesignSource(t);
+                          const isDone = (t.Status || '').trim().toLowerCase() === 'done' || (t.Status || '').trim().toLowerCase() === 'completed';
+                          const dop = (t['digital or print'] || '').trim();
+                          const channels = t['For this Platform'] || t.Tags || '-';
+                          const taskId = `${t['PROJECT NAME'] || t['Task Name']}_${t['Created Date'] || t.Period}_${idx}`;
+                          const isExpanded = expandedGdTaskId === taskId;
+
+                          return (
+                            <>
+                              <tr
+                                key={idx}
+                                onClick={() => setExpandedGdTaskId(isExpanded ? null : taskId)}
+                                style={{
+                                  borderBottom: isExpanded ? 'none' : '1px solid #f1f5f9',
+                                  background: isExpanded ? 'rgba(130, 117, 75, 0.04)' : 'transparent',
+                                  cursor: 'pointer',
+                                  transition: 'background 0.15s',
+                                }}
+                              >
+                                <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: '#1e293b', maxWidth: '240px', wordBreak: 'break-word' }}>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                                    <span>{t['PROJECT NAME'] || t['Task Name'] || 'Untitled Design'}</span>
+                                    {t.Tags && (
+                                      <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t.Tags}>
+                                        #{t.Tags.split(/[,;]/).map((x: string) => x.trim()).filter(Boolean).slice(0, 3).join(' #')}
+                                      </span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.35rem',
+                                    padding: '0.2rem 0.6rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 700,
+                                    background: catInfo.bg,
+                                    color: catInfo.color,
+                                    border: `1px solid ${catInfo.border}`,
+                                  }}>
+                                    {catInfo.category === 'Social Post' && <Share2 size={12} />}
+                                    {catInfo.category === 'Souvenir & Merchandise' && <Gift size={12} />}
+                                    {catInfo.category === 'Event & Exhibition' && <Calendar size={12} />}
+                                    {catInfo.category === 'Publication & Editorial' && <BookOpen size={12} />}
+                                    {catInfo.category === 'Digital & Web Graphics' && <Globe size={12} />}
+                                    {catInfo.category === 'Media & Research Publicity' && <Megaphone size={12} />}
+                                    {catInfo.category === 'Branding & Print Collateral' && <Tag size={12} />}
+                                    {catInfo.category === 'General Creative Design' && <Palette size={12} />}
+                                    {catInfo.shortLabel}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', maxWidth: '280px' }}>
+                                  <div style={{
+                                    fontSize: '0.8rem',
+                                    color: '#334155',
+                                    fontWeight: 500,
+                                    lineHeight: 1.4,
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                  }} title={t['Objectives '] || t.Tags || 'Institutional design request'}>
+                                    {t['Objectives ']?.trim() || t.Tags || 'Institutional graphic design request'}
+                                  </div>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#334155', fontWeight: 600, maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t['Department/ Office'] || t['Dpt/ Office']}>
+                                  {t['Department/ Office'] || t['Dpt/ Office'] || 'Unassigned'}
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', color: '#64748b', fontSize: '0.775rem', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={channels}>
+                                  {channels}
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    padding: '0.15rem 0.5rem',
+                                    borderRadius: '6px',
+                                    fontSize: '0.725rem',
+                                    fontWeight: 700,
+                                    background: dop.toLowerCase().includes('print') ? 'rgba(245, 158, 11, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                                    color: dop.toLowerCase().includes('print') ? '#d97706' : '#2563eb',
+                                    border: `1px solid ${dop.toLowerCase().includes('print') ? 'rgba(245, 158, 11, 0.25)' : 'rgba(59, 130, 246, 0.25)'}`,
+                                  }}>
+                                    {dop || 'Digital'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                                  <span style={{
+                                    display: 'inline-block',
+                                    padding: '0.15rem 0.55rem',
+                                    borderRadius: '12px',
+                                    fontSize: '0.725rem',
+                                    fontWeight: 700,
+                                    background: isDone ? 'rgba(32, 191, 107, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                                    color: isDone ? '#20bf6b' : '#f59e0b',
+                                    border: `1px solid ${isDone ? 'rgba(32, 191, 107, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
+                                  }}>
+                                    {isDone ? 'Completed' : 'In Progress'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedGdTaskId(isExpanded ? null : taskId);
+                                    }}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.2rem',
+                                      padding: '0.25rem 0.55rem',
+                                      borderRadius: '6px',
+                                      border: '1px solid #cbd5e1',
+                                      background: isExpanded ? '#82754B' : '#ffffff',
+                                      color: isExpanded ? '#ffffff' : '#475569',
+                                      fontSize: '0.725rem',
+                                      fontWeight: 700,
+                                      cursor: 'pointer',
+                                      fontFamily: 'Montserrat, sans-serif',
+                                    }}
+                                  >
+                                    {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                                    {isExpanded ? 'Close' : 'Details'}
+                                  </button>
+                                </td>
+                              </tr>
+
+                              {isExpanded && (
+                                <tr key={`${idx}-expanded`} style={{ background: 'rgba(130, 117, 75, 0.03)', borderBottom: '2px solid rgba(130, 117, 75, 0.2)' }}>
+                                  <td colSpan={8} style={{ padding: '1.25rem 1.5rem' }}>
+                                    <div style={{
+                                      background: '#ffffff',
+                                      border: '1px solid #e2e8f0',
+                                      borderRadius: '8px',
+                                      padding: '1.25rem',
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: '0.85rem',
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                                    }}>
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
+                                            Design Deliverable & Purpose Brief
+                                          </div>
+                                          <h4 style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['PROJECT NAME'] || t['Task Name']}
+                                          </h4>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: catInfo.color, background: catInfo.bg, padding: '0.2rem 0.6rem', borderRadius: '12px', border: `1px solid ${catInfo.border}` }}>
+                                            Source: {catInfo.category}
+                                          </span>
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                                            {formatPeriod(t.Period) || t.Period}
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      <div>
+                                        <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                          What This Graphic Design Was For (Objectives):
+                                        </div>
+                                        <div style={{
+                                          fontSize: '0.85rem',
+                                          color: '#1e293b',
+                                          lineHeight: 1.6,
+                                          background: '#f8fafc',
+                                          padding: '0.85rem 1rem',
+                                          borderRadius: '6px',
+                                          border: '1px solid #e2e8f0',
+                                          whiteSpace: 'pre-wrap',
+                                          fontFamily: 'Montserrat, sans-serif',
+                                          fontWeight: 500
+                                        }}>
+                                          {t['Objectives '] || 'No detailed written brief provided. Categorized by design keywords and distribution channel tags.'}
+                                        </div>
+                                      </div>
+
+                                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', paddingTop: '0.5rem' }}>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Channels & Platforms</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['For this Platform'] || 'Direct Production / Campus Collateral'}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Requesting Department</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['Department/ Office'] || t['Dpt/ Office'] || 'Unassigned'}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Format & Color Scheme</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {dop || 'Digital'} {t.Resolution ? `· ${t.Resolution}` : ''} {t['Colour Scheme'] ? `· ${t['Colour Scheme']}` : ''}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Handler & Manager</div>
+                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                            Handler: {t.Handler || 'Unassigned'} {t['Project Owner/Manager'] ? `(Owner: ${t['Project Owner/Manager']})` : ''}
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      {t['Supplied Text'] && (
+                                        <div style={{ paddingTop: '0.5rem', borderTop: '1px dashed #e2e8f0' }}>
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Supplied Text / Copy Brief:</div>
+                                          <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '0.25rem', maxHeight: '100px', overflowY: 'auto', whiteSpace: 'pre-wrap', fontFamily: 'Montserrat, sans-serif' }}>
+                                            {t['Supplied Text']}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              )}
+                            </>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Controls */}
+                {gdTotalPages > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
+                    <button
+                      disabled={gdPage === 1}
+                      onClick={() => setGdPage((p) => Math.max(1, p - 1))}
+                      style={{
+                        padding: '0.5rem 0.85rem',
+                        borderRadius: '6px',
+                        background: gdPage === 1 ? '#f1f5f9' : '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: gdPage === 1 ? '#94a3b8' : '#334155',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        cursor: gdPage === 1 ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    >
+                      <ChevronLeft size={16} />
+                      Previous
+                    </button>
+
+                    <span style={{ fontSize: '0.825rem', fontWeight: 700, color: '#475569', fontFamily: 'Montserrat, sans-serif' }}>
+                      Page {gdPage} of {gdTotalPages}
+                    </span>
+
+                    <button
+                      disabled={gdPage === gdTotalPages}
+                      onClick={() => setGdPage((p) => Math.min(gdTotalPages, p + 1))}
+                      style={{
+                        padding: '0.5rem 0.85rem',
+                        borderRadius: '6px',
+                        background: gdPage === gdTotalPages ? '#f1f5f9' : '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: gdPage === gdTotalPages ? '#94a3b8' : '#334155',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        cursor: gdPage === gdTotalPages ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontFamily: 'Montserrat, sans-serif',
+                      }}
+                    >
+                      Next
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 4: DEPARTMENT DEMAND MATRIX */}
+            {gdActiveSubTab === 'departments' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    Which Departments Request What Types of Graphic Design?
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                    Demand distribution showing how internal and external university departments consume graphic design resources across Souvenirs, Social Posts, Publications, and Events.
+                  </p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                  {graphicDesignData.topDepartments.map((dept, idx) => {
+                    const deptTasks = graphicDesignData.allTasks.filter((t) => {
+                      const d = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
+                      return d === dept.name;
+                    });
+                    const deptTotal = deptTasks.length;
+                    const catCounts: Record<string, number> = {};
+                    deptTasks.forEach((t) => {
+                      const cat = getGraphicDesignSource(t).shortLabel;
+                      catCounts[cat] = (catCounts[cat] || 0) + 1;
+                    });
+                    const sortedCatCounts = Object.entries(catCounts).sort((a, b) => b[1] - a[1]);
+
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '12px',
+                          padding: '1.5rem',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '1rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
+                          <div>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
+                              #{idx + 1} Requisition Unit
+                            </span>
+                            <h4 style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                              {dept.name}
+                            </h4>
+                          </div>
+                          <span style={{
+                            padding: '0.25rem 0.65rem',
+                            borderRadius: '14px',
+                            background: 'rgba(130, 117, 75, 0.1)',
+                            color: '#82754B',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            fontFamily: 'Montserrat, sans-serif',
+                          }}>
+                            {deptTotal} projects
+                          </span>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'Montserrat, sans-serif' }}>
+                            Top Design Types Requested
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            {sortedCatCounts.slice(0, 4).map(([catName, count], cIdx) => {
+                              const share = ((count / deptTotal) * 100).toFixed(0);
+                              return (
+                                <div key={cIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                  <span style={{ fontWeight: 600, color: '#334155' }}>{catName}</span>
+                                  <span style={{ fontWeight: 800, color: '#764393' }}>{count} ({share}%)</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
+                          <button
+                            onClick={() => {
+                              setGdSearchQuery(dept.name);
+                              setGdSelectedCategory('All');
+                              setGdActiveSubTab('explorer');
+                              setGdPage(1);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem',
+                              borderRadius: '6px',
+                              background: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                              color: '#82754B',
+                              fontWeight: 700,
+                              fontSize: '0.775rem',
+                              cursor: 'pointer',
+                              fontFamily: 'Montserrat, sans-serif',
+                            }}
+                          >
+                            Filter All Projects for {dept.name}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* CUHK Visuals & DAM Impact Sections */}
@@ -2131,7 +3734,7 @@ function App() {
               return (
                 <>
                   {/* SECTION 1: CUHK VISUALS IMPACT */}
-                  <div className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div id="section-cuhk-visuals" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <TrendingUp size={24} color="#764393" />
@@ -2208,7 +3811,7 @@ function App() {
                               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#20bf6b', fontFamily: 'Montserrat, sans-serif' }}>{c_summary.totalDownloads.toLocaleString()}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Deliverables)</span>
+                              <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.2 Asset Request (Projects)</span>
                               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>{cuhkVisualsAssetRequests.length.toLocaleString()}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2404,57 +4007,68 @@ function App() {
                         );
                       })()}
 
-                      {visualsSubTab === 'journey' && (
-                        <div>
-                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The Creative Discovery Journey</div>
-                          <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                            Tracing how individual files are discovered (Previewed), requested, and distributed (Downloaded/Shared). Sorted by overall engagement score.
-                          </p>
-                          <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
-                              <thead>
-                                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
-                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
-                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Previews</th>
-                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Downloads</th>
-                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Shares</th>
-                                  <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Conversion</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {visualsSummary.cuhkVisuals.journeyOfInfluence.slice(0, 15).map((file: any, idx: number) => (
-                                  <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                    <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
-                                    <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
-                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                      <span style={{
-                                        display: 'inline-block',
-                                        padding: '0.15rem 0.5rem',
-                                        borderRadius: '12px',
-                                        fontSize: '0.75rem',
-                                        fontWeight: 700,
-                                        background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
-                                        color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
-                                      }}>
-                                        {file.conversionRate}
-                                      </span>
-                                    </td>
+                      {visualsSubTab === 'journey' && (() => {
+                        const sortedJourney = [...visualsSummary.cuhkVisuals.journeyOfInfluence]
+                          .sort((a: any, b: any) => {
+                            const rateA = parseFloat((a.conversionRate || '0').replace('%', ''));
+                            const rateB = parseFloat((b.conversionRate || '0').replace('%', ''));
+                            if (rateB !== rateA) return rateB - rateA;
+                            return (b.score || 0) - (a.score || 0);
+                          })
+                          .slice(0, 15);
+
+                        return (
+                          <div>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The Creative Discovery Journey</div>
+                            <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                              Tracing how individual files are discovered (Previewed), requested, and distributed (Downloaded/Shared). Sorted by conversion rate.
+                            </p>
+                            <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
+                              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
+                                <thead>
+                                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                                    <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Asset Name</th>
+                                    <th style={{ padding: '1rem', fontWeight: 700, color: '#334155' }}>Size</th>
+                                    <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Previews</th>
+                                    <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Downloads</th>
+                                    <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Shares</th>
+                                    <th style={{ padding: '1rem', fontWeight: 700, color: '#334155', textAlign: 'center' }}>Conversion</th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                                </thead>
+                                <tbody>
+                                  {sortedJourney.map((file: any, idx: number) => (
+                                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                                      <td style={{ padding: '1rem', fontWeight: 700, color: '#1e293b', wordBreak: 'break-all', maxWidth: '300px' }}>{file.file}</td>
+                                      <td style={{ padding: '1rem', color: '#64748b', fontWeight: 600 }}>{file.size || '-'}</td>
+                                      <td style={{ padding: '1rem', textAlign: 'center', color: '#9174A8', fontWeight: 800 }}>{file.preview.toLocaleString()}</td>
+                                      <td style={{ padding: '1rem', textAlign: 'center', color: '#20bf6b', fontWeight: 800 }}>{file.download.toLocaleString()}</td>
+                                      <td style={{ padding: '1rem', textAlign: 'center', color: '#9b7d46', fontWeight: 800 }}>{file.share.toLocaleString()}</td>
+                                      <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                        <span style={{
+                                          display: 'inline-block',
+                                          padding: '0.15rem 0.5rem',
+                                          borderRadius: '12px',
+                                          fontSize: '0.75rem',
+                                          fontWeight: 700,
+                                          background: parseFloat(file.conversionRate) > 30 ? 'rgba(32, 191, 107, 0.1)' : 'rgba(100, 116, 139, 0.1)',
+                                          color: parseFloat(file.conversionRate) > 30 ? '#20bf6b' : '#64748b'
+                                        }}>
+                                          {file.conversionRate}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {visualsSubTab === 'attributes' && (
                         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                           <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Location / Portal</div>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Page</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -2835,7 +4449,7 @@ function App() {
                       {damSubTab === 'attributes' && (
                         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                           <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Location / Portal</div>
+                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Page</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -2922,7 +4536,7 @@ function App() {
               </p>
             </div>
 
-            <div className="dashboard-grid" style={{ marginBottom: '2.5rem' }}>
+            <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
                 <div className="kpi-info" style={{ flex: 1 }}>
                   <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Open Rate (OTR)</h3>
@@ -2947,11 +4561,22 @@ function App() {
                   <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>{(edmSummary.totalDelivered / 1000000).toFixed(2)}M</div>
                 </div>
               </div>
+            </div>
+
+            <div className="dashboard-grid" style={{ marginBottom: '2.5rem' }}>
               <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
                 <div className="kpi-info" style={{ flex: 1 }}>
                   <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Opens / Issue</h3>
                   <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46' }}>
                     {Math.round(edmSummary.avgOpensPerIssue).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
+                <div className="kpi-info" style={{ flex: 1 }}>
+                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Click-Through / Issue</h3>
+                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#20bf6b' }}>
+                    {Math.round(edmSummary.avgClicksPerIssue).toLocaleString()}
                   </div>
                 </div>
               </div>

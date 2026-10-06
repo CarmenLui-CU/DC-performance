@@ -91,9 +91,9 @@
 +                        </div>
 +
 +                        <div>
-+                          <div className="service-section-title">Latest Deliverables</div>
++                          <div className="service-section-title">Latest Projects</div>
 +                          {cat.stats.latestTasks.length === 0 ? (
-+                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent deliverables</div>
++                            <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic', padding: '0.5rem 0', fontFamily: 'Montserrat, sans-serif' }}>No recent Projects</div>
 +                          ) : (
 +                            cat.stats.latestTasks.map((t, i) => {
 +                              const s = t.Status?.trim().toLowerCase();
