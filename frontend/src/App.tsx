@@ -20,14 +20,17 @@ import {
   Eye,
   Sparkles,
   PieChart as PieChartIcon,
-  Code,
   Laptop,
-  CheckCircle2,
   Filter,
   Server,
   Zap,
   ArrowRight,
   RotateCcw,
+  Menu,
+  X,
+  Cpu,
+  FileText,
+  CheckSquare,
 } from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
@@ -411,6 +414,8 @@ interface WebsiteCategoryInfo {
   border: string;
   description: string;
   examples: string[];
+  scope: 'main-site' | 'platform-services' | 'campaigns-events';
+  targetDomain: string;
 }
 
 const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
@@ -420,8 +425,21 @@ const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
     color: '#6366F1',
     bg: 'rgba(99, 102, 241, 0.08)',
     border: 'rgba(99, 102, 241, 0.25)',
+    scope: 'platform-services',
+    targetDomain: 'Bespoke Platforms',
     description: 'Strategic, bespoke digital architecture and web applications built from scratch by CPRO Digital & Creative.',
-    examples: ['Strategic Plan Website (2026-30)', 'CUHK Key Metrics Database (Facts & Figures Online)', 'CUHK Visuals Landing Page', 'CUHK Sticker Website'],
+    examples: ['CUHK Key Metrics Database (Facts & Figures Online)', 'CUHK Visuals Landing Page', 'CUHK Sticker Website', 'Strategic Plan Website (2026-30) (Status: Cancel)'],
+  },
+  'Productivity & Internal Workflow Systems': {
+    category: 'Productivity & Internal Workflow Systems',
+    shortLabel: 'Notion & Productivity',
+    color: '#F0B67D',
+    bg: 'rgba(240, 182, 125, 0.12)',
+    border: 'rgba(240, 182, 125, 0.4)',
+    scope: 'platform-services',
+    targetDomain: 'Notion & Internal Platforms',
+    description: 'Internal productivity platforms, Notion teamspaces, AI style guide proofreader, process automations, and team workflow tools.',
+    examples: ['Notion Workspace & Calendar Sync', 'Notion user guides', 'Style Guide Proofreader', 'Annual Statistics Automation', 'CUHK Creators Teams Group'],
   },
   'Online Directory & Staff Lists (OCD)': {
     category: 'Online Directory & Staff Lists (OCD)',
@@ -429,17 +447,32 @@ const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
     color: '#0284C7',
     bg: 'rgba(2, 132, 199, 0.08)',
     border: 'rgba(2, 132, 199, 0.25)',
-    description: 'University-wide Online Contact Directory (OCD), departmental staff directories, office phone lists, and faculty profiles.',
+    scope: 'campaigns-events',
+    targetDomain: 'https://ocd.cuhk.edu.hk/',
+    description: 'University-wide Online Contact Directory portal (https://ocd.cuhk.edu.hk/), departmental staff directories, office phone lists, and faculty profiles.',
     examples: ['Online Staff List updates', 'OCDA nomination forms', 'Office contact directory refreshes', 'Departmental contact profiles'],
   },
-  'Homepage Banners & FOCUS Stories': {
-    category: 'Homepage Banners & FOCUS Stories',
-    shortLabel: 'Homepage & FOCUS',
+  'Homepage Hero Banners & Announcements': {
+    category: 'Homepage Hero Banners & Announcements',
+    shortLabel: 'Homepage Banners',
     color: '#764393',
     bg: 'rgba(118, 67, 147, 0.08)',
     border: 'rgba(118, 67, 147, 0.25)',
-    description: 'CUHK official homepage hero banners, CUHK in Focus news articles, breaking announcements, and seasonal themes.',
-    examples: ['CUHK Homepage hero banners', 'CUHK in Focus feature stories', 'CUHK Channel updates', 'Special event homepage takeovers'],
+    scope: 'main-site',
+    targetDomain: 'www.cuhk.edu.hk',
+    description: 'CUHK official homepage hero banners, institutional announcements, and portal takeovers on the university main site.',
+    examples: ['CUHK Homepage hero banners', 'Official university announcements', 'CUHK Channel updates', 'VC inaugural message banner'],
+  },
+  'CUHK in Focus Publication': {
+    category: 'CUHK in Focus Publication',
+    shortLabel: 'CUHK in Focus',
+    color: '#82754B',
+    bg: 'rgba(130, 117, 75, 0.08)',
+    border: 'rgba(130, 117, 75, 0.25)',
+    scope: 'campaigns-events',
+    targetDomain: 'focus.cuhk.edu.hk',
+    description: 'Dedicated university digital newsletter & editorial publication, publishing bi-weekly editions and university features, and supporting eDM blasting.',
+    examples: ['CUHK in Focus #31 editorial release', 'eDM blasting campaign support', 'Bi-weekly publication metrics & statistics', 'Focus story feature releases'],
   },
   'Governance, Council & Secretariat': {
     category: 'Governance, Council & Secretariat',
@@ -447,6 +480,8 @@ const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
     color: '#472858',
     bg: 'rgba(71, 40, 88, 0.08)',
     border: 'rgba(71, 40, 88, 0.25)',
+    scope: 'main-site',
+    targetDomain: 'www.cuhk.edu.hk',
     description: 'Official university governance portals: University Council, Senate, Committees, Statutes, and Secretarial documentation.',
     examples: ['Council member lists', 'Senate minutes & schedule', 'Committee composition updates', 'Governance statutes updates'],
   },
@@ -456,6 +491,8 @@ const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
     color: '#82754B',
     bg: 'rgba(130, 117, 75, 0.08)',
     border: 'rgba(130, 117, 75, 0.25)',
+    scope: 'main-site',
+    targetDomain: 'www.cuhk.edu.hk',
     description: 'Undergraduate & Postgraduate admissions (OAFA), JUPAS program codes, global rankings (QS, THE), and curriculum disclosures.',
     examples: ['Update THE & QS World Rankings', 'OAFA admission guides', 'JUPAS code integration', 'Faculty academic program updates'],
   },
@@ -465,6 +502,8 @@ const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
     color: '#F59E0B',
     bg: 'rgba(245, 158, 11, 0.08)',
     border: 'rgba(245, 158, 11, 0.25)',
+    scope: 'main-site',
+    targetDomain: 'www.cuhk.edu.hk',
     description: 'Campus catering directory, restaurant opening hours, canteen operations, student facilities, and campus amenities.',
     examples: ['New Asia Staff Restaurant updates', 'Campus canteen operating hours', 'Catering services directory', 'Campus amenities info'],
   },
@@ -474,26 +513,32 @@ const WEBSITE_CATEGORIES: Record<string, WebsiteCategoryInfo> = {
     color: '#10B981',
     bg: 'rgba(16, 185, 129, 0.08)',
     border: 'rgba(16, 185, 129, 0.25)',
+    scope: 'main-site',
+    targetDomain: 'www.cuhk.edu.hk',
     description: 'Research institutes, State Key Laboratories, ORKTS knowledge transfer portals, patents, and scientific breakthroughs.',
-    examples: ['Research Institutes & Centres portal', 'ORKTS research funding updates', 'Lab profile updates', 'Research excellence stories'],
+    examples: ['Research & Knowledge Transfer', 'Research Institutes & Centres portal', 'ORKTS knowledge transfer updates', 'State Key Laboratories showcase'],
   },
   'Campaigns, Events & Anniversaries': {
     category: 'Campaigns, Events & Anniversaries',
-    shortLabel: 'Events & Campaigns',
+    shortLabel: 'Events & Anniversaries',
     color: '#EC4899',
     bg: 'rgba(236, 72, 153, 0.08)',
     border: 'rgba(236, 72, 153, 0.25)',
-    description: 'Milestone celebrations (CUHK 60th Anniversary), strategic campaigns, public lectures, and university ceremonies.',
-    examples: ['60A Celebratory Events portal', 'History Gallery opening page', 'Honorary Fellowships', 'Strategic campaign landing pages'],
+    scope: 'campaigns-events',
+    targetDomain: '60.cuhk.edu.hk / Campaign Portals',
+    description: 'Dedicated milestone celebratory portals (CUHK 60th Anniversary), external celebratory event listings, history galleries, and public campaigns.',
+    examples: ['CUHK 60A Anniversary Portal (60.cuhk.edu.hk)', 'History Gallery opening website', '60A Celebratory Events Calendar', 'Shaw Prize Lecture 2023'],
   },
   'General Web Maintenance & Systems': {
     category: 'General Web Maintenance & Systems',
-    shortLabel: 'Maintenance & Admin',
+    shortLabel: 'Maintenance & Systems',
     color: '#64748B',
     bg: 'rgba(100, 116, 139, 0.08)',
     border: 'rgba(100, 116, 139, 0.25)',
-    description: 'Security patches, 2FA implementation, CMS updates, Zapier automations, broken link remediation, and administrative web maintenance.',
-    examples: ['Enable 2FA on web portals', 'Zapier email list sync', 'Notion user guides', 'Fillout request forms', 'Web security audits'],
+    scope: 'platform-services',
+    targetDomain: 'Platform Infrastructure & Systems',
+    description: 'Security patches, 2FA implementation, CMS updates, Zapier automations, broken link remediation, and platform maintenance.',
+    examples: ['Enable 2FA on web portals', 'Zapier email list sync', 'Web security audits & patches', 'CMS version upgrades', 'Platform infrastructure upkeep'],
   },
 };
 
@@ -502,31 +547,80 @@ const getWebsiteSource = (t: TaskRecord): WebsiteCategoryInfo => {
   if (rawType === 'website development') {
     return WEBSITE_CATEGORIES['Bespoke Platforms & Systems (Website Development)'];
   }
+  if (rawType === 'productivity system') {
+    return WEBSITE_CATEGORIES['Productivity & Internal Workflow Systems'];
+  }
   const name = (t['Task Name'] || t['PROJECT NAME'] || '').toLowerCase();
   const tags = (t.Tags || '').toLowerCase();
   const dept = (t['Department/ Office'] || t['Dpt/ Office'] || '').toLowerCase();
+  const obj = (t['Objectives '] || '').toLowerCase();
+  const explicit = (t['For this Platform'] || '').toLowerCase();
 
+  if (
+    name.includes('notion') ||
+    tags.includes('notion') ||
+    obj.includes('notion') ||
+    name.includes('proofreader') ||
+    tags.includes('proofreader') ||
+    obj.includes('proofreader') ||
+    name.includes('teams') ||
+    tags.includes('creative community') ||
+    name.includes('fillout') ||
+    tags.includes('fillout') ||
+    name.includes('master calendar') ||
+    name.includes('workflow guide')
+  ) {
+    return WEBSITE_CATEGORIES['Productivity & Internal Workflow Systems'];
+  }
+
+  // 1. Online Directory & Staff Lists (OCD)
   if (tags.includes('ocd') || tags.includes('online staff list') || name.includes('online staff list') || name.includes('contact directory') || name.includes('online directory') || name.includes('ocd')) {
     return WEBSITE_CATEGORIES['Online Directory & Staff Lists (OCD)'];
   }
+
+  // 2. CUHK in Focus (Separate from Main site www.cuhk.edu.hk)
+  if (explicit.includes('in focus') || tags.includes('focus') || name.includes('focus') || name.includes('cuhk in focus')) {
+    return WEBSITE_CATEGORIES['CUHK in Focus Publication'];
+  }
+
+  // 3. Campaigns, Events & Anniversaries (Separate from Main site www.cuhk.edu.hk)
+  if (
+    tags.includes('60 anniversary') ||
+    tags.includes('anniversary') ||
+    name.includes('60a') ||
+    name.includes('60th anniversary') ||
+    name.includes('history gallery') ||
+    name.includes('anniversary') ||
+    tags.includes('event')
+  ) {
+    return WEBSITE_CATEGORIES['Campaigns, Events & Anniversaries'];
+  }
+
+  // 4. Governance, Council & Secretariat
   if (tags.includes('governance') || tags.includes('council') || tags.includes('senate') || tags.includes('committee') || dept.includes('secretariat')) {
     return WEBSITE_CATEGORIES['Governance, Council & Secretariat'];
   }
+
+  // 5. Campus Facilities & Dining (Canteen)
   if (tags.includes('canteen') || name.includes('canteen') || name.includes('restaurant') || name.includes('catering')) {
     return WEBSITE_CATEGORIES['Campus Facilities & Dining (Canteen)'];
   }
-  if (tags.includes('focus') || tags.includes('homepage') || name.includes('focus') || name.includes('homepage') || name.includes('banner') || tags.includes('cuhk channel')) {
-    return WEBSITE_CATEGORIES['Homepage Banners & FOCUS Stories'];
+
+  // 6. Homepage Hero Banners & Announcements (for www.cuhk.edu.hk)
+  if (tags.includes('homepage') || name.includes('homepage') || name.includes('banner') || tags.includes('cuhk channel')) {
+    return WEBSITE_CATEGORIES['Homepage Hero Banners & Announcements'];
   }
+
+  // 7. Academic, Admissions & Rankings
   if (tags.includes('ranking') || tags.includes('admission') || tags.includes('oafa') || name.includes('ranking') || name.includes('admission') || tags.includes('jupas') || dept.includes('oafa') || name.includes('oafa')) {
     return WEBSITE_CATEGORIES['Academic, Admissions & Rankings'];
   }
+
+  // 8. Research & Knowledge Transfer
   if (tags.includes('research') || name.includes('research') || dept.includes('research') || dept.includes('orkts')) {
     return WEBSITE_CATEGORIES['Research & Knowledge Transfer'];
   }
-  if (tags.includes('60 anniversary') || tags.includes('anniversary') || tags.includes('event') || name.includes('60') || name.includes('anniversary')) {
-    return WEBSITE_CATEGORIES['Campaigns, Events & Anniversaries'];
-  }
+
   return WEBSITE_CATEGORIES['General Web Maintenance & Systems'];
 };
 
@@ -534,10 +628,14 @@ const renderWebsiteCategoryIcon = (category: string, color: string, size = 16) =
   switch (category) {
     case 'Bespoke Platforms & Systems (Website Development)':
       return <Laptop size={size} color={color} />;
+    case 'Productivity & Internal Workflow Systems':
+      return <Cpu size={size} color={color} />;
     case 'Online Directory & Staff Lists (OCD)':
       return <Building size={size} color={color} />;
-    case 'Homepage Banners & FOCUS Stories':
+    case 'Homepage Hero Banners & Announcements':
       return <Globe size={size} color={color} />;
+    case 'CUHK in Focus Publication':
+      return <Sparkles size={size} color={color} />;
     case 'Governance, Council & Secretariat':
       return <Layers size={size} color={color} />;
     case 'Academic, Admissions & Rankings':
@@ -552,6 +650,165 @@ const renderWebsiteCategoryIcon = (category: string, color: string, size = 16) =
     default:
       return <Server size={size} color={color} />;
   }
+};
+
+export interface PlatformBadgeInfo {
+  name: string;
+  color: string;
+  bg: string;
+  border: string;
+}
+
+export const getProjectPlatform = (t: TaskRecord): string => {
+  const explicit = (t['For this Platform'] || '').trim().toLowerCase();
+  const name = (t['PROJECT NAME'] || t['Task Name'] || '').trim();
+  const nameLower = name.toLowerCase();
+  const tagsLower = (t.Tags || '').toLowerCase();
+  const objLower = (t['Objectives '] || '').toLowerCase();
+  const typeLower = (t['Task type'] || '').trim().toLowerCase();
+
+  // 1. Proofreader Page
+  if (
+    nameLower.includes('proofreader') ||
+    tagsLower.includes('proofreader') ||
+    objLower.includes('proofreader') ||
+    (nameLower.includes('style guide') && !nameLower.includes('brand') && !nameLower.includes('visual')) ||
+    tagsLower.includes('style guide')
+  ) {
+    return 'Proofreader Page';
+  }
+
+  // 2. Online Contact Directory (ocd.cuhk.edu.hk)
+  if (
+    tagsLower.includes('ocd') ||
+    nameLower.includes('ocd') ||
+    tagsLower.includes('online staff list') ||
+    nameLower.includes('online staff list') ||
+    nameLower.includes('staff list') ||
+    nameLower.includes('contact directory') ||
+    nameLower.includes('directory')
+  ) {
+    return 'Online Contact Directory (ocd.cuhk.edu.hk)';
+  }
+
+  // 3. CUHK in Focus (Separate from Main site www.cuhk.edu.hk)
+  if (
+    explicit.includes('in focus') ||
+    tagsLower.includes('focus') ||
+    nameLower.includes('focus')
+  ) {
+    return 'CUHK in Focus';
+  }
+
+  // 4. Campaigns, Events & Anniversaries (Separate from Main site www.cuhk.edu.hk, hosted on 60.cuhk.edu.hk)
+  if (
+    nameLower.includes('60a') ||
+    nameLower.includes('60th anniversary') ||
+    tagsLower.includes('60 anniversary') ||
+    tagsLower.includes('60a') ||
+    nameLower.includes('history gallery') ||
+    nameLower.includes('anniversary') ||
+    tagsLower.includes('anniversary') ||
+    explicit.includes('60a') ||
+    explicit.includes('anniversary')
+  ) {
+    return 'Campaigns, Events & Anniversaries (60.cuhk.edu.hk)';
+  }
+
+  // 5. Automation Tools (Zapier, Fillout Form)
+  if (
+    nameLower.includes('zapier') ||
+    tagsLower.includes('zapier') ||
+    objLower.includes('zapier') ||
+    nameLower.includes('fillout') ||
+    tagsLower.includes('fillout') ||
+    objLower.includes('fillout') ||
+    nameLower.includes('brief form') ||
+    (nameLower.includes('request form') && (tagsLower.includes('form') || tagsLower.includes('fillout') || objLower.includes('form'))) ||
+    nameLower.includes('automate reporting') ||
+    nameLower.includes('sync seepo') ||
+    nameLower.includes('cloudflare') ||
+    objLower.includes('cloudflare') ||
+    objLower.includes('cloudfare') ||
+    nameLower.includes('new domain') ||
+    nameLower.includes('teams group') ||
+    nameLower.includes('creative community')
+  ) {
+    return 'Automation Tools (Zapier, Fillout Form)';
+  }
+
+  // 6. Notion
+  // Note: Exclude tasks that merely include an external notion.so reference link
+  const isActualNotion = (
+    (nameLower.includes('notion') && !nameLower.includes('notion.so/')) ||
+    tagsLower.includes('notion') ||
+    nameLower.includes('master calendar') ||
+    (typeLower === 'productivity system' && (
+      nameLower.includes('kpi') ||
+      nameLower.includes('workshop') ||
+      nameLower.includes('training') ||
+      nameLower.includes('workflow') ||
+      nameLower.includes('distribution list') ||
+      nameLower.includes('stat.') ||
+      nameLower.includes('report') ||
+      nameLower.includes('tracker') ||
+      nameLower.includes('template')
+    ))
+  );
+
+  if (isActualNotion) {
+    return 'Notion';
+  }
+
+  // 7. Bespoke Platforms (Website Dev)
+  if (
+    typeLower === 'website development' ||
+    nameLower.includes('strategic plan') ||
+    nameLower.includes('facts & figures online') ||
+    nameLower.includes('key metrics database') ||
+    nameLower.includes('sticker website') ||
+    nameLower.includes('visuals landing page')
+  ) {
+    return 'Bespoke Platforms (Website Dev)';
+  }
+
+  // 8. CUHK Main Site Services (www.cuhk.edu.hk)
+  return 'CUHK Main Site Services (www.cuhk.edu.hk)';
+};
+
+export const getPlatformBadgeInfo = (platform: string): PlatformBadgeInfo => {
+  switch (platform) {
+    case 'CUHK Main Site Services (www.cuhk.edu.hk)':
+      return { name: platform, color: '#764393', bg: 'rgba(118, 67, 147, 0.08)', border: 'rgba(118, 67, 147, 0.25)' };
+    case 'Online Contact Directory (ocd.cuhk.edu.hk)':
+    case 'Online Contact Directory (OCD)':
+      return { name: platform, color: '#0284C7', bg: 'rgba(2, 132, 199, 0.08)', border: 'rgba(2, 132, 199, 0.25)' };
+    case 'CUHK in Focus':
+      return { name: platform, color: '#82754B', bg: 'rgba(130, 117, 75, 0.08)', border: 'rgba(130, 117, 75, 0.25)' };
+    case 'Campaigns, Events & Anniversaries (60.cuhk.edu.hk)':
+      return { name: platform, color: '#DB2777', bg: 'rgba(219, 39, 119, 0.08)', border: 'rgba(219, 39, 119, 0.25)' };
+    case 'Automation Tools (Zapier, Fillout Form)':
+      return { name: platform, color: '#059669', bg: 'rgba(5, 150, 105, 0.08)', border: 'rgba(5, 150, 105, 0.25)' };
+    case 'Notion':
+      return { name: platform, color: '#1e293b', bg: 'rgba(30, 41, 59, 0.08)', border: 'rgba(30, 41, 59, 0.25)' };
+    case 'Bespoke Platforms (Website Dev)':
+      return { name: platform, color: '#6366F1', bg: 'rgba(99, 102, 241, 0.08)', border: 'rgba(99, 102, 241, 0.25)' };
+    case 'Proofreader Page':
+      return { name: platform, color: '#C2410C', bg: 'rgba(194, 65, 12, 0.1)', border: 'rgba(194, 65, 12, 0.3)' };
+    default:
+      return { name: platform, color: '#64748B', bg: 'rgba(100, 116, 139, 0.08)', border: 'rgba(100, 116, 139, 0.25)' };
+  }
+};
+
+const renderPlatformIcon = (platform: string, color: string, size = 13) => {
+  if (platform.includes('Proofreader')) return <CheckSquare size={size} color={color} />;
+  if (platform.includes('Automation') || platform.includes('Zapier') || platform.includes('Fillout')) return <Zap size={size} color={color} />;
+  if (platform.includes('Notion')) return <FileText size={size} color={color} />;
+  if (platform.includes('Directory') || platform.includes('OCD')) return <Building size={size} color={color} />;
+  if (platform.includes('Focus')) return <Sparkles size={size} color={color} />;
+  if (platform.includes('Anniversaries') || platform.includes('60.cuhk.edu.hk') || platform.includes('Campaign')) return <Calendar size={size} color={color} />;
+  if (platform.includes('Bespoke')) return <Laptop size={size} color={color} />;
+  return <Globe size={size} color={color} />;
 };
 
 const CustomizedAxisTick = (props: any) => {
@@ -665,9 +922,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 function App() {
   const [activeTab, setActiveTab] = useState<'requests' | 'services'>('requests');
   const [activeSection, setActiveSection] = useState<string>('section-req-monthly');
+  const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
+    setMobileNavOpen(false);
     const isRequestSection = sectionId.startsWith('section-req-');
     const targetTab = isRequestSection ? 'requests' : 'services';
 
@@ -756,14 +1015,17 @@ function App() {
   const [gdActiveSubTab, setGdActiveSubTab] = useState<'overview' | 'sources' | 'explorer' | 'departments'>('overview');
   const [expandedGdTaskId, setExpandedGdTaskId] = useState<string | null>(null);
 
-  // Website Impact section states
+  // Digital Platform Impact section states
   const [webSelectedCategory, setWebSelectedCategory] = useState<string>('All');
-  const [webServiceTypeFilter, setWebServiceTypeFilter] = useState<'All' | 'Website Update' | 'Website Development'>('All');
+  const [webServiceTypeFilter, setWebServiceTypeFilter] = useState<'All' | 'Website Update' | 'Website Development' | 'Productivity System'>('All');
+  const [webPlatformFilter, setWebPlatformFilter] = useState<string>('All');
   const [webSearchQuery, setWebSearchQuery] = useState<string>('');
-  const [webStatusFilter, setWebStatusFilter] = useState<'All' | 'Done' | 'In Progress'>('All');
+  const [webStatusFilter, setWebStatusFilter] = useState<'All' | 'Done' | 'In Progress' | 'Cancel'>('All');
   const [webDeptFilter, setWebDeptFilter] = useState<string>('All');
   const [webPage, setWebPage] = useState<number>(1);
-  const [webActiveSubTab, setWebActiveSubTab] = useState<'overview' | 'platforms' | 'categories' | 'explorer' | 'departments'>('overview');
+  const [webActiveSubTab, setWebActiveSubTab] = useState<'overview' | 'categories' | 'explorer' | 'departments'>('overview');
+  const [spotlightScopeFilter, setSpotlightScopeFilter] = useState<'all' | 'main-site' | 'campaigns-events' | 'platform-services'>('all');
+  const [chartGroupByMainSite, setChartGroupByMainSite] = useState<boolean>(true);
   const [expandedWebTaskId, setExpandedWebTaskId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -890,19 +1152,13 @@ function App() {
 
   const activeTasks = useMemo(() => {
     return tasks.filter((t) => {
-      // 1. Exclude cancelled tasks
-      const s = t.Status?.trim().toLowerCase();
-      if (s === 'cancel' || s === 'cancelled' || s === 'canceled') {
-        return false;
-      }
-
-      // 2. Filter out tasks where Task type is null/empty/blank/null string
+      // 1. Filter out tasks where Task type is null/empty/blank/null string
       const type = t['Task type']?.trim();
       if (!type || type === '' || type.toLowerCase() === 'null') {
         return false;
       }
 
-      // 3. Filter out tasks where Department/Office is null/empty/blank/null string
+      // 2. Filter out tasks where Department/Office is null/empty/blank/null string
       const dept = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim();
       if (!dept || dept === '' || dept.toLowerCase() === 'null') {
         return false;
@@ -1531,7 +1787,7 @@ function App() {
     return filteredGraphicDesignTasks.slice(start, start + 12);
   }, [filteredGraphicDesignTasks, gdPage]);
 
-  // Website Impact analysis (Website Update + Website Development)
+  // Digital Platform Impact analysis (Website Update + Website Development + Productivity System)
   const websiteData = useMemo(() => {
     const webTasks = filteredActiveTasksByCPR.filter((t) => {
       const period = t.Period?.trim() || '';
@@ -1540,19 +1796,23 @@ function App() {
         return false;
       }
       const rawType = (t['Task type'] || '').trim().toLowerCase();
-      return rawType === 'website update' || rawType === 'website development';
+      return rawType === 'website update' || rawType === 'website development' || rawType === 'productivity system';
     });
 
     let completedCount = 0;
     let inProgressCount = 0;
+    let cancelCount = 0;
     let updateCount = 0;
     let devCount = 0;
+    let productivityCount = 0;
     const deptCounts: Record<string, number> = {};
+    const platformCounts: Record<string, number> = {};
     const categoryBuckets: Record<string, {
       info: WebsiteCategoryInfo;
       tasks: TaskRecord[];
       updateTasks: TaskRecord[];
       devTasks: TaskRecord[];
+      prodTasks: TaskRecord[];
       depts: Record<string, number>;
     }> = {};
 
@@ -1562,27 +1822,37 @@ function App() {
         tasks: [],
         updateTasks: [],
         devTasks: [],
+        prodTasks: [],
         depts: {},
       };
     });
 
-    const monthlySourceMap: Record<string, { update: number; dev: number; total: number; categories: Record<string, number> }> = {};
+    const monthlySourceMap: Record<string, { update: number; dev: number; productivity: number; total: number; categories: Record<string, number> }> = {};
 
     webTasks.forEach((t) => {
       const s = t.Status?.trim().toLowerCase();
+      const isCancel = s === 'cancel' || s === 'cancelled' || s === 'canceled';
       if (s === 'done' || s === 'completed') {
         completedCount++;
+      } else if (isCancel) {
+        cancelCount++;
       } else {
         inProgressCount++;
       }
 
       const rawType = (t['Task type'] || '').trim().toLowerCase();
       const isDev = rawType === 'website development';
+      const isProd = rawType === 'productivity system';
       if (isDev) {
         devCount++;
+      } else if (isProd) {
+        productivityCount++;
       } else {
         updateCount++;
       }
+
+      const platform = getProjectPlatform(t);
+      platformCounts[platform] = (platformCounts[platform] || 0) + 1;
 
       const dept = t['Department/ Office']?.trim() || t['Dpt/ Office']?.trim() || 'Unassigned';
       if (dept !== 'Unassigned') {
@@ -1594,6 +1864,8 @@ function App() {
       bucket.tasks.push(t);
       if (isDev) {
         bucket.devTasks.push(t);
+      } else if (isProd) {
+        bucket.prodTasks.push(t);
       } else {
         bucket.updateTasks.push(t);
       }
@@ -1604,10 +1876,12 @@ function App() {
       const period = t.Period?.trim() || '';
       if (period.length === 6) {
         if (!monthlySourceMap[period]) {
-          monthlySourceMap[period] = { update: 0, dev: 0, total: 0, categories: {} };
+          monthlySourceMap[period] = { update: 0, dev: 0, productivity: 0, total: 0, categories: {} };
         }
         if (isDev) {
           monthlySourceMap[period].dev++;
+        } else if (isProd) {
+          monthlySourceMap[period].productivity++;
         } else {
           monthlySourceMap[period].update++;
         }
@@ -1639,6 +1913,7 @@ function App() {
         percentage,
         updateCount: bucket.updateTasks.length,
         devCount: bucket.devTasks.length,
+        prodCount: bucket.prodTasks.length,
         completed: bucketCompleted,
         inProgress: count - bucketCompleted,
         topDepts,
@@ -1652,6 +1927,15 @@ function App() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
+    const platformStats = Object.entries(platformCounts)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: total > 0 ? parseFloat(((count / total) * 100).toFixed(1)) : 0,
+        badge: getPlatformBadgeInfo(name),
+      }))
+      .sort((a, b) => b.count - a.count);
+
     const sortedPeriods = Object.keys(monthlySourceMap).sort();
     const monthlyTrend = sortedPeriods.map((period) => {
       const dataObj = monthlySourceMap[period];
@@ -1660,6 +1944,7 @@ function App() {
         name: formatPeriod(period),
         'Website Update': dataObj.update,
         'Website Development': dataObj.dev,
+        'Productivity System': dataObj.productivity,
         total: dataObj.total,
       };
       Object.entries(dataObj.categories).forEach(([shortLabel, catCount]) => {
@@ -1669,23 +1954,96 @@ function App() {
     });
 
     const bespokeDevProjects = webTasks.filter((t) => (t['Task type'] || '').trim().toLowerCase() === 'website development');
+    const flagshipProdProjects = webTasks.filter((t) => {
+      const rawType = (t['Task type'] || '').trim().toLowerCase();
+      if (rawType !== 'productivity system') return false;
+      const name = (t['PROJECT NAME'] || t['Task Name'] || '').toLowerCase();
+      return (
+        name.includes('proofreader') ||
+        name.includes('master calendar') ||
+        name.includes('notion workshop') ||
+        name.includes('creative community') ||
+        name.includes('automate reporting') ||
+        name.includes('domain') ||
+        name.includes('sync seepo')
+      );
+    });
+
+    // Grouped categories for Digital Platform Services by Purpose (grouping Governance, Council, Admissions, Dining, Banners, Research, Maintenance into CUHK Main Site Services)
+    const mainSiteSubitemsList: Array<{ category: string; count: number; percentage: number; shortLabel: string; color: string }> = [];
+    let mainSiteGroupCount = 0;
+    const groupedCategoryStats: Array<{
+      name: string;
+      fullName: string;
+      count: number;
+      percentage: number;
+      color: string;
+      bg: string;
+      border: string;
+      isGroup: boolean;
+      subitems?: Array<{ category: string; count: number; percentage: number; shortLabel: string; color: string }>;
+    }> = [];
+
+    categoryStats.forEach((s) => {
+      if (s.info.scope === 'main-site') {
+        mainSiteGroupCount += s.count;
+        mainSiteSubitemsList.push({
+          category: s.category,
+          count: s.count,
+          percentage: s.percentage,
+          shortLabel: s.info.shortLabel,
+          color: s.info.color,
+        });
+      } else {
+        groupedCategoryStats.push({
+          name: s.info.shortLabel,
+          fullName: s.category,
+          count: s.count,
+          percentage: s.percentage,
+          color: s.info.color,
+          bg: s.info.bg,
+          border: s.info.border,
+          isGroup: false,
+        });
+      }
+    });
+
+    if (mainSiteGroupCount > 0) {
+      const mainSiteShare = total > 0 ? parseFloat(((mainSiteGroupCount / total) * 100).toFixed(1)) : 0;
+      groupedCategoryStats.unshift({
+        name: 'CUHK Main Site Services',
+        fullName: 'CUHK Main Site Services',
+        count: mainSiteGroupCount,
+        percentage: mainSiteShare,
+        color: '#764393',
+        bg: 'rgba(118, 67, 147, 0.08)',
+        border: 'rgba(118, 67, 147, 0.25)',
+        isGroup: true,
+        subitems: mainSiteSubitemsList.sort((a, b) => b.count - a.count),
+      });
+    }
 
     return {
       total,
       updateCount,
       devCount,
+      productivityCount,
       completedCount,
       inProgressCount,
+      cancelCount,
       uniqueDeptsCount: Object.keys(deptCounts).length,
       categoryStats,
+      groupedCategoryStats,
       topDepartments,
+      platformStats,
       monthlyTrend,
       bespokeDevProjects,
+      flagshipProdProjects,
       allTasks: webTasks,
     };
   }, [filteredActiveTasksByCPR, selectedTimeline]);
 
-  // Available departments in the web dataset for the dropdown filter
+  // Available departments in the digital dataset for the dropdown filter
   const availableWebDepartments = useMemo(() => {
     const set = new Set<string>();
     websiteData.allTasks.forEach((t) => {
@@ -1697,31 +2055,51 @@ function App() {
     return Array.from(set).sort();
   }, [websiteData.allTasks]);
 
-  // Filtered website tasks for the interactive explorer
+  // Available platforms in the digital dataset for the dropdown filter
+  const availableWebPlatforms = useMemo(() => {
+    return websiteData.platformStats.map((p) => p.name);
+  }, [websiteData.platformStats]);
+
+  // Filtered digital platform tasks for the interactive explorer
   const filteredWebsiteTasks = useMemo(() => {
     return websiteData.allTasks.filter((t) => {
       const rawType = (t['Task type'] || '').trim().toLowerCase();
 
-      // Service Stream Filter: All | Website Update | Website Development
+      // Service Stream Filter: All | Website Update | Website Development | Productivity System
       if (webServiceTypeFilter === 'Website Update' && rawType !== 'website update') {
         return false;
       }
       if (webServiceTypeFilter === 'Website Development' && rawType !== 'website development') {
         return false;
       }
+      if (webServiceTypeFilter === 'Productivity System' && rawType !== 'productivity system') {
+        return false;
+      }
 
-      // Category filter
+      // Platform filter
+      if (webPlatformFilter !== 'All') {
+        const plat = getProjectPlatform(t);
+        if (plat !== webPlatformFilter) return false;
+      }
+
+      // Category filter (supports grouped CUHK Main Site Services filter)
       if (webSelectedCategory !== 'All') {
         const catInfo = getWebsiteSource(t);
-        if (catInfo.category !== webSelectedCategory) return false;
+        if (webSelectedCategory === 'CUHK Main Site Services') {
+          if (catInfo.scope !== 'main-site') return false;
+        } else if (catInfo.category !== webSelectedCategory) {
+          return false;
+        }
       }
 
       // Status filter
       if (webStatusFilter !== 'All') {
         const s = (t.Status || '').trim().toLowerCase();
         const isDone = s === 'done' || s === 'completed';
+        const isCancel = s === 'cancel' || s === 'cancelled' || s === 'canceled';
         if (webStatusFilter === 'Done' && !isDone) return false;
-        if (webStatusFilter === 'In Progress' && isDone) return false;
+        if (webStatusFilter === 'In Progress' && (isDone || isCancel)) return false;
+        if (webStatusFilter === 'Cancel' && !isCancel) return false;
       }
 
       // Department filter
@@ -1733,20 +2111,24 @@ function App() {
       // Search query
       if (webSearchQuery.trim()) {
         const q = webSearchQuery.trim().toLowerCase();
-        const name = (t['PROJECT NAME'] || t['Task Name'] || '').toLowerCase();
+        const rawName = (t['PROJECT NAME'] || t['Task Name'] || '').toLowerCase();
+        const displayTitle = (rawName.includes('strategic plan') ? `${rawName} (2026-30)` : rawName).toLowerCase();
         const dept = (t['Department/ Office'] || t['Dpt/ Office'] || '').toLowerCase();
         const tags = (t.Tags || '').toLowerCase();
         const handler = (t.Handler || '').toLowerCase();
-        const platform = (t['For this Platform'] || '').toLowerCase();
+        const platform = getProjectPlatform(t).toLowerCase();
+        const explicitPlatform = (t['For this Platform'] || '').toLowerCase();
         const obj = (t['Objectives '] || '').toLowerCase();
         const supplied = (t['Supplied Text'] || '').toLowerCase();
         const owner = (t['Project Owner/Manager'] || '').toLowerCase();
         if (
-          !name.includes(q) &&
+          !rawName.includes(q) &&
+          !displayTitle.includes(q) &&
           !dept.includes(q) &&
           !tags.includes(q) &&
           !handler.includes(q) &&
           !platform.includes(q) &&
+          !explicitPlatform.includes(q) &&
           !obj.includes(q) &&
           !supplied.includes(q) &&
           !owner.includes(q)
@@ -1757,7 +2139,7 @@ function App() {
 
       return true;
     });
-  }, [websiteData.allTasks, webServiceTypeFilter, webSelectedCategory, webStatusFilter, webDeptFilter, webSearchQuery]);
+  }, [websiteData.allTasks, webServiceTypeFilter, webPlatformFilter, webSelectedCategory, webStatusFilter, webDeptFilter, webSearchQuery]);
 
   const webTotalPages = Math.max(1, Math.ceil(filteredWebsiteTasks.length / 12));
   const paginatedWebTasks = useMemo(() => {
@@ -2186,12 +2568,12 @@ function App() {
 
         {/* 2. Year-over-Year Comparison Timeline (Full-Width Area/Line Chart with Dynamic Selects) */}
         <div id="section-req-yoy" className="chart-card glass-panel" style={{ width: '100%' }}>
-          <div className="chart-header">
+          <div className="chart-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Calendar size={20} color="#764393" />
-              <h3>YoY Monthly Workload Comparison</h3>
+              <h3 style={{ margin: 0 }}>YoY Monthly Workload Comparison</h3>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="yoy-select-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               <select
                 className="glass-select"
                 value={compareYearA}
@@ -2845,22 +3227,9 @@ function App() {
                   <Palette size={24} color="#82754B" />
                 </div>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                      Graphic Design Impact
-                    </h3>
-                    <span style={{
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '12px',
-                      background: 'rgba(130, 117, 75, 0.12)',
-                      color: '#82754B',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}>
-                      Creative Projects & Channels Audit
-                    </span>
-                  </div>
+                  <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    Graphic Design Impact
+                  </h3>
                   <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
                     Analysis of design outputs by deliverable source & channel (Social Posts, Souvenirs & Merchandise, Publications, Events, Web Graphics, etc.) to evaluate what types of Graphic Design are requested.
                   </p>
@@ -2905,52 +3274,18 @@ function App() {
 
             {/* Top KPI Cards for Graphic Design */}
             <div className="dashboard-grid">
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                  Total Projects
-                </h4>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {graphicDesignData.total.toLocaleString()}
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Total Projects</h3>
+                  <div className="kpi-value">{graphicDesignData.total.toLocaleString()}</div>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  {graphicDesignData.completedCount} completed · {graphicDesignData.inProgressCount} in progress
-                </span>
               </div>
 
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                  Top Source: Social Post
-                </h4>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#3B82F6', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {graphicDesignData.sourceStats.find((s) => s.category === 'Social Post')?.count || 0}
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Departments Reached</h3>
+                  <div className="kpi-value">{graphicDesignData.uniqueDeptsCount}</div>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#3B82F6', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  {graphicDesignData.sourceStats.find((s) => s.category === 'Social Post')?.percentage || 0}% of all design requests
-                </span>
-              </div>
-
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                  Souvenirs & Merchandise
-                </h4>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#F59E0B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {graphicDesignData.sourceStats.find((s) => s.category === 'Souvenir & Merchandise')?.count || 0}
-                </div>
-                <span style={{ fontSize: '0.75rem', color: '#F59E0B', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  Mooncake boxes, calendars, 60A gifts
-                </span>
-              </div>
-
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                  Departments Reached
-                </h4>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {graphicDesignData.uniqueDeptsCount}
-                </div>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  Across faculties, CPRO & colleges
-                </span>
               </div>
             </div>
 
@@ -2958,7 +3293,7 @@ function App() {
             <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
               {[
                 { id: 'overview', label: 'Sources Overview' },
-                { id: 'sources', label: 'Design Sources Spotlight ("What Types For")' },
+                { id: 'sources', label: `Design Sources Spotlight (${graphicDesignData.sourceStats.length})` },
                 { id: 'explorer', label: `Projects Explorer (${filteredGraphicDesignTasks.length})` },
                 { id: 'departments', label: 'Department Demand Matrix' },
               ].map((tab) => (
@@ -3530,26 +3865,6 @@ function App() {
                                         </div>
                                       </div>
 
-                                      <div>
-                                        <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                          What This Graphic Design Was For (Objectives):
-                                        </div>
-                                        <div style={{
-                                          fontSize: '0.85rem',
-                                          color: '#1e293b',
-                                          lineHeight: 1.6,
-                                          background: '#f8fafc',
-                                          padding: '0.85rem 1rem',
-                                          borderRadius: '6px',
-                                          border: '1px solid #e2e8f0',
-                                          whiteSpace: 'pre-wrap',
-                                          fontFamily: 'Montserrat, sans-serif',
-                                          fontWeight: 500
-                                        }}>
-                                          {t['Objectives '] || 'No detailed written brief provided. Categorized by design keywords and distribution channel tags.'}
-                                        </div>
-                                      </div>
-
                                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', paddingTop: '0.5rem' }}>
                                         <div>
                                           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Channels & Platforms</div>
@@ -3567,12 +3882,6 @@ function App() {
                                           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Format & Color Scheme</div>
                                           <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
                                             {dop || 'Digital'} {t.Resolution ? `· ${t.Resolution}` : ''} {t['Colour Scheme'] ? `· ${t['Colour Scheme']}` : ''}
-                                          </div>
-                                        </div>
-                                        <div>
-                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Handler & Manager</div>
-                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                            Handler: {t.Handler || 'Unassigned'} {t['Project Owner/Manager'] ? `(Owner: ${t['Project Owner/Manager']})` : ''}
                                           </div>
                                         </div>
                                       </div>
@@ -3763,7 +4072,7 @@ function App() {
           </div>
 
           {/* ========================================================================= */}
-          {/* SECTION: WEBSITE IMPACT (WEBSITE UPDATE & WEBSITE DEVELOPMENT)            */}
+          {/* SECTION: DIGITAL PLATFORM IMPACT (WEB UPDATE, DEV & PRODUCTIVITY SYSTEMS) */}
           {/* ========================================================================= */}
           <div id="section-website" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
@@ -3782,24 +4091,11 @@ function App() {
                   <Globe size={24} color="#764393" />
                 </div>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                    <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                      Website Impact
-                    </h3>
-                    <span style={{
-                      padding: '0.2rem 0.6rem',
-                      borderRadius: '12px',
-                      background: 'rgba(118, 67, 147, 0.12)',
-                      color: '#764393',
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}>
-                      Institutional Web Infrastructure & Digital Development
-                    </span>
-                  </div>
+                  <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                    Digital Platform Impact
+                  </h3>
                   <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
-                    Performance audit of CUHK public web systems: high-frequency institutional updates, faculty & staff directories, governance portals, and bespoke web platforms engineered by CPRO Digital & Creative.
+                    Performance audit of CUHK digital platforms: high-frequency institutional updates, faculty & staff directories, bespoke web platforms, and internal productivity systems (Notion, Proofreader, Teams, etc.) engineered by CPRO Digital & Creative.
                   </p>
                 </div>
               </div>
@@ -3819,7 +4115,7 @@ function App() {
                   gap: '0.4rem'
                 }}>
                   <Sparkles size={14} color="#764393" />
-                  {websiteData.total.toLocaleString()} Total Web Requests
+                  {websiteData.total.toLocaleString()} Total Digital Requests
                 </span>
                 <span style={{
                   padding: '0.45rem 0.9rem',
@@ -3840,18 +4136,13 @@ function App() {
               </div>
             </div>
 
-            {/* Top KPI Cards for Website Impact */}
+            {/* Top KPI Cards for Digital Platform Impact */}
             <div className="dashboard-grid">
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                  Total Web Operations
-                </h4>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {websiteData.total.toLocaleString()}
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Total Platform Operations</h3>
+                  <div className="kpi-value">{websiteData.total.toLocaleString()}</div>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  {websiteData.completedCount} completed · {websiteData.inProgressCount} in progress
-                </span>
               </div>
 
               <div
@@ -3861,59 +4152,66 @@ function App() {
                   setWebActiveSubTab('explorer');
                   setWebPage(1);
                 }}
-                style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                style={{ cursor: 'pointer' }}
                 title="Click to view all Website Updates"
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                    Website Updates
-                  </h4>
-                  <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
-                    Effort 7/10
-                  </span>
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3>Website Updates</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Effort 7/10
+                    </span>
+                  </div>
+                  <div className="kpi-value">{websiteData.updateCount.toLocaleString()}</div>
                 </div>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {websiteData.updateCount.toLocaleString()}
-                </div>
-                <span style={{ fontSize: '0.75rem', color: '#764393', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  High-frequency maintenance, OCD & announcements
-                </span>
               </div>
 
               <div
                 className="kpi-card glass-panel"
                 onClick={() => {
-                  setWebActiveSubTab('platforms');
+                  setWebSelectedCategory('Bespoke Platforms & Systems (Website Development)');
+                  setWebActiveSubTab('categories');
                 }}
-                style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem', cursor: 'pointer', transition: 'all 0.2s', borderColor: 'rgba(99, 102, 241, 0.3)' }}
-                title="Click to showcase Bespoke Platforms"
+                style={{ cursor: 'pointer', borderColor: 'rgba(99, 102, 241, 0.3)' }}
+                title="Click to view Bespoke Platforms in Spotlight"
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h4 style={{ color: '#6366F1', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                    Website Development
-                  </h4>
-                  <span style={{ fontSize: '0.7rem', color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.45rem', borderRadius: '8px', fontWeight: 700 }}>
-                    Effort 10/10
-                  </span>
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ color: '#6366F1' }}>Website Development</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.45rem', borderRadius: '8px', fontWeight: 700 }}>
+                      Effort 10/10
+                    </span>
+                  </div>
+                  <div className="kpi-value" style={{ color: '#6366F1' }}>{websiteData.devCount.toLocaleString()} Platforms</div>
                 </div>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#6366F1', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {websiteData.devCount.toLocaleString()} Platforms
-                </div>
-                <span style={{ fontSize: '0.75rem', color: '#6366F1', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  Strategic bespoke platforms built from scratch
-                </span>
               </div>
 
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
-                  Departments Reached
-                </h4>
-                <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                  {websiteData.uniqueDeptsCount}
+              <div
+                className="kpi-card glass-panel"
+                onClick={() => {
+                  setWebServiceTypeFilter('Productivity System');
+                  setWebActiveSubTab('explorer');
+                  setWebPage(1);
+                }}
+                style={{ cursor: 'pointer', borderColor: 'rgba(240, 182, 125, 0.4)' }}
+                title="Click to view all Productivity Systems"
+              >
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ color: '#D97706' }}>Productivity Systems</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#ffffff', background: '#D97706', padding: '0.15rem 0.45rem', borderRadius: '8px', fontWeight: 700 }}>
+                      Effort 9/10
+                    </span>
+                  </div>
+                  <div className="kpi-value" style={{ color: '#D97706' }}>{websiteData.productivityCount.toLocaleString()} Systems</div>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                  Across faculties, CPRO, colleges & central admin
-                </span>
+              </div>
+
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Departments Reached</h3>
+                  <div className="kpi-value">{websiteData.uniqueDeptsCount}</div>
+                </div>
               </div>
             </div>
 
@@ -3954,7 +4252,7 @@ function App() {
                       boxShadow: webServiceTypeFilter === 'All' ? '0 2px 6px rgba(118, 67, 147, 0.2)' : 'none',
                     }}
                   >
-                    🌐 All Web Services ({websiteData.total})
+                    🌐 All Platform Services ({websiteData.total})
                   </button>
                   <button
                     className="web-stream-pill"
@@ -3998,13 +4296,34 @@ function App() {
                   >
                     🚀 Website Development ({websiteData.devCount} Bespoke Platforms)
                   </button>
+                  <button
+                    className="web-stream-pill"
+                    onClick={() => {
+                      setWebServiceTypeFilter('Productivity System');
+                      setWebPage(1);
+                    }}
+                    style={{
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '20px',
+                      background: webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#ffffff',
+                      color: webServiceTypeFilter === 'Productivity System' ? '#ffffff' : '#475569',
+                      border: `1px solid ${webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#cbd5e1'}`,
+                      fontSize: '0.8rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'Montserrat, sans-serif',
+                      boxShadow: webServiceTypeFilter === 'Productivity System' ? '0 2px 6px rgba(217, 119, 6, 0.25)' : 'none',
+                    }}
+                  >
+                    ⚙️ Productivity Systems ({websiteData.productivityCount} Systems)
+                  </button>
                 </div>
               </div>
 
               {webServiceTypeFilter !== 'All' && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.775rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                    Active View Filter: <strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#764393' }}>{webServiceTypeFilter}</strong>
+                    Active View Filter: <strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#764393' }}>{webServiceTypeFilter}</strong>
                   </span>
                   <button
                     onClick={() => {
@@ -4029,12 +4348,11 @@ function App() {
               )}
             </div>
 
-            {/* Sub-Tab Navigation for Website Impact */}
+            {/* Sub-Tab Navigation for Digital Platform Impact */}
             <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', gap: '1.5rem', flexWrap: 'wrap' }}>
               {[
-                { id: 'overview', label: 'Service Overview & Velocity' },
-                { id: 'platforms', label: `Bespoke Platforms Showcase (${websiteData.devCount})` },
-                { id: 'categories', label: `Web Services Spotlight (${websiteData.categoryStats.length})` },
+                { id: 'overview', label: 'Service Overview' },
+                { id: 'categories', label: `Services & Platforms Spotlight (${websiteData.categoryStats.length})` },
                 { id: 'explorer', label: `Projects Explorer (${filteredWebsiteTasks.length})` },
                 { id: 'departments', label: 'Department Demand Matrix' },
               ].map((tab) => (
@@ -4062,34 +4380,65 @@ function App() {
               ))}
             </div>
 
-            {/* TAB 1: SERVICE OVERVIEW & VELOCITY */}
+            {/* TAB 1: SERVICE OVERVIEW */}
             {webActiveSubTab === 'overview' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                {/* Visual Charts Grid: Category Distribution Donut & Monthly Activity Area Chart */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '1.5rem' }}>
-                  {/* Chart 1: Category Distribution Donut */}
-                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                {/* Category Distribution Donut Chart */}
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                       <div className="service-section-title" style={{ fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>
-                        Web Services by Institutional Purpose
+                        Digital Platform Services by Purpose
                       </div>
-                      <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                        {websiteData.categoryStats.length} Categories
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <button
+                          onClick={() => setChartGroupByMainSite(!chartGroupByMainSite)}
+                          style={{
+                            padding: '0.2rem 0.55rem',
+                            borderRadius: '12px',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            background: chartGroupByMainSite ? 'rgba(118, 67, 147, 0.1)' : '#f1f5f9',
+                            color: chartGroupByMainSite ? '#764393' : '#64748b',
+                            border: `1px solid ${chartGroupByMainSite ? 'rgba(118, 67, 147, 0.3)' : '#cbd5e1'}`,
+                            cursor: 'pointer',
+                            fontFamily: 'Montserrat, sans-serif'
+                          }}
+                          title="Toggle between grouping Main Site subitems vs. individual categories"
+                        >
+                          {chartGroupByMainSite ? '✓ Grouped by Platform' : 'Detailed Categories'}
+                        </button>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+                          {chartGroupByMainSite ? `${websiteData.groupedCategoryStats.length} Core Platforms` : `${websiteData.categoryStats.length} Categories`}
+                        </span>
+                      </div>
                     </div>
                     <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
-                      Breakdown of web outputs across staff directories, governance portals, homepage features, and bespoke development.
+                      {chartGroupByMainSite
+                        ? 'Grouping official domain sub-items (Governance, Rankings, Dining, Banners, Research, Maintenance) under CUHK Main Site Services.'
+                        : 'Detailed distribution across all 11 individual digital categories.'}
                     </p>
                     <div style={{ height: 300 }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                           <Pie
-                            data={websiteData.categoryStats.map((s) => ({
-                              name: s.info.shortLabel,
-                              value: s.count,
-                              category: s.category,
-                              color: s.info.color,
-                            }))}
+                            data={
+                              chartGroupByMainSite
+                                ? websiteData.groupedCategoryStats.map((s) => ({
+                                    name: s.name,
+                                    value: s.count,
+                                    category: s.fullName,
+                                    color: s.color,
+                                    isGroup: s.isGroup,
+                                    subitems: s.subitems,
+                                  }))
+                                : websiteData.categoryStats.map((s) => ({
+                                    name: s.info.shortLabel,
+                                    value: s.count,
+                                    category: s.category,
+                                    color: s.info.color,
+                                    isGroup: false,
+                                  }))
+                            }
                             cx="50%"
                             cy="50%"
                             labelLine={{ stroke: '#764393', strokeWidth: 1 }}
@@ -4099,14 +4448,18 @@ function App() {
                             paddingAngle={2}
                             dataKey="value"
                           >
-                            {websiteData.categoryStats.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.info.color} />
+                            {(chartGroupByMainSite ? websiteData.groupedCategoryStats : websiteData.categoryStats).map((entry: any, index: number) => (
+                              <Cell key={`cell-${index}`} fill={chartGroupByMainSite ? entry.color : entry.info.color} />
                             ))}
                           </Pie>
                           <Tooltip
-                            formatter={(value: any, name: any) => {
+                            formatter={(value: any, name: any, item: any) => {
                               const total = websiteData.total;
                               const percent = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                              if (item?.payload?.isGroup && item?.payload?.subitems) {
+                                const subSummary = item.payload.subitems.map((sub: any) => `${sub.shortLabel}: ${sub.count}`).join(', ');
+                                return [`${value.toLocaleString()} requests (${percent}%) [${subSummary}]`, name];
+                              }
                               return [`${value.toLocaleString()} requests (${percent}%)`, name];
                             }}
                             contentStyle={{
@@ -4122,632 +4475,494 @@ function App() {
                     </div>
 
                     {/* Category Interactive Filter Pills */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
-                      {websiteData.categoryStats.map((s, idx) => (
-                        <div
-                          key={idx}
+                    {chartGroupByMainSite ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
+                          {websiteData.groupedCategoryStats.map((s, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => {
+                                setWebSelectedCategory(s.fullName);
+                                setWebActiveSubTab('explorer');
+                                setWebPage(1);
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                padding: '0.35rem 0.75rem',
+                                borderRadius: '16px',
+                                background: s.bg,
+                                border: `1px solid ${s.border}`,
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                color: s.color,
+                                cursor: 'pointer',
+                                fontFamily: 'Montserrat, sans-serif',
+                                transition: 'all 0.15s ease',
+                              }}
+                              title={`Click to filter projects for ${s.name}`}
+                            >
+                              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: s.color }}></span>
+                              <span>{s.name}:</span>
+                              <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Sub-items chip row for CUHK Main Site Services */}
+                        {websiteData.groupedCategoryStats[0]?.subitems && (
+                          <div style={{
+                            background: 'rgba(118, 67, 147, 0.04)',
+                            border: '1px dashed rgba(118, 67, 147, 0.25)',
+                            borderRadius: '8px',
+                            padding: '0.5rem 0.75rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '0.35rem'
+                          }}>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#764393', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', marginRight: '0.2rem' }}>
+                              Main Site Subitems:
+                            </span>
+                            {websiteData.groupedCategoryStats[0].subitems.map((sub, subIdx) => (
+                              <span
+                                key={subIdx}
+                                onClick={() => {
+                                  setWebSelectedCategory(sub.category);
+                                  setWebActiveSubTab('explorer');
+                                  setWebPage(1);
+                                }}
+                                style={{
+                                  fontSize: '0.725rem',
+                                  fontWeight: 700,
+                                  color: '#475569',
+                                  background: '#ffffff',
+                                  border: '1px solid #cbd5e1',
+                                  padding: '0.15rem 0.45rem',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontFamily: 'Montserrat, sans-serif'
+                                }}
+                                title={`Click to filter projects specifically for ${sub.category}`}
+                              >
+                                {sub.shortLabel}: <strong style={{ color: '#764393' }}>{sub.count}</strong>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9' }}>
+                        {websiteData.categoryStats.map((s, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => {
+                              setWebSelectedCategory(s.category);
+                              setWebActiveSubTab('explorer');
+                              setWebPage(1);
+                            }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.3rem 0.65rem',
+                              borderRadius: '16px',
+                              background: s.info.bg,
+                              border: `1px solid ${s.info.border}`,
+                              fontSize: '0.725rem',
+                              fontWeight: 700,
+                              color: s.info.color,
+                              cursor: 'pointer',
+                              fontFamily: 'Montserrat, sans-serif',
+                              transition: 'transform 0.15s ease',
+                            }}
+                            title={`Click to filter projects for ${s.category}`}
+                          >
+                            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: s.info.color }}></span>
+                            <span>{s.info.shortLabel}:</span>
+                            <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+              </div>
+            )}
+
+            {/* TAB 2: SERVICES & PLATFORMS SPOTLIGHT */}
+            {webActiveSubTab === 'categories' && (() => {
+              const mainSiteCategories = websiteData.categoryStats.filter(s => s.info.scope === 'main-site');
+              const campaignsFocusCategories = websiteData.categoryStats.filter(s => s.info.scope === 'campaigns-events');
+              const platformCategories = websiteData.categoryStats.filter(s => s.info.scope === 'platform-services');
+              const mainSiteTotalCount = mainSiteCategories.reduce((acc, c) => acc + c.count, 0);
+              const campaignsFocusTotalCount = campaignsFocusCategories.reduce((acc, c) => acc + c.count, 0);
+              const platformTotalCount = platformCategories.reduce((acc, c) => acc + c.count, 0);
+
+              const renderSpotlightCard = (s: any, idx: number) => {
+                const isSelected = webSelectedCategory === s.category;
+                return (
+                  <div
+                    key={idx}
+                    className="web-category-card"
+                    style={{
+                      background: '#ffffff',
+                      border: isSelected ? `2px solid ${s.info.color}` : '1px solid #e2e8f0',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      boxShadow: isSelected ? `0 6px 20px ${s.info.bg}` : 'none',
+                    }}
+                  >
+                    {/* Card Header */}
+                    <div style={{
+                      padding: '1.25rem 1.5rem',
+                      background: s.info.bg,
+                      borderBottom: `1px solid ${s.info.border}`,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <div style={{
+                          width: '34px',
+                          height: '34px',
+                          borderRadius: '8px',
+                          background: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          border: `1px solid ${s.info.border}`,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        }}>
+                          {renderWebsiteCategoryIcon(s.category, s.info.color, 16)}
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '0.975rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                            {s.category}
+                          </h4>
+                          <span style={{ fontSize: '0.7rem', color: s.info.color, fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>
+                            {s.info.targetDomain}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span style={{
+                        padding: '0.2rem 0.6rem',
+                        borderRadius: '12px',
+                        background: '#ffffff',
+                        color: s.info.color,
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                        border: `1px solid ${s.info.border}`,
+                        fontFamily: 'Montserrat, sans-serif',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {s.count} ({s.percentage}%)
+                      </span>
+                    </div>
+
+                    {/* Card Body */}
+                    <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                      <p style={{ margin: 0, fontSize: '0.825rem', color: '#475569', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                        {s.info.description}
+                      </p>
+
+                      {/* Stream Breakdown Badges */}
+                      <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}>
+                        {s.updateCount > 0 && (
+                          <span style={{ background: 'rgba(118, 67, 147, 0.08)', color: '#764393', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                            {s.updateCount} Updates
+                          </span>
+                        )}
+                        {s.devCount > 0 && (
+                          <span style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                            🚀 {s.devCount} Dev Platforms
+                          </span>
+                        )}
+                        {s.prodCount > 0 && (
+                          <span style={{ background: 'rgba(240, 182, 125, 0.2)', color: '#D97706', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
+                            ⚙️ {s.prodCount} Productivity Systems
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          Key Output Examples
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          {s.info.examples.slice(0, 3).map((ex: string, exIdx: number) => (
+                            <div key={exIdx} style={{ fontSize: '0.8rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
+                              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: s.info.color, flexShrink: 0 }}></span>
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
+                        <button
                           onClick={() => {
                             setWebSelectedCategory(s.category);
                             setWebActiveSubTab('explorer');
                             setWebPage(1);
                           }}
                           style={{
+                            width: '100%',
+                            padding: '0.6rem 0.75rem',
+                            borderRadius: '8px',
+                            background: isSelected ? s.info.color : '#f8fafc',
+                            color: isSelected ? '#ffffff' : s.info.color,
+                            border: `1px solid ${isSelected ? s.info.color : s.info.border}`,
+                            fontWeight: 700,
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.35rem',
-                            padding: '0.3rem 0.65rem',
-                            borderRadius: '16px',
-                            background: s.info.bg,
-                            border: `1px solid ${s.info.border}`,
-                            fontSize: '0.725rem',
-                            fontWeight: 700,
-                            color: s.info.color,
-                            cursor: 'pointer',
+                            justifyContent: 'center',
+                            gap: '0.5rem',
                             fontFamily: 'Montserrat, sans-serif',
-                            transition: 'transform 0.15s ease',
+                            transition: 'all 0.2s',
                           }}
-                          title={`Click to filter web projects for ${s.category}`}
                         >
-                          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: s.info.color }}></span>
-                          <span>{s.info.shortLabel}:</span>
-                          <span style={{ fontWeight: 800 }}>{s.count} ({s.percentage}%)</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Chart 2: Monthly Web Activity & Velocity Area Chart */}
-                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>
-                        Monthly Web Activity & Delivery Velocity
+                          <Eye size={14} />
+                          Explore {s.count} Projects
+                        </button>
                       </div>
-                      <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                        Updates vs. Bespoke Development
-                      </span>
-                    </div>
-                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
-                      Sustained delivery cadence illustrating high-volume continuous updates alongside strategic bespoke platform launches.
-                    </p>
-                    <div style={{ height: 300 }}>
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={websiteData.monthlyTrend} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-                          <defs>
-                            <linearGradient id="colorWebUpdate" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#764393" stopOpacity={0.4} />
-                              <stop offset="95%" stopColor="#764393" stopOpacity={0.02} />
-                            </linearGradient>
-                            <linearGradient id="colorWebDev" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#6366F1" stopOpacity={0.6} />
-                              <stop offset="95%" stopColor="#6366F1" stopOpacity={0.05} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(118, 67, 147, 0.08)" />
-                          <XAxis
-                            dataKey="name"
-                            tick={{ fill: '#475569', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
-                          />
-                          <YAxis
-                            tick={{ fill: '#475569', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                              border: '1px solid rgba(118, 67, 147, 0.25)',
-                              borderRadius: '12px',
-                              fontFamily: 'Montserrat, sans-serif',
-                              fontSize: '0.825rem',
-                              fontWeight: 500,
-                            }}
-                          />
-                          <Legend wrapperStyle={{ paddingTop: 10, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }} />
-                          <Area
-                            type="monotone"
-                            dataKey="Website Update"
-                            stroke="#764393"
-                            strokeWidth={2}
-                            fillOpacity={1}
-                            fill="url(#colorWebUpdate)"
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="Website Development"
-                            stroke="#6366F1"
-                            strokeWidth={2.5}
-                            fillOpacity={1}
-                            fill="url(#colorWebDev)"
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f1f5f9', fontSize: '0.75rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
-                      <span>
-                        Peak Update Month: <strong style={{ color: '#764393' }}>
-                          {(() => {
-                            if (!websiteData.monthlyTrend.length) return 'N/A';
-                            const topMonth = [...websiteData.monthlyTrend].sort((a, b) => b['Website Update'] - a['Website Update'])[0];
-                            return `${topMonth.name} (${topMonth['Website Update']} updates)`;
-                          })()}
-                        </strong>
-                      </span>
-                      <span>
-                        Dev Deployments: <strong style={{ color: '#6366F1' }}>{websiteData.devCount} Major Milestones</strong>
-                      </span>
                     </div>
                   </div>
-                </div>
+                );
+              };
 
-                {/* Service Stream Comparison Matrix: Website Update vs. Website Development */}
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        Operational Comparison: Website Update vs. Website Development
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  {/* Spotlight Header & Scope Switcher */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ maxWidth: '780px' }}>
+                      <h4 style={{ margin: 0, fontSize: '1.2rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                        Digital Services & Platforms Spotlight
                       </h4>
-                      <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.825rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                        Understanding the distinct engineering complexity, iteration cycles, and institutional scope of each web pillar.
+                      <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500, lineHeight: 1.5 }}>
+                        Architectural categorization strictly separating official public web operations on <strong>www.cuhk.edu.hk</strong> from dedicated institutional portals (<strong>ocd.cuhk.edu.hk</strong>, <strong>focus.cuhk.edu.hk</strong> & <strong>60.cuhk.edu.hk</strong>) and internal <strong>Platform Services</strong> (Notion teamspaces, AI proofreader, and bespoke platforms).
                       </p>
                     </div>
-                  </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                    {/* Column 1: Website Update */}
-                    <div style={{
-                      background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.04) 0%, rgba(118, 67, 147, 0.01) 100%)',
-                      border: '1px solid rgba(118, 67, 147, 0.2)',
-                      borderRadius: '10px',
-                      padding: '1.5rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem',
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#764393' }}></span>
-                          <h5 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                            ⚡ Website Update
-                          </h5>
-                        </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#764393', background: 'rgba(118, 67, 147, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
-                          {websiteData.updateCount} Projects ({((websiteData.updateCount / (websiteData.total || 1)) * 100).toFixed(1)}%)
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', color: '#334155', fontFamily: 'Montserrat, sans-serif' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Operational Profile:</span>
-                          <strong style={{ color: '#1e293b' }}>High Frequency & Agile Iteration</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Average Effort Level:</span>
-                          <strong style={{ color: '#764393' }}>7 / 10</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Key Turnaround Scope:</span>
-                          <strong style={{ color: '#1e293b' }}>OCD directory, hero banners, rankings, Senate/Council</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Departments Served:</span>
-                          <strong style={{ color: '#1e293b' }}>{websiteData.uniqueDeptsCount} University Units</strong>
-                        </div>
-                      </div>
-
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
-                        Essential continuous operational artery ensuring zero university downtime, real-time news propagation, and authoritative directory records across all faculties and administrative offices.
-                      </p>
-
+                    {/* Scope Switcher Buttons */}
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', background: '#f8fafc', padding: '0.35rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
                       <button
-                        onClick={() => {
-                          setWebServiceTypeFilter('Website Update');
-                          setWebActiveSubTab('explorer');
-                          setWebPage(1);
-                        }}
+                        className="spotlight-scope-btn"
+                        onClick={() => setSpotlightScopeFilter('all')}
                         style={{
-                          marginTop: 'auto',
-                          padding: '0.6rem 0.85rem',
+                          padding: '0.45rem 0.85rem',
                           borderRadius: '8px',
-                          background: '#ffffff',
-                          border: '1px solid rgba(118, 67, 147, 0.3)',
-                          color: '#764393',
+                          border: 'none',
+                          background: spotlightScopeFilter === 'all' ? '#764393' : 'transparent',
+                          color: spotlightScopeFilter === 'all' ? '#ffffff' : '#64748b',
                           fontWeight: 700,
                           fontSize: '0.8rem',
                           cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.4rem',
                           fontFamily: 'Montserrat, sans-serif',
                           transition: 'all 0.15s ease'
                         }}
                       >
-                        Explore {websiteData.updateCount} Website Updates
-                        <ArrowRight size={14} />
+                        🌟 All Services ({websiteData.total})
                       </button>
-                    </div>
-
-                    {/* Column 2: Website Development */}
-                    <div style={{
-                      background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.01) 100%)',
-                      border: '1px solid rgba(99, 102, 241, 0.25)',
-                      borderRadius: '10px',
-                      padding: '1.5rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem',
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#6366F1' }}></span>
-                          <h5 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: '#6366F1', fontFamily: 'Montserrat, sans-serif' }}>
-                            🚀 Website Development
-                          </h5>
-                        </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ffffff', background: '#6366F1', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
-                          {websiteData.devCount} Bespoke Platforms
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.8rem', color: '#334155', fontFamily: 'Montserrat, sans-serif' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Operational Profile:</span>
-                          <strong style={{ color: '#1e293b' }}>Enterprise Engineering & Architecture</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Average Effort Level:</span>
-                          <strong style={{ color: '#6366F1' }}>10 / 10 (Maximum Complexity)</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Key Platform Deliverables:</span>
-                          <strong style={{ color: '#1e293b' }}>Strategic Plan, Facts & Figures Online, Visuals, Stickers</strong>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed #e2e8f0', paddingBottom: '0.35rem' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600 }}>Client Units:</span>
-                          <strong style={{ color: '#1e293b' }}>Vice-Chancellor's Office & CPRO Digital</strong>
-                        </div>
-                      </div>
-
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
-                        High-stakes bespoke systems built from the ground up: customized full-stack architecture, dynamic data visualizations, and high-visibility digital real estate representing university leadership.
-                      </p>
-
                       <button
-                        onClick={() => {
-                          setWebActiveSubTab('platforms');
-                        }}
+                        className="spotlight-scope-btn"
+                        onClick={() => setSpotlightScopeFilter('main-site')}
                         style={{
-                          marginTop: 'auto',
-                          padding: '0.6rem 0.85rem',
+                          padding: '0.45rem 0.85rem',
                           borderRadius: '8px',
-                          background: '#6366F1',
                           border: 'none',
-                          color: '#ffffff',
+                          background: spotlightScopeFilter === 'main-site' ? '#764393' : 'transparent',
+                          color: spotlightScopeFilter === 'main-site' ? '#ffffff' : '#64748b',
                           fontWeight: 700,
                           fontSize: '0.8rem',
                           cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.4rem',
                           fontFamily: 'Montserrat, sans-serif',
-                          transition: 'all 0.15s ease',
-                          boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)'
+                          transition: 'all 0.15s ease'
                         }}
                       >
-                        View Bespoke Platforms Showcase
-                        <ArrowRight size={14} />
+                        🌐 CUHK Main Site ({mainSiteTotalCount})
+                      </button>
+                      <button
+                        className="spotlight-scope-btn"
+                        onClick={() => setSpotlightScopeFilter('campaigns-events')}
+                        style={{
+                          padding: '0.45rem 0.85rem',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: spotlightScopeFilter === 'campaigns-events' ? '#0284C7' : 'transparent',
+                          color: spotlightScopeFilter === 'campaigns-events' ? '#ffffff' : '#64748b',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          fontFamily: 'Montserrat, sans-serif',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        🎪 Dedicated Portals & Publications ({campaignsFocusTotalCount})
+                      </button>
+                      <button
+                        className="spotlight-scope-btn"
+                        onClick={() => setSpotlightScopeFilter('platform-services')}
+                        style={{
+                          padding: '0.45rem 0.85rem',
+                          borderRadius: '8px',
+                          border: 'none',
+                          background: spotlightScopeFilter === 'platform-services' ? '#6366F1' : 'transparent',
+                          color: spotlightScopeFilter === 'platform-services' ? '#ffffff' : '#64748b',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          cursor: 'pointer',
+                          fontFamily: 'Montserrat, sans-serif',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        🚀 Platform Services ({platformTotalCount})
                       </button>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {/* TAB 2: BESPOKE PLATFORMS SHOWCASE (WEBSITE DEVELOPMENT) */}
-            {webActiveSubTab === 'platforms' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(118, 67, 147, 0.06) 100%)',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
-                  borderRadius: '12px',
-                  padding: '1.5rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  gap: '1rem',
-                }}>
-                  <div style={{ maxWidth: '800px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.35rem' }}>
-                      <Code size={18} color="#6366F1" />
-                      <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                        Bespoke Platforms & Systems (Website Development)
-                      </h4>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '12px' }}>
-                        Effort: 10/10
-                      </span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#475569', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif' }}>
-                      Flagship digital systems engineered from the ground up by CPRO Digital & Creative. Unlike routine content updates, these platforms involve custom user experience design, responsive frontend frameworks, scalable database integration, and high-visibility university impact.
-                    </p>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '0.75rem' }}>
-                    <span style={{
-                      padding: '0.5rem 1rem',
-                      borderRadius: '20px',
-                      background: '#ffffff',
-                      border: '1px solid rgba(99, 102, 241, 0.3)',
-                      color: '#6366F1',
-                      fontWeight: 800,
-                      fontSize: '0.85rem',
-                      fontFamily: 'Montserrat, sans-serif',
-                      boxShadow: '0 2px 6px rgba(99, 102, 241, 0.1)'
-                    }}>
-                      {websiteData.devCount} Enterprise Platforms
-                    </span>
-                  </div>
-                </div>
-
-                {/* Grid of Bespoke Development Platforms */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem' }}>
-                  {websiteData.bespokeDevProjects.map((proj, idx) => {
-                    const name = proj['PROJECT NAME'] || proj['Task Name'] || 'Bespoke Web Platform';
-                    const dept = proj['Department/ Office'] || proj['Dpt/ Office'] || 'CPR Digital & Creative';
-                    const period = formatPeriod(proj.Period) || proj.Period || 'Active';
-                    const obj = proj['Objectives '] || proj.Tags || 'Strategic bespoke platform engineered for university-wide digital communication and stakeholder reach.';
-                    const handler = proj.Handler || 'CPRO Digital & Creative';
-                    const owner = proj['Project Owner/Manager'] || 'Digital & Creative Lead';
-
-                    return (
-                      <div
-                        key={idx}
-                        className="web-platform-card"
-                        style={{
-                          background: '#ffffff',
-                          border: '1px solid rgba(99, 102, 241, 0.25)',
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          boxShadow: '0 4px 16px rgba(99, 102, 241, 0.06)',
-                        }}
-                      >
-                        {/* Platform Header */}
-                        <div style={{
-                          padding: '1.25rem 1.5rem',
-                          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(118, 67, 147, 0.08) 100%)',
-                          borderBottom: '1px solid rgba(99, 102, 241, 0.2)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          gap: '1rem',
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                            <div style={{
-                              width: '36px',
-                              height: '36px',
-                              borderRadius: '10px',
-                              background: '#6366F1',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              boxShadow: '0 2px 6px rgba(99, 102, 241, 0.3)',
-                              flexShrink: 0,
-                            }}>
-                              <Laptop size={18} color="#ffffff" />
-                            </div>
-                            <div>
-                              <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
-                                {name}
-                              </h4>
-                              <span style={{ fontSize: '0.75rem', color: '#6366F1', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>
-                                Client: {dept}
+                  {/* SPHERE 1: CUHK MAIN SITE SERVICES (OFFICIAL DOMAIN: www.cuhk.edu.hk) */}
+                  {(spotlightScopeFilter === 'all' || spotlightScopeFilter === 'main-site') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.08) 0%, rgba(130, 117, 75, 0.08) 100%)',
+                        border: '1px solid rgba(118, 67, 147, 0.25)',
+                        borderRadius: '12px',
+                        padding: '1.25rem 1.5rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '0.75rem',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#764393', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(118, 67, 147, 0.25)' }}>
+                            <Globe size={20} color="#ffffff" />
+                          </div>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              <h5 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                                CUHK Main Site Services (www.cuhk.edu.hk)
+                              </h5>
+                              <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#764393', background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '10px' }}>
+                                Official Domain: www.cuhk.edu.hk
                               </span>
                             </div>
-                          </div>
-
-                          <span style={{
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: '12px',
-                            background: 'rgba(16, 185, 129, 0.1)',
-                            border: '1px solid rgba(16, 185, 129, 0.3)',
-                            color: '#10B981',
-                            fontWeight: 800,
-                            fontSize: '0.725rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.3rem',
-                            fontFamily: 'Montserrat, sans-serif',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            <CheckCircle2 size={12} />
-                            Live Platform
-                          </span>
-                        </div>
-
-                        {/* Platform Details */}
-                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                          <div>
-                            <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
-                              Strategic Impact & Engineering Scope
-                            </div>
-                            <p style={{ margin: 0, fontSize: '0.85rem', color: '#334155', lineHeight: 1.55, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                              {obj}
+                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                              Public-facing operations specifically on the university's official domain (<strong>www.cuhk.edu.hk</strong>) — including <strong>CUHK Homepage hero banners</strong>, <strong>Research & Knowledge Transfer (ORKTS)</strong>, academic admissions, governance records, campus dining, and core CMS maintenance.
                             </p>
                           </div>
-
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', padding: '0.75rem 0', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}>
-                            <div>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Timeline Period</span>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1e293b', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                {period}
-                              </div>
-                            </div>
-                            <div>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Effort Rating</span>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#6366F1', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                10 / 10 Enterprise
-                              </div>
-                            </div>
-                            <div>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Development & Owner</span>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                {handler} {owner ? `(Lead: ${owner})` : ''}
-                              </div>
-                            </div>
-                            <div>
-                              <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, fontFamily: 'Montserrat, sans-serif' }}>Architecture Scope</span>
-                              <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#764393', marginTop: '0.15rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                Full-Stack Bespoke
-                              </div>
-                            </div>
-                          </div>
-
-                          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#BespokeWeb</span>
-                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#ResponsiveUI</span>
-                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#Institutional</span>
-                            <span style={{ fontSize: '0.7rem', background: '#f1f5f9', color: '#475569', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 600 }}>#CPROCreative</span>
-                          </div>
-
-                          <div style={{ marginTop: 'auto', paddingTop: '0.75rem' }}>
-                            <button
-                              onClick={() => {
-                                setWebServiceTypeFilter('Website Development');
-                                setWebSearchQuery(name);
-                                setWebActiveSubTab('explorer');
-                                setWebPage(1);
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '0.65rem 0.75rem',
-                                borderRadius: '8px',
-                                background: '#f8fafc',
-                                color: '#6366F1',
-                                border: '1px solid rgba(99, 102, 241, 0.3)',
-                                fontWeight: 700,
-                                fontSize: '0.8rem',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.4rem',
-                                fontFamily: 'Montserrat, sans-serif',
-                                transition: 'all 0.2s',
-                              }}
-                            >
-                              <Eye size={14} />
-                              Inspect Platform in Explorer
-                            </button>
-                          </div>
                         </div>
+
+                        <span style={{ padding: '0.35rem 0.75rem', borderRadius: '20px', background: '#ffffff', border: '1px solid rgba(118, 67, 147, 0.3)', color: '#764393', fontWeight: 800, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          {mainSiteTotalCount} Projects ({websiteData.total > 0 ? ((mainSiteTotalCount / websiteData.total) * 100).toFixed(1) : 0}%)
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
-            {/* TAB 3: WEB SERVICES SPOTLIGHT ("WHAT TYPES OF WEB SERVICES") */}
-            {webActiveSubTab === 'categories' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                    What Types of Web Services Are Requested?
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                    Every website service fulfills a crucial institutional mission, from campus directory governance to world university rankings and bespoke digital applications. Select any category to filter all matching projects.
-                  </p>
-                </div>
+                      {/* Grid for CUHK Main Site Categories */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                        {mainSiteCategories.map((s, idx) => renderSpotlightCard(s, idx))}
+                      </div>
+                    </div>
+                  )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
-                  {websiteData.categoryStats.map((s, idx) => {
-                    const isSelected = webSelectedCategory === s.category;
-                    return (
-                      <div
-                        key={idx}
-                        className="web-category-card"
-                        style={{
-                          background: '#ffffff',
-                          border: isSelected ? `2px solid ${s.info.color}` : '1px solid #e2e8f0',
-                          borderRadius: '12px',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          boxShadow: isSelected ? `0 6px 20px ${s.info.bg}` : 'none',
-                        }}
-                      >
-                        {/* Card Header */}
-                        <div style={{
-                          padding: '1.25rem 1.5rem',
-                          background: s.info.bg,
-                          borderBottom: `1px solid ${s.info.border}`,
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                            <div style={{
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '8px',
-                              background: '#ffffff',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              border: `1px solid ${s.info.border}`,
-                            }}>
-                              {renderWebsiteCategoryIcon(s.category, s.info.color, 16)}
-                            </div>
-                            <h4 style={{ margin: 0, fontSize: '0.975rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
-                              {s.category}
-                            </h4>
+                  {/* SPHERE 2: DEDICATED INSTITUTIONAL PORTALS, CAMPAIGNS & PUBLICATIONS (SEPARATE PLATFORMS) */}
+                  {(spotlightScopeFilter === 'all' || spotlightScopeFilter === 'campaigns-events') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.08) 0%, rgba(219, 39, 119, 0.06) 50%, rgba(130, 117, 75, 0.08) 100%)',
+                        border: '1px solid rgba(2, 132, 199, 0.25)',
+                        borderRadius: '12px',
+                        padding: '1.25rem 1.5rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '0.75rem',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#0284C7', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(2, 132, 199, 0.25)' }}>
+                            <Building size={20} color="#ffffff" />
                           </div>
-
-                          <span style={{
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: '12px',
-                            background: '#ffffff',
-                            color: s.info.color,
-                            fontWeight: 800,
-                            fontSize: '0.75rem',
-                            border: `1px solid ${s.info.border}`,
-                            fontFamily: 'Montserrat, sans-serif',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {s.count} ({s.percentage}%)
-                          </span>
-                        </div>
-
-                        {/* Card Body */}
-                        <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
-                          <p style={{ margin: 0, fontSize: '0.825rem', color: '#475569', lineHeight: 1.5, fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                            {s.info.description}
-                          </p>
-
-                          {/* Updates vs Development Split Badge */}
-                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}>
-                            <span style={{ background: 'rgba(118, 67, 147, 0.08)', color: '#764393', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
-                              {s.updateCount} Updates
-                            </span>
-                            {s.devCount > 0 && (
-                              <span style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '6px', fontWeight: 700 }}>
-                                🚀 {s.devCount} Dev Platforms
-                              </span>
-                            )}
-                          </div>
-
                           <div>
-                            <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.4rem', fontFamily: 'Montserrat, sans-serif' }}>
-                              Key Output Examples
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              <h5 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                                Dedicated Institutional Portals, Campaigns & Publications
+                              </h5>
+                              <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#0284C7', background: 'rgba(2, 132, 199, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '10px' }}>
+                                Separate Platforms: ocd.cuhk.edu.hk · focus.cuhk.edu.hk · 60.cuhk.edu.hk
+                              </span>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                              {s.info.examples.slice(0, 3).map((ex, exIdx) => (
-                                <div key={exIdx} style={{ fontSize: '0.8rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
-                                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: s.info.color }}></span>
-                                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ex}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #f1f5f9' }}>
-                            <button
-                              onClick={() => {
-                                setWebSelectedCategory(s.category);
-                                setWebActiveSubTab('explorer');
-                                setWebPage(1);
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '0.6rem 0.75rem',
-                                borderRadius: '8px',
-                                background: isSelected ? s.info.color : '#f8fafc',
-                                color: isSelected ? '#ffffff' : s.info.color,
-                                border: `1px solid ${isSelected ? s.info.color : s.info.border}`,
-                                fontWeight: 700,
-                                fontSize: '0.8rem',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '0.5rem',
-                                fontFamily: 'Montserrat, sans-serif',
-                                transition: 'all 0.2s',
-                              }}
-                            >
-                              <Eye size={14} />
-                              Explore {s.count} Projects
-                            </button>
+                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                              Dedicated standalone platforms separated from the official www.cuhk.edu.hk domain: the <strong>Online Contact Directory</strong> (https://ocd.cuhk.edu.hk/), <strong>CUHK in Focus Publication</strong> (focus.cuhk.edu.hk, supporting eDM blasting), and <strong>Campaigns, Events & Anniversaries</strong> (including 60.cuhk.edu.hk celebratory sites).
+                            </p>
                           </div>
                         </div>
+
+                        <span style={{ padding: '0.35rem 0.75rem', borderRadius: '20px', background: '#ffffff', border: '1px solid rgba(2, 132, 199, 0.3)', color: '#0284C7', fontWeight: 800, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          {campaignsFocusTotalCount} Projects ({websiteData.total > 0 ? ((campaignsFocusTotalCount / websiteData.total) * 100).toFixed(1) : 0}%)
+                        </span>
                       </div>
-                    );
-                  })}
+
+                      {/* Grid for Dedicated Portals, Campaigns & Focus Categories */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                        {campaignsFocusCategories.map((s, idx) => renderSpotlightCard(s, idx))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SPHERE 3: PLATFORM SERVICES & PRODUCTIVITY SYSTEMS */}
+                  {(spotlightScopeFilter === 'all' || spotlightScopeFilter === 'platform-services') && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(240, 182, 125, 0.08) 100%)',
+                        border: '1px solid rgba(99, 102, 241, 0.25)',
+                        borderRadius: '12px',
+                        padding: '1.25rem 1.5rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '0.75rem',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(99, 102, 241, 0.25)' }}>
+                            <Cpu size={20} color="#ffffff" />
+                          </div>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              <h5 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
+                                Platform Services & Productivity Systems
+                              </h5>
+                              <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.5rem', borderRadius: '10px' }}>
+                                Notion, AI Tools, Bespoke Systems & Maintenance
+                              </span>
+                            </div>
+                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                              Projects like <strong>Notion Workspace & Calendar Sync</strong>, <strong>Notion user guides</strong>, <strong>AI Style Guide Proofreader</strong>, <strong>General Web Maintenance & Systems</strong>, and custom web applications engineered from the ground up by CPRO Digital & Creative.
+                            </p>
+                          </div>
+                        </div>
+
+                        <span style={{ padding: '0.35rem 0.75rem', borderRadius: '20px', background: '#ffffff', border: '1px solid rgba(99, 102, 241, 0.3)', color: '#6366F1', fontWeight: 800, fontSize: '0.8rem', fontFamily: 'Montserrat, sans-serif' }}>
+                          {platformTotalCount} Projects ({websiteData.total > 0 ? ((platformTotalCount / websiteData.total) * 100).toFixed(1) : 0}%)
+                        </span>
+                      </div>
+
+                      {/* Grid for Platform Services */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                        {platformCategories.map((s, idx) => renderSpotlightCard(s, idx))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* TAB 4: PROJECTS EXPLORER */}
             {webActiveSubTab === 'explorer' && (
@@ -4768,7 +4983,7 @@ function App() {
                       <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="text"
-                        placeholder="Search web projects by name, department, objectives, handler, tags..."
+                        placeholder="Search projects by name, platform (CUHK Main Site, Notion, Proofreader, OCD...), department, tags..."
                         value={webSearchQuery}
                         onChange={(e) => {
                           setWebSearchQuery(e.target.value);
@@ -4807,9 +5022,40 @@ function App() {
                           color: '#1e293b',
                         }}
                       >
-                        <option value="All">All Streams (Updates & Dev)</option>
+                        <option value="All">All Streams (Updates, Dev & Productivity)</option>
                         <option value="Website Update">⚡ Website Updates Only</option>
                         <option value="Website Development">🚀 Website Development Only</option>
+                        <option value="Productivity System">⚙️ Productivity Systems Only</option>
+                      </select>
+
+                      {/* NEW Target Platform Dropdown Filter */}
+                      <select
+                        value={webPlatformFilter}
+                        onChange={(e) => {
+                          setWebPlatformFilter(e.target.value);
+                          setWebPage(1);
+                        }}
+                        style={{
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '8px',
+                          border: '1px solid #cbd5e1',
+                          background: '#ffffff',
+                          fontSize: '0.825rem',
+                          fontFamily: 'Montserrat, sans-serif',
+                          fontWeight: 600,
+                          color: '#1e293b',
+                          maxWidth: '220px',
+                        }}
+                      >
+                        <option value="All">All Platforms ({websiteData.total})</option>
+                        {availableWebPlatforms.map((platName, pIdx) => {
+                          const count = websiteData.platformStats.find((p) => p.name === platName)?.count || 0;
+                          return (
+                            <option key={pIdx} value={platName}>
+                              {platName} ({count})
+                            </option>
+                          );
+                        })}
                       </select>
 
                       {/* Category Dropdown */}
@@ -4832,11 +5078,18 @@ function App() {
                         }}
                       >
                         <option value="All">All Categories ({websiteData.total})</option>
-                        {websiteData.categoryStats.map((c, cIdx) => (
-                          <option key={cIdx} value={c.category}>
-                            {c.info.shortLabel} ({c.count})
+                        {websiteData.groupedCategoryStats[0] && (
+                          <option value="CUHK Main Site Services">
+                            🏛️ CUHK Main Site Services (Grouped: {websiteData.groupedCategoryStats[0].count})
                           </option>
-                        ))}
+                        )}
+                        <optgroup label="Individual Categories">
+                          {websiteData.categoryStats.map((c, cIdx) => (
+                            <option key={cIdx} value={c.category}>
+                              {c.info.shortLabel} ({c.count})
+                            </option>
+                          ))}
+                        </optgroup>
                       </select>
 
                       {/* Status Dropdown */}
@@ -4860,6 +5113,7 @@ function App() {
                         <option value="All">All Statuses</option>
                         <option value="Done">Completed Only</option>
                         <option value="In Progress">In Progress Only</option>
+                        <option value="Cancel">Cancelled Only</option>
                       </select>
 
                       {/* Department Dropdown */}
@@ -4889,10 +5143,11 @@ function App() {
                         ))}
                       </select>
 
-                      {(webSelectedCategory !== 'All' || webServiceTypeFilter !== 'All' || webSearchQuery || webStatusFilter !== 'All' || webDeptFilter !== 'All') && (
+                      {(webSelectedCategory !== 'All' || webPlatformFilter !== 'All' || webServiceTypeFilter !== 'All' || webSearchQuery || webStatusFilter !== 'All' || webDeptFilter !== 'All') && (
                         <button
                           onClick={() => {
                             setWebSelectedCategory('All');
+                            setWebPlatformFilter('All');
                             setWebServiceTypeFilter('All');
                             setWebSearchQuery('');
                             setWebStatusFilter('All');
@@ -4922,11 +5177,29 @@ function App() {
                   </div>
 
                   {/* Active Filter Breadcrumbs (User Flow Improvement) */}
-                  {(webSelectedCategory !== 'All' || webServiceTypeFilter !== 'All' || webSearchQuery || webStatusFilter !== 'All' || webDeptFilter !== 'All') && (
+                  {(webSelectedCategory !== 'All' || webPlatformFilter !== 'All' || webServiceTypeFilter !== 'All' || webSearchQuery || webStatusFilter !== 'All' || webDeptFilter !== 'All') && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', paddingTop: '0.5rem', borderTop: '1px dashed #e2e8f0' }}>
                       <span style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>
                         Active Filters:
                       </span>
+                      {webPlatformFilter !== 'All' && (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          background: getPlatformBadgeInfo(webPlatformFilter).bg,
+                          color: getPlatformBadgeInfo(webPlatformFilter).color,
+                          border: `1px solid ${getPlatformBadgeInfo(webPlatformFilter).border}`,
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}>
+                          Platform: {webPlatformFilter}
+                          <button onClick={() => setWebPlatformFilter('All')} style={{ background: 'none', border: 'none', color: getPlatformBadgeInfo(webPlatformFilter).color, cursor: 'pointer', padding: 0, fontWeight: 900, fontSize: '0.8rem' }}>×</button>
+                        </span>
+                      )}
                       {webServiceTypeFilter !== 'All' && (
                         <span style={{
                           display: 'inline-flex',
@@ -5015,24 +5288,24 @@ function App() {
                     </div>
                   )}
 
-                  {/* Category Pills Bar */}
+                  {/* Quick Platform Filter Pills Bar */}
                   <div style={{ display: 'flex', gap: '0.45rem', flexWrap: 'wrap', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', marginRight: '0.25rem' }}>
-                      Filter by Category:
+                      Filter by Platform:
                     </span>
 
                     <button
                       onClick={() => {
-                        setWebSelectedCategory('All');
+                        setWebPlatformFilter('All');
                         setWebPage(1);
                       }}
                       style={{
                         padding: '0.35rem 0.75rem',
                         borderRadius: '20px',
-                        background: webSelectedCategory === 'All' ? '#764393' : '#ffffff',
-                        color: webSelectedCategory === 'All' ? '#ffffff' : '#64748b',
+                        background: webPlatformFilter === 'All' ? '#764393' : '#ffffff',
+                        color: webPlatformFilter === 'All' ? '#ffffff' : '#64748b',
                         border: '1px solid',
-                        borderColor: webSelectedCategory === 'All' ? '#764393' : '#cbd5e1',
+                        borderColor: webPlatformFilter === 'All' ? '#764393' : '#cbd5e1',
                         fontSize: '0.775rem',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -5040,25 +5313,25 @@ function App() {
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      All Categories ({websiteData.total})
+                      All Platforms ({websiteData.total})
                     </button>
 
-                    {websiteData.categoryStats.map((s, idx) => {
-                      const isSelected = webSelectedCategory === s.category;
+                    {websiteData.platformStats.map((p, idx) => {
+                      const isSelected = webPlatformFilter === p.name;
                       return (
                         <button
                           key={idx}
                           onClick={() => {
-                            setWebSelectedCategory(s.category);
+                            setWebPlatformFilter(p.name);
                             setWebPage(1);
                           }}
                           style={{
                             padding: '0.35rem 0.75rem',
                             borderRadius: '20px',
-                            background: isSelected ? s.info.color : '#ffffff',
+                            background: isSelected ? p.badge.color : '#ffffff',
                             color: isSelected ? '#ffffff' : '#475569',
                             border: '1px solid',
-                            borderColor: isSelected ? s.info.color : '#cbd5e1',
+                            borderColor: isSelected ? p.badge.color : '#cbd5e1',
                             fontSize: '0.775rem',
                             fontWeight: 700,
                             cursor: 'pointer',
@@ -5069,8 +5342,8 @@ function App() {
                             transition: 'all 0.15s ease',
                           }}
                         >
-                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isSelected ? '#ffffff' : s.info.color }}></span>
-                          <span>{s.info.shortLabel} ({s.count})</span>
+                          {renderPlatformIcon(p.name, isSelected ? '#ffffff' : p.badge.color, 11)}
+                          <span>{p.name} ({p.count})</span>
                         </button>
                       );
                     })}
@@ -5080,32 +5353,33 @@ function App() {
                 {/* Results count label */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}>
                   <span>
-                    Showing <strong style={{ color: '#1e293b' }}>{paginatedWebTasks.length}</strong> of <strong style={{ color: '#1e293b' }}>{filteredWebsiteTasks.length}</strong> Website Projects
+                    Showing <strong style={{ color: '#1e293b' }}>{paginatedWebTasks.length}</strong> of <strong style={{ color: '#1e293b' }}>{filteredWebsiteTasks.length}</strong> Digital Platform Projects
+                    {webPlatformFilter !== 'All' && <span> on <strong style={{ color: getPlatformBadgeInfo(webPlatformFilter).color }}>{webPlatformFilter}</strong></span>}
                     {webSelectedCategory !== 'All' && <span> in <strong style={{ color: '#764393' }}>{webSelectedCategory}</strong></span>}
-                    {webServiceTypeFilter !== 'All' && <span> (<strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#764393' }}>{webServiceTypeFilter}</strong>)</span>}
+                    {webServiceTypeFilter !== 'All' && <span> (<strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#764393' }}>{webServiceTypeFilter}</strong>)</span>}
                   </span>
                   <span>
                     Page {webPage} of {webTotalPages}
                   </span>
                 </div>
 
-                {/* Projects Table */}
+                {/* Projects Table with Target Platform Column */}
                 <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
                     <thead>
                       <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Project Name</th>
+                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Platform</th>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Service Stream</th>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Category</th>
                         <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Department / Unit</th>
-                        <th style={{ padding: '0.9rem 1rem', fontWeight: 700, color: '#334155' }}>Status</th>
                       </tr>
                     </thead>
                     <tbody>
                       {paginatedWebTasks.length === 0 ? (
                         <tr>
                           <td colSpan={5} style={{ padding: '3rem', textAlign: 'center', color: '#64748b', fontStyle: 'italic' }}>
-                            No website projects match the selected filters.
+                            No digital platform projects match the selected filters.
                           </td>
                         </tr>
                       ) : (
@@ -5113,10 +5387,17 @@ function App() {
                           const catInfo = getWebsiteSource(t);
                           const rawType = (t['Task type'] || '').trim();
                           const isDev = rawType.toLowerCase() === 'website development';
+                          const isProd = rawType.toLowerCase() === 'productivity system';
+                          const platName = getProjectPlatform(t);
+                          const platBadge = getPlatformBadgeInfo(platName);
                           const statusStr = (t.Status || '').trim().toLowerCase();
                           const isDone = statusStr === 'done' || statusStr === 'completed';
+                          const isCancel = statusStr === 'cancel' || statusStr === 'cancelled' || statusStr === 'canceled';
                           const taskId = `${t['PROJECT NAME'] || t['Task Name']}_${t['Created Date'] || t.Period}_${idx}`;
                           const isExpanded = expandedWebTaskId === taskId;
+
+                          const isStrategicPlan = ((t['PROJECT NAME'] || t['Task Name'] || '').trim().toLowerCase() === 'strategic plan website' || (t['PROJECT NAME'] || t['Task Name'] || '').trim().toLowerCase().includes('strategic plan website'));
+                          const displayProjectName = isStrategicPlan ? 'Strategic Plan Website (2026-30)' : (t['PROJECT NAME'] || t['Task Name'] || 'Untitled Digital Project');
 
                           return (
                             <>
@@ -5132,7 +5413,7 @@ function App() {
                               >
                                 <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: '#1e293b', maxWidth: '280px', wordBreak: 'break-word' }}>
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                                    <span>{t['PROJECT NAME'] || t['Task Name'] || 'Untitled Web Project'}</span>
+                                    <span>{displayProjectName}</span>
                                     {t.Tags && (
                                       <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t.Tags}>
                                         #{t.Tags.split(/[,;]/).map((x: string) => x.trim()).filter(Boolean).slice(0, 3).join(' #')}
@@ -5146,16 +5427,52 @@ function App() {
                                     alignItems: 'center',
                                     gap: '0.35rem',
                                     padding: '0.25rem 0.65rem',
-                                    borderRadius: '12px',
+                                    borderRadius: '8px',
                                     fontSize: '0.75rem',
-                                    fontWeight: 800,
-                                    background: isDev ? 'rgba(99, 102, 241, 0.12)' : 'rgba(118, 67, 147, 0.1)',
-                                    color: isDev ? '#6366F1' : '#764393',
-                                    border: `1px solid ${isDev ? 'rgba(99, 102, 241, 0.3)' : 'rgba(118, 67, 147, 0.25)'}`,
+                                    fontWeight: 700,
+                                    background: platBadge.bg,
+                                    color: platBadge.color,
+                                    border: `1px solid ${platBadge.border}`,
                                   }}>
-                                    {isDev ? <Laptop size={12} /> : <Zap size={12} />}
-                                    {rawType || 'Website Update'}
+                                    {renderPlatformIcon(platName, platBadge.color, 12)}
+                                    {platName}
                                   </span>
+                                </td>
+                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
+                                  {(() => {
+                                    let streamColor = '#764393';
+                                    let streamBg = 'rgba(118, 67, 147, 0.1)';
+                                    let streamBorder = 'rgba(118, 67, 147, 0.25)';
+                                    let streamIcon = <Zap size={12} />;
+                                    if (isDev) {
+                                      streamColor = '#6366F1';
+                                      streamBg = 'rgba(99, 102, 241, 0.12)';
+                                      streamBorder = 'rgba(99, 102, 241, 0.3)';
+                                      streamIcon = <Laptop size={12} />;
+                                    } else if (isProd) {
+                                      streamColor = '#D97706';
+                                      streamBg = 'rgba(240, 182, 125, 0.18)';
+                                      streamBorder = 'rgba(240, 182, 125, 0.45)';
+                                      streamIcon = <Cpu size={12} />;
+                                    }
+                                    return (
+                                      <span style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.35rem',
+                                        padding: '0.25rem 0.65rem',
+                                        borderRadius: '12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 800,
+                                        background: streamBg,
+                                        color: streamColor,
+                                        border: `1px solid ${streamBorder}`,
+                                      }}>
+                                        {streamIcon}
+                                        {rawType || 'Website Update'}
+                                      </span>
+                                    );
+                                  })()}
                                 </td>
                                 <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
                                   <span style={{
@@ -5177,19 +5494,6 @@ function App() {
                                 <td style={{ padding: '0.85rem 1rem', color: '#334155', fontWeight: 600, maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t['Department/ Office'] || t['Dpt/ Office']}>
                                   {t['Department/ Office'] || t['Dpt/ Office'] || 'Unassigned'}
                                 </td>
-                                <td style={{ padding: '0.85rem 1rem', whiteSpace: 'nowrap' }}>
-                                  <span style={{
-                                    padding: '0.15rem 0.55rem',
-                                    borderRadius: '6px',
-                                    fontSize: '0.725rem',
-                                    fontWeight: 700,
-                                    background: isDone ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                                    color: isDone ? '#10B981' : '#d97706',
-                                    border: `1px solid ${isDone ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
-                                  }}>
-                                    {isDone ? 'Completed' : 'In Progress'}
-                                  </span>
-                                </td>
                               </tr>
 
                               {isExpanded && (
@@ -5208,28 +5512,28 @@ function App() {
                                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.75rem' }}>
                                         <div>
                                           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
-                                            Web Project Brief & Objectives
+                                            Digital Project Brief & Objectives
                                           </div>
                                           <h4 style={{ margin: '0.2rem 0 0 0', fontSize: '1rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
-                                            {t['PROJECT NAME'] || t['Task Name']}
+                                            {displayProjectName}
                                           </h4>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isDev ? '#6366F1' : '#764393', background: isDev ? 'rgba(99, 102, 241, 0.1)' : 'rgba(118, 67, 147, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isDev ? '#6366F1' : isProd ? '#D97706' : '#764393', background: isDev ? 'rgba(99, 102, 241, 0.1)' : isProd ? 'rgba(240, 182, 125, 0.2)' : 'rgba(118, 67, 147, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
                                             {rawType}
                                           </span>
                                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: catInfo.color, background: catInfo.bg, padding: '0.2rem 0.6rem', borderRadius: '12px', border: `1px solid ${catInfo.border}` }}>
                                             {catInfo.category}
                                           </span>
-                                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
-                                            {formatPeriod(t.Period) || t.Period}
+                                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isCancel ? '#dc2626' : '#475569', background: isCancel ? 'rgba(239, 68, 68, 0.1)' : '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '12px', border: isCancel ? '1px solid rgba(239, 68, 68, 0.25)' : 'none' }}>
+                                            {isCancel ? 'Status: Cancel' : (formatPeriod(t.Period) || t.Period)}
                                           </span>
                                         </div>
                                       </div>
 
                                       <div>
                                         <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                          What This Web Request Was For (Objectives):
+                                          What This Digital Request Was For (Objectives):
                                         </div>
                                         <div style={{
                                           fontSize: '0.85rem',
@@ -5249,9 +5553,14 @@ function App() {
 
                                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', paddingTop: '0.5rem' }}>
                                         <div>
-                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Platforms / Destination</div>
-                                          <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                            {t['For this Platform'] || 'CUHK Public Web / CMS / Departmental Site'}
+                                          <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Target Platform</div>
+                                          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: platBadge.color, marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                            <span style={{ padding: '0.2rem 0.55rem', borderRadius: '6px', background: platBadge.bg, border: `1px solid ${platBadge.border}` }}>
+                                              {renderPlatformIcon(platName, platBadge.color, 13)} {platName}
+                                            </span>
+                                            {t['For this Platform'] && t['For this Platform'] !== platName && (
+                                              <span style={{ fontSize: '0.725rem', color: '#64748b', fontWeight: 500 }}>({t['For this Platform']})</span>
+                                            )}
                                           </div>
                                         </div>
                                         <div>
@@ -5269,7 +5578,7 @@ function App() {
                                         <div>
                                           <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>Priority & Completion</div>
                                           <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#1e293b', marginTop: '0.2rem', fontFamily: 'Montserrat, sans-serif' }}>
-                                            Priority: {t.Priority || 'Normal'} · {isDone ? 'Finished' : 'In Progress'}
+                                            Priority: {t.Priority || 'Normal'} · Status: {isCancel ? 'Cancel' : isDone ? 'Finished' : 'In Progress'}
                                           </div>
                                         </div>
                                       </div>
@@ -5354,10 +5663,10 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   <h4 style={{ margin: 0, fontSize: '1.15rem', color: '#1e293b', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                    Which Departments Rely Most on Web Support?
+                    Which Departments Rely Most on Digital Platform Support?
                   </h4>
                   <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
-                    Institutional demand distribution showing how internal and external university departments consume website update and development services across directory listings, news, admissions, and dining.
+                    Institutional demand distribution showing how internal and external university departments consume website updates, bespoke platforms, and productivity systems across directory listings, news, admissions, dining, and workflow modernization.
                   </p>
                 </div>
 
@@ -5370,11 +5679,14 @@ function App() {
                     const deptTotal = deptTasks.length;
                     let deptUpdates = 0;
                     let deptDevs = 0;
+                    let deptProds = 0;
                     const catCounts: Record<string, number> = {};
                     deptTasks.forEach((t) => {
                       const rawType = (t['Task type'] || '').trim().toLowerCase();
                       if (rawType === 'website development') {
                         deptDevs++;
+                      } else if (rawType === 'productivity system') {
+                        deptProds++;
                       } else {
                         deptUpdates++;
                       }
@@ -5419,7 +5731,7 @@ function App() {
                         </div>
 
                         {/* Stream breakdown tag */}
-                        <div style={{ display: 'flex', gap: '0.4rem', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}>
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', fontSize: '0.75rem', fontFamily: 'Montserrat, sans-serif' }}>
                           <span style={{ background: 'rgba(118, 67, 147, 0.08)', color: '#764393', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
                             {deptUpdates} Updates
                           </span>
@@ -5428,11 +5740,16 @@ function App() {
                               🚀 {deptDevs} Dev Platforms
                             </span>
                           )}
+                          {deptProds > 0 && (
+                            <span style={{ background: 'rgba(240, 182, 125, 0.2)', color: '#D97706', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
+                              ⚙️ {deptProds} Productivity Systems
+                            </span>
+                          )}
                         </div>
 
                         <div>
                           <div style={{ fontSize: '0.725rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem', fontFamily: 'Montserrat, sans-serif' }}>
-                            Top Web Services Requested
+                            Top Services Requested
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                             {sortedCatCounts.slice(0, 4).map(([catName, count], cIdx) => {
@@ -5452,6 +5769,7 @@ function App() {
                             onClick={() => {
                               setWebDeptFilter(dept.name);
                               setWebSelectedCategory('All');
+                              setWebPlatformFilter('All');
                               setWebServiceTypeFilter('All');
                               setWebSearchQuery('');
                               setWebActiveSubTab('explorer');
@@ -6486,7 +6804,48 @@ function App() {
 
         </div> {/* closes main-content-area */}
 
-        <aside className="right-sidebar">
+        {/* Mobile Hamburger Toggle Button (Top Right) */}
+        <button
+          className="mobile-nav-toggle"
+          onClick={() => setMobileNavOpen(!mobileNavOpen)}
+          aria-label={mobileNavOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+          title={mobileNavOpen ? 'Close Menu' : 'Open Navigation'}
+        >
+          {mobileNavOpen ? <X size={22} color="#764393" /> : <Menu size={22} color="#764393" />}
+        </button>
+
+        {/* Mobile Backdrop Overlay */}
+        {mobileNavOpen && (
+          <div
+            className="mobile-nav-backdrop"
+            onClick={() => setMobileNavOpen(false)}
+          />
+        )}
+
+        <aside className={`right-sidebar ${mobileNavOpen ? 'mobile-open' : ''}`}>
+          {/* Mobile Drawer Header */}
+          <div className="mobile-drawer-header">
+            <span style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: '0.875rem', color: '#764393', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Navigation Menu
+            </span>
+            <button
+              onClick={() => setMobileNavOpen(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0.25rem',
+                color: '#64748b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              aria-label="Close Navigation Menu"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
           {/* Global Scope Controls: Timeline & Exclude CPR */}
           <div className="nav-controls" style={{
             display: 'flex',
@@ -6625,60 +6984,62 @@ function App() {
                 Fulfilling Requests
               </button>
 
-              {/* Jump to Section */}
-              <div className={`nav-jump-group ${activeTab !== 'requests' ? 'hidden-mobile' : ''}`}>
-                <div className="nav-jump-list">
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-monthly' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-monthly')}
-                  >
-                    <Calendar size={15} color="#764393" />
-                    <span>Projects by Month</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-distribution' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-distribution')}
-                  >
-                    <PieChartIcon size={15} color="#82754B" />
-                    <span>Projects Distribution</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-yoy' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-yoy')}
-                  >
-                    <TrendingUp size={15} color="#764393" />
-                    <span>YoY Comparison</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-top-depts' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-top-depts')}
-                  >
-                    <Building size={15} color="#82754B" />
-                    <span>Top 10 Departments</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-breakdowns' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-breakdowns')}
-                  >
-                    <Layers size={15} color="#764393" />
-                    <span>Task Type Distributions</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-table' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-table')}
-                  >
-                    <Search size={15} color="#82754B" />
-                    <span>Projects List</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'requests' && activeSection === 'section-req-active-depts' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-req-active-depts')}
-                  >
-                    <Building size={15} color="#764393" />
-                    <span>Active Departments</span>
-                  </button>
+              {/* Jump to Section - Collapsed when Services Impacted is active */}
+              {activeTab === 'requests' && (
+                <div className="nav-jump-group">
+                  <div className="nav-jump-list">
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-monthly' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-monthly')}
+                    >
+                      <Calendar size={15} color="#764393" />
+                      <span>Projects by Month</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-distribution' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-distribution')}
+                    >
+                      <PieChartIcon size={15} color="#82754B" />
+                      <span>Projects Distribution</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-yoy' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-yoy')}
+                    >
+                      <TrendingUp size={15} color="#764393" />
+                      <span>YoY Comparison</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-top-depts' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-top-depts')}
+                    >
+                      <Building size={15} color="#82754B" />
+                      <span>Top 10 Departments</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-breakdowns' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-breakdowns')}
+                    >
+                      <Layers size={15} color="#764393" />
+                      <span>Task Type Distributions</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-table' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-table')}
+                    >
+                      <Search size={15} color="#82754B" />
+                      <span>Projects List</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-req-active-depts' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-req-active-depts')}
+                    >
+                      <Building size={15} color="#764393" />
+                      <span>Active Departments</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
               <button
@@ -6692,50 +7053,52 @@ function App() {
                 Services Impacted
               </button>
 
-              {/* Jump to Section */}
-              <div className={`nav-jump-group ${activeTab !== 'services' ? 'hidden-mobile' : ''}`}>
-                <div className="nav-jump-list">
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-graphic-design' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-graphic-design')}
-                  >
-                    <Palette size={15} color="#82754B" />
-                    <span>Graphic Design Impact</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-website' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-website')}
-                  >
-                    <Globe size={15} color="#764393" />
-                    <span>Website Impact</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-cuhk-visuals' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-cuhk-visuals')}
-                  >
-                    <TrendingUp size={15} color="#764393" />
-                    <span>CUHK Visuals Impact</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-dam' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-dam')}
-                  >
-                    <TrendingUp size={15} color="#472858" />
-                    <span>DAM Impact</span>
-                  </button>
-                  <button
-                    className={`nav-jump-btn ${activeTab === 'services' && activeSection === 'section-edm' ? 'active' : ''}`}
-                    onClick={() => scrollToSection('section-edm')}
-                  >
-                    <Activity size={15} color="#82754B" />
-                    <span>eDM Campaign Impact</span>
-                  </button>
+              {/* Jump to Section - Collapsed when Fulfilling Requests is active */}
+              {activeTab === 'services' && (
+                <div className="nav-jump-group">
+                  <div className="nav-jump-list">
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-graphic-design' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-graphic-design')}
+                    >
+                      <Palette size={15} color="#82754B" />
+                      <span>Graphic Design Impact</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-website' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-website')}
+                    >
+                      <Globe size={15} color="#764393" />
+                      <span>Digital Platform Impact</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-cuhk-visuals' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-cuhk-visuals')}
+                    >
+                      <TrendingUp size={15} color="#764393" />
+                      <span>CUHK Visuals Impact</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-dam' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-dam')}
+                    >
+                      <TrendingUp size={15} color="#472858" />
+                      <span>DAM Impact</span>
+                    </button>
+                    <button
+                      className={`nav-jump-btn ${activeSection === 'section-edm' ? 'active' : ''}`}
+                      onClick={() => scrollToSection('section-edm')}
+                    >
+                      <Activity size={15} color="#82754B" />
+                      <span>eDM Campaign Impact</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(118, 67, 147, 0.15)', paddingTop: '1.5rem', fontSize: '0.8rem', color: '#777777', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
+          <div className="sidebar-footer" style={{ marginTop: 'auto', borderTop: '1px solid rgba(118, 67, 147, 0.15)', paddingTop: '1.5rem', fontSize: '0.8rem', color: '#777777', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
             <div>Role: Creative & Digital</div>
             <div style={{ marginTop: '0.25rem' }}>System Integrity: 100%</div>
           </div>
