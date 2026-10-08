@@ -31,6 +31,7 @@ import {
   Cpu,
   FileText,
   CheckSquare,
+  Printer,
 } from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
@@ -1029,8 +1030,13 @@ function App() {
   const [chartGroupByMainSite, setChartGroupByMainSite] = useState<boolean>(true);
   const [expandedWebTaskId, setExpandedWebTaskId] = useState<string | null>(null);
 
+  const [printSection, setPrintSection] = useState<string>('all');
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   useEffect(() => {
-    // If not localhost, or if local fetch fails, fetch directly from Google Sheet CSV
     const SHEET_ID = '10QwbD_iQuL2iL4HAkhZ61uAIiXcvSOT6j1EcswRO-lY';
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
@@ -6865,7 +6871,75 @@ function App() {
             </label>
           </div>
 
-          <div className="nav-title">Navigation</div>
+          <div className="nav-title">Navigation & Print</div>
+          <div className="nav-group" style={{ marginBottom: '1.5rem', background: 'rgba(118, 67, 147, 0.03)', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(118, 67, 147, 0.15)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                Print Section (Timeline: {selectedTimeline})
+              </label>
+              <select
+                value={printSection}
+                onChange={(e) => setPrintSection(e.target.value)}
+                style={{
+                  padding: '0.5rem 0.75rem',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  background: '#ffffff',
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  color: '#1e293b',
+                  fontFamily: 'Montserrat, sans-serif',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="all">🖨️ Print Entire Dashboard</option>
+                <optgroup label="Fulfilling Requests">
+                  <option value="section-req-monthly">Projects by Month</option>
+                  <option value="section-req-distribution">Projects Distribution</option>
+                  <option value="section-req-yoy">YoY Comparison</option>
+                  <option value="section-req-top-depts">Top 10 Departments</option>
+                  <option value="section-req-breakdowns">Task Type Distributions</option>
+                  <option value="section-req-table">Projects List</option>
+                  <option value="section-req-active-depts">Active Departments</option>
+                </optgroup>
+                <optgroup label="Services Impacted">
+                  <option value="section-graphic-design">Graphic Design Impact</option>
+                  <option value="section-website">Digital Platform Impact</option>
+                  <option value="section-cuhk-visuals">CUHK Visuals Impact</option>
+                  <option value="section-dam">DAM Impact</option>
+                  <option value="section-edm">eDM Campaign Impact</option>
+                </optgroup>
+              </select>
+              <button
+                onClick={() => {
+                  if (printSection !== 'all') {
+                    scrollToSection(printSection);
+                  }
+                  setTimeout(() => handlePrint(), 300);
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  background: '#764393',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '0.6rem 1rem',
+                  fontSize: '0.825rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontFamily: 'Montserrat, sans-serif',
+                  boxShadow: '0 2px 6px rgba(118, 67, 147, 0.25)',
+                  transition: 'background 0.2s'
+                }}
+              >
+                <Printer size={16} />
+                Print Selected ({selectedTimeline})
+              </button>
+            </div>
+          </div>
           <div className="nav-group">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', width: '100%' }}>
               <button
