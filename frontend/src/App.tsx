@@ -772,14 +772,15 @@ export const getProjectPlatform = (t: TaskRecord): string => {
     return 'Bespoke Platforms (Website Dev)';
   }
 
-  // 8. CUHK Main Site Services (www.cuhk.edu.hk)
-  return 'CUHK Main Site Services (www.cuhk.edu.hk)';
+  // 8. CUHK Main Site Services
+  return 'CUHK Main Site Services';
 };
 
 export const getPlatformBadgeInfo = (platform: string): PlatformBadgeInfo => {
-  switch (platform) {
-    case 'CUHK Main Site Services (www.cuhk.edu.hk)':
-      return { name: platform, color: '#764393', bg: 'rgba(118, 67, 147, 0.08)', border: 'rgba(118, 67, 147, 0.25)' };
+  const cleanPlatform = platform === 'CUHK Main Site Services (www.cuhk.edu.hk)' ? 'CUHK Main Site Services' : platform;
+  switch (cleanPlatform) {
+    case 'CUHK Main Site Services':
+      return { name: cleanPlatform, color: '#764393', bg: 'rgba(118, 67, 147, 0.08)', border: 'rgba(118, 67, 147, 0.25)' };
     case 'Online Contact Directory (ocd.cuhk.edu.hk)':
     case 'Online Contact Directory (OCD)':
       return { name: platform, color: '#0284C7', bg: 'rgba(2, 132, 199, 0.08)', border: 'rgba(2, 132, 199, 0.25)' };
@@ -1228,6 +1229,19 @@ function App() {
     return Array.from(depts).sort();
   }, [activeTasks]);
 
+  const asOfDateStr = useMemo(() => {
+    let maxPeriod = '';
+    activeTasks.forEach((t) => {
+      const p = t.Period?.trim();
+      if (p && p.length === 6 && /^\d+$/.test(p)) {
+        if (p > maxPeriod) {
+          maxPeriod = p;
+        }
+      }
+    });
+    return maxPeriod ? formatPeriod(maxPeriod) : 'As of Today';
+  }, [activeTasks]);
+
   const availablePeriods = useMemo(() => {
     const periods = new Set<string>();
     activeTasks.forEach((t) => {
@@ -1670,9 +1684,21 @@ function App() {
         if (status === 'done' || status === 'completed') bucketCompleted++;
       });
 
+      // Extract dynamic examples from filtered task names in this bucket
+      const taskNames = bucket.tasks
+        .map((t) => (t['PROJECT NAME'] || t['Task Name'] || '').trim())
+        .filter(Boolean);
+      const uniqueTaskNames = Array.from(new Set(taskNames));
+      const dynamicExamples = uniqueTaskNames.length > 0
+        ? uniqueTaskNames.slice(0, 4)
+        : bucket.info.examples;
+
       return {
         category,
-        info: bucket.info,
+        info: {
+          ...bucket.info,
+          examples: dynamicExamples,
+        },
         count,
         percentage,
         completed: bucketCompleted,
@@ -4140,7 +4166,7 @@ function App() {
             <div className="dashboard-grid">
               <div className="kpi-card glass-panel">
                 <div className="kpi-info">
-                  <h3>Total Platform Operations</h3>
+                  <h3>Total Platform Projects</h3>
                   <div className="kpi-value">{websiteData.total.toLocaleString()}</div>
                 </div>
               </div>
@@ -4156,7 +4182,7 @@ function App() {
                 title="Click to view all Website Updates"
               >
                 <div className="kpi-info" style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
                     <h3>Website Updates</h3>
                     <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
                       Effort 7/10
@@ -4172,17 +4198,17 @@ function App() {
                   setWebSelectedCategory('Bespoke Platforms & Systems (Website Development)');
                   setWebActiveSubTab('categories');
                 }}
-                style={{ cursor: 'pointer', borderColor: 'rgba(99, 102, 241, 0.3)' }}
+                style={{ cursor: 'pointer' }}
                 title="Click to view Bespoke Platforms in Spotlight"
               >
                 <div className="kpi-info" style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ color: '#6366F1' }}>Website Development</h3>
-                    <span style={{ fontSize: '0.7rem', color: '#ffffff', background: '#6366F1', padding: '0.15rem 0.45rem', borderRadius: '8px', fontWeight: 700 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Website Development</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
                       Effort 10/10
                     </span>
                   </div>
-                  <div className="kpi-value" style={{ color: '#6366F1' }}>{websiteData.devCount.toLocaleString()} Platforms</div>
+                  <div className="kpi-value">{websiteData.devCount.toLocaleString()}</div>
                 </div>
               </div>
 
@@ -4193,17 +4219,17 @@ function App() {
                   setWebActiveSubTab('explorer');
                   setWebPage(1);
                 }}
-                style={{ cursor: 'pointer', borderColor: 'rgba(240, 182, 125, 0.4)' }}
+                style={{ cursor: 'pointer' }}
                 title="Click to view all Productivity Systems"
               >
                 <div className="kpi-info" style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ color: '#D97706' }}>Productivity Systems</h3>
-                    <span style={{ fontSize: '0.7rem', color: '#ffffff', background: '#D97706', padding: '0.15rem 0.45rem', borderRadius: '8px', fontWeight: 700 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Productivity Systems</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
                       Effort 9/10
                     </span>
                   </div>
-                  <div className="kpi-value" style={{ color: '#D97706' }}>{websiteData.productivityCount.toLocaleString()} Systems</div>
+                  <div className="kpi-value">{websiteData.productivityCount.toLocaleString()}</div>
                 </div>
               </div>
 
@@ -4213,139 +4239,6 @@ function App() {
                   <div className="kpi-value">{websiteData.uniqueDeptsCount}</div>
                 </div>
               </div>
-            </div>
-
-            {/* Quick Service Stream Switcher Bar (User Flow Enhancement) */}
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(118, 67, 147, 0.04) 0%, rgba(99, 102, 241, 0.04) 100%)',
-              border: '1px solid rgba(118, 67, 147, 0.15)',
-              borderRadius: '12px',
-              padding: '0.85rem 1.25rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '0.75rem'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#475569', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>
-                  <Filter size={14} color="#764393" />
-                  <span>Service Stream Focus:</span>
-                </div>
-                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                  <button
-                    className="web-stream-pill"
-                    onClick={() => {
-                      setWebServiceTypeFilter('All');
-                      setWebPage(1);
-                    }}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '20px',
-                      background: webServiceTypeFilter === 'All' ? '#764393' : '#ffffff',
-                      color: webServiceTypeFilter === 'All' ? '#ffffff' : '#475569',
-                      border: `1px solid ${webServiceTypeFilter === 'All' ? '#764393' : '#cbd5e1'}`,
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'Montserrat, sans-serif',
-                      boxShadow: webServiceTypeFilter === 'All' ? '0 2px 6px rgba(118, 67, 147, 0.2)' : 'none',
-                    }}
-                  >
-                    🌐 All Platform Services ({websiteData.total})
-                  </button>
-                  <button
-                    className="web-stream-pill"
-                    onClick={() => {
-                      setWebServiceTypeFilter('Website Update');
-                      setWebPage(1);
-                    }}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '20px',
-                      background: webServiceTypeFilter === 'Website Update' ? '#764393' : '#ffffff',
-                      color: webServiceTypeFilter === 'Website Update' ? '#ffffff' : '#475569',
-                      border: `1px solid ${webServiceTypeFilter === 'Website Update' ? '#764393' : '#cbd5e1'}`,
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'Montserrat, sans-serif',
-                      boxShadow: webServiceTypeFilter === 'Website Update' ? '0 2px 6px rgba(118, 67, 147, 0.2)' : 'none',
-                    }}
-                  >
-                    ⚡ Website Updates ({websiteData.updateCount})
-                  </button>
-                  <button
-                    className="web-stream-pill"
-                    onClick={() => {
-                      setWebServiceTypeFilter('Website Development');
-                      setWebPage(1);
-                    }}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '20px',
-                      background: webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#ffffff',
-                      color: webServiceTypeFilter === 'Website Development' ? '#ffffff' : '#475569',
-                      border: `1px solid ${webServiceTypeFilter === 'Website Development' ? '#6366F1' : '#cbd5e1'}`,
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'Montserrat, sans-serif',
-                      boxShadow: webServiceTypeFilter === 'Website Development' ? '0 2px 6px rgba(99, 102, 241, 0.25)' : 'none',
-                    }}
-                  >
-                    🚀 Website Development ({websiteData.devCount} Bespoke Platforms)
-                  </button>
-                  <button
-                    className="web-stream-pill"
-                    onClick={() => {
-                      setWebServiceTypeFilter('Productivity System');
-                      setWebPage(1);
-                    }}
-                    style={{
-                      padding: '0.4rem 0.85rem',
-                      borderRadius: '20px',
-                      background: webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#ffffff',
-                      color: webServiceTypeFilter === 'Productivity System' ? '#ffffff' : '#475569',
-                      border: `1px solid ${webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#cbd5e1'}`,
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'Montserrat, sans-serif',
-                      boxShadow: webServiceTypeFilter === 'Productivity System' ? '0 2px 6px rgba(217, 119, 6, 0.25)' : 'none',
-                    }}
-                  >
-                    ⚙️ Productivity Systems ({websiteData.productivityCount} Systems)
-                  </button>
-                </div>
-              </div>
-
-              {webServiceTypeFilter !== 'All' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.775rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-                    Active View Filter: <strong style={{ color: webServiceTypeFilter === 'Website Development' ? '#6366F1' : webServiceTypeFilter === 'Productivity System' ? '#D97706' : '#764393' }}>{webServiceTypeFilter}</strong>
-                  </span>
-                  <button
-                    onClick={() => {
-                      setWebServiceTypeFilter('All');
-                      setWebPage(1);
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#64748b',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      fontWeight: 700,
-                      padding: 0,
-                      fontFamily: 'Montserrat, sans-serif'
-                    }}
-                  >
-                    Reset to All
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Sub-Tab Navigation for Digital Platform Impact */}
@@ -4847,7 +4740,7 @@ function App() {
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                               <h5 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b', fontWeight: 800, fontFamily: 'Montserrat, sans-serif' }}>
-                                CUHK Main Site Services (www.cuhk.edu.hk)
+                                CUHK Main Site Services
                               </h5>
                               <span style={{ fontSize: '0.725rem', fontWeight: 800, color: '#764393', background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.5rem', borderRadius: '10px' }}>
                                 Official Domain: www.cuhk.edu.hk
@@ -5876,51 +5769,51 @@ function App() {
                         boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.01)'
                       }}>
                       {/* Step 1 */}
-                        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                            {c_summary.totalEvents.toLocaleString()}
-                          </div>
-                          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
+                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
+                        <div className="kpi-value" style={{ color: '#764393' }}>
+                          {c_summary.totalEvents.toLocaleString()}
                         </div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
+                      </div>
 
-                        {/* Arrow 1 */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                          </svg>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                            {((c_summary.totalPreviews / c_summary.totalEvents) * 100).toFixed(1)}% Preview Rate
-                          </span>
+                      {/* Arrow 1 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#764393" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                          {((c_summary.totalPreviews / c_summary.totalEvents) * 100).toFixed(1)}% Preview Rate
+                        </span>
+                      </div>
+
+                      {/* Step 2 */}
+                      <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
+                        <div className="kpi-value" style={{ color: '#9174A8' }}>
+                          {c_summary.totalPreviews.toLocaleString()}
                         </div>
+                        <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
+                      </div>
 
-                        {/* Step 2 */}
-                        <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>
-                            {c_summary.totalPreviews.toLocaleString()}
-                          </div>
-                          <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
+                      {/* Arrow 2 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82754B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                          <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', fontFamily: 'Montserrat, sans-serif' }}>
+                          {c_combinedConversionRate} Conversion
+                        </span>
+                      </div>
+
+                      {/* Step 3 */}
+                      <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
+                        <div className="kpi-value" style={{ color: '#82754B', lineHeight: 1.1 }}>
+                          {c_totalDistribution.toLocaleString()}
                         </div>
-
-                        {/* Arrow 2 */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#82754B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                          </svg>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', fontFamily: 'Montserrat, sans-serif' }}>
-                            {c_combinedConversionRate} Conversion
-                          </span>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Downloads & Shares Stat</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#82754B', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
-                            {c_totalDistribution.toLocaleString()}
-                          </div>
                           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed rgba(32, 191, 107, 0.2)', paddingBottom: '0.25rem' }}>
                               <span style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif', textAlign: 'left' }}>3.1 "Download Image" (Log)</span>
@@ -6286,7 +6179,7 @@ function App() {
                         {/* Step 1 */}
                         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#472858', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>1. Entry Point</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>
+                          <div className="kpi-value" style={{ color: '#472858' }}>
                             {d_summary.totalEvents.toLocaleString()}
                           </div>
                           <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Total Engagements / Logs</span>
@@ -6306,7 +6199,7 @@ function App() {
                         {/* Step 2 */}
                         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.5rem' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#9174A8', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>2. Preview Step</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#9174A8', fontFamily: 'Montserrat, sans-serif' }}>
+                          <div className="kpi-value" style={{ color: '#9174A8' }}>
                             {d_summary.totalPreviews.toLocaleString()}
                           </div>
                           <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Asset Full-Screen Previews</span>
@@ -6326,7 +6219,7 @@ function App() {
                         {/* Step 3 */}
                         <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '0.4rem', background: 'rgba(32, 191, 107, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(32, 191, 107, 0.15)' }}>
                           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'Montserrat, sans-serif' }}>3. Distribution Stat</span>
-                          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#82754B', fontFamily: 'Montserrat, sans-serif', lineHeight: 1.1 }}>
+                          <div className="kpi-value" style={{ color: '#82754B', lineHeight: 1.1 }}>
                             {d_totalDistribution.toLocaleString()}
                           </div>
                           <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '0.35rem', marginTop: '0.35rem' }}>
@@ -6339,38 +6232,6 @@ function App() {
                               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#472858', fontFamily: 'Montserrat, sans-serif' }}>{d_totalShares.toLocaleString()}</span>
                             </div>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Detailed KPI Row */}
-                      <div className="dashboard-grid">
-                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Total Engagements</h4>
-                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#472858', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                            {d_summary.totalEvents.toLocaleString()}
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Sourced from DAM admin logs</span>
-                        </div>
-                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Previews</h4>
-                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9174A8', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                            {d_summary.totalPreviews.toLocaleString()}
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Full-resolution views</span>
-                        </div>
-                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Asset Downloads</h4>
-                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                            {d_summary.totalDownloads.toLocaleString()}
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Direct folder downloads</span>
-                        </div>
-                        <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <h4 style={{ color: '#64748b', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Previews-to-Download</h4>
-                          <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
-                            {d_combinedConversionRate}
-                          </div>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>Direct conversion rate</span>
                         </div>
                       </div>
 
@@ -6655,61 +6516,95 @@ function App() {
             </div>
 
             <div className="dashboard-grid" style={{ marginBottom: '1.5rem' }}>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Open Rate (OTR)</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#764393' }}>{edmSummary.avgOR}%</div>
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Avg. Open Rate (OTR)</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#764393', fontWeight: 700, background: 'rgba(118, 67, 147, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Campaigns
+                    </span>
+                  </div>
+                  <div className="kpi-value">{edmSummary.avgOR}%</div>
                 </div>
               </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Click-Through (CTR)</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B' }}>{edmSummary.avgCTR}%</div>
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Avg. Click-Through (CTR)</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#82754B', fontWeight: 700, background: 'rgba(130, 117, 75, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Engagement
+                    </span>
+                  </div>
+                  <div className="kpi-value">{edmSummary.avgCTR}%</div>
                 </div>
               </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Opens</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46' }}>{(edmSummary.totalOpens / 1000000).toFixed(2)}M</div>
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Total Opens</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#9b7d46', fontWeight: 700, background: 'rgba(155, 125, 70, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Volume
+                    </span>
+                  </div>
+                  <div className="kpi-value">{(edmSummary.totalOpens / 1000000).toFixed(2)}M</div>
                 </div>
               </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Clicks</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B' }}>{edmSummary.totalClicks >= 1000000 ? (edmSummary.totalClicks / 1000000).toFixed(2) + 'M' : (edmSummary.totalClicks >= 1000 ? (edmSummary.totalClicks / 1000).toFixed(1) + 'K' : edmSummary.totalClicks)}</div>
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Total Clicks</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#82754B', fontWeight: 700, background: 'rgba(130, 117, 75, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Clicks
+                    </span>
+                  </div>
+                  <div className="kpi-value">{edmSummary.totalClicks >= 1000000 ? (edmSummary.totalClicks / 1000000).toFixed(2) + 'M' : (edmSummary.totalClicks >= 1000 ? (edmSummary.totalClicks / 1000).toFixed(1) + 'K' : edmSummary.totalClicks)}</div>
                 </div>
               </div>
             </div>
 
             <div className="dashboard-grid" style={{ marginBottom: '2.5rem' }}>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Delivered</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>{(edmSummary.totalDelivered / 1000000).toFixed(2)}M</div>
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Total Delivered</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#333333', fontWeight: 700, background: 'rgba(51, 51, 51, 0.08)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Delivery
+                    </span>
+                  </div>
+                  <div className="kpi-value">{(edmSummary.totalDelivered / 1000000).toFixed(2)}M</div>
                 </div>
               </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Opens / Issue</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#9b7d46' }}>
-                    {Math.round(edmSummary.avgOpensPerIssue).toLocaleString()}
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Avg. Opens / Issue</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#9b7d46', fontWeight: 700, background: 'rgba(155, 125, 70, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Per Issue
+                    </span>
                   </div>
+                  <div className="kpi-value">{Math.round(edmSummary.avgOpensPerIssue).toLocaleString()}</div>
                 </div>
               </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Click-Through / Issue</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#82754B' }}>
-                    {Math.round(edmSummary.avgClicksPerIssue).toLocaleString()}
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Avg. Click-Through / Issue</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#82754B', fontWeight: 700, background: 'rgba(130, 117, 75, 0.1)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Per Issue
+                    </span>
                   </div>
+                  <div className="kpi-value">{Math.round(edmSummary.avgClicksPerIssue).toLocaleString()}</div>
                 </div>
               </div>
-              <div className="kpi-card glass-panel" style={{ padding: '1.25rem 1.5rem', gap: '1rem' }}>
-                <div className="kpi-info" style={{ flex: 1 }}>
-                  <h3 style={{ color: '#64748b', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Avg. Delivered / Issue</h3>
-                  <div className="kpi-value" style={{ fontSize: '1.85rem', color: '#333333' }}>
-                    {Math.round(edmSummary.avgDeliveredPerIssue).toLocaleString()}
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info" style={{ width: '100%' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.2rem' }}>
+                    <h3>Avg. Delivered / Issue</h3>
+                    <span style={{ fontSize: '0.7rem', color: '#333333', fontWeight: 700, background: 'rgba(51, 51, 51, 0.08)', padding: '0.15rem 0.45rem', borderRadius: '8px' }}>
+                      Per Issue
+                    </span>
                   </div>
+                  <div className="kpi-value">{Math.round(edmSummary.avgDeliveredPerIssue).toLocaleString()}</div>
                 </div>
               </div>
             </div>
@@ -7099,7 +6994,7 @@ function App() {
           </div>
 
           <div className="sidebar-footer" style={{ marginTop: 'auto', borderTop: '1px solid rgba(118, 67, 147, 0.15)', paddingTop: '1.5rem', fontSize: '0.8rem', color: '#777777', fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}>
-            <div>Role: Creative & Digital</div>
+            <div>As of Date: {asOfDateStr}</div>
             <div style={{ marginTop: '0.25rem' }}>System Integrity: 100%</div>
           </div>
         </aside>

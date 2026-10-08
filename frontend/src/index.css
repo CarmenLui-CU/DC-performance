@@ -147,9 +147,10 @@ body {
   letter-spacing: 0.01em;
 }
 
-.kpi-info .kpi-value {
-  font-size: 2.5rem;
-  font-weight: 700;
+.kpi-info .kpi-value,
+.kpi-value {
+  font-size: 2.2rem;
+  font-weight: 800;
   color: var(--text-primary);
   line-height: 1.2;
 }
