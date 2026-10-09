@@ -32,9 +32,36 @@ import {
   FileText,
   CheckSquare,
   Printer,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import type { TaskRecord } from './types';
 import './index.css';
+
+interface PrintSectionConfig {
+  id: string;
+  label: string;
+  group: 'Fulfilling Requests' | 'Services Impacted';
+}
+
+const PRINT_SECTIONS: readonly PrintSectionConfig[] = [
+  { id: 'section-req-monthly', label: 'Projects by Month', group: 'Fulfilling Requests' },
+  { id: 'section-req-distribution', label: 'Projects Distribution', group: 'Fulfilling Requests' },
+  { id: 'section-req-yoy', label: 'YoY Comparison', group: 'Fulfilling Requests' },
+  { id: 'section-req-top-depts', label: 'Top 10 Departments', group: 'Fulfilling Requests' },
+  { id: 'section-req-breakdowns', label: 'Task Type Distributions', group: 'Fulfilling Requests' },
+  { id: 'section-req-table', label: 'Projects List', group: 'Fulfilling Requests' },
+  { id: 'section-req-active-depts', label: 'Active Departments', group: 'Fulfilling Requests' },
+  { id: 'section-graphic-design', label: 'Graphic Design Impact', group: 'Services Impacted' },
+  { id: 'section-website', label: 'Digital Platform Impact', group: 'Services Impacted' },
+  { id: 'section-cuhk-visuals', label: 'CUHK Visuals Impact', group: 'Services Impacted' },
+  { id: 'section-dam', label: 'DAM Impact', group: 'Services Impacted' },
+  { id: 'section-edm', label: 'eDM Campaign Impact', group: 'Services Impacted' },
+] as const;
+
+const ALL_PRINT_SECTION_IDS = PRINT_SECTIONS.map((s) => s.id);
+const REQUEST_SECTION_IDS = PRINT_SECTIONS.filter((s) => s.group === 'Fulfilling Requests').map((s) => s.id);
+const SERVICE_SECTION_IDS = PRINT_SECTIONS.filter((s) => s.group === 'Services Impacted').map((s) => s.id);
 
 const formatPeriod = (p: string) => {
   if (!p || p.length !== 6) return p;
@@ -56,6 +83,17 @@ const getFinancialYear = (periodStr: string): string | null => {
     return `FY ${year}/${(year + 1).toString().substring(2)}`;
   } else if (month >= 1 && month <= 6) {
     return `FY ${year - 1}/${year.toString().substring(2)}`;
+  }
+  return null;
+};
+
+const getPreviousFinancialYear = (fy: string): string | null => {
+  if (!fy || fy === 'All') return null;
+  const match = fy.match(/FY\s*(\d{4})\/(\d{2})/);
+  if (match) {
+    const startYear = parseInt(match[1], 10) - 1;
+    const endYear = (startYear + 1).toString().slice(-2);
+    return `FY ${startYear}/${endYear}`;
   }
   return null;
 };
@@ -191,6 +229,32 @@ const renderCustomPieLabel = ({ cx, cy, midAngle, outerRadius, percent, value, n
       }}
     >
       {name}: {value} ({(percent * 100).toFixed(1)}%)
+    </text>
+  );
+};
+
+const renderPercentOnlyPieLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = outerRadius + 20; // Render outside the pie
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const pctValue = percent * 100;
+  const labelText = pctValue > 0 && pctValue < 0.05 ? '<0.1%' : `${pctValue.toFixed(1)}%`;
+
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="#333333"
+      textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central"
+      style={{
+        fontFamily: 'Montserrat, sans-serif',
+        fontSize: '11px',
+        fontWeight: 600,
+      }}
+    >
+      {labelText}
     </text>
   );
 };
@@ -1030,11 +1094,96 @@ function App() {
   const [chartGroupByMainSite, setChartGroupByMainSite] = useState<boolean>(true);
   const [expandedWebTaskId, setExpandedWebTaskId] = useState<string | null>(null);
 
-  const [printSection, setPrintSection] = useState<string>('all');
+  const [selectedPrintSections, setSelectedPrintSections] = useState<string[]>([...ALL_PRINT_SECTION_IDS]);
+  const [isPrintMenuOpen, setIsPrintMenuOpen] = useState<boolean>(false);
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
+
+  const isSectionPrintVisible = (sectionId: string) => {
+    return selectedPrintSections.includes(sectionId);
+  };
+
+  const getPrintSectionClassName = (sectionId: string, extraClasses = '') => {
+    const isVisible = selectedPrintSections.includes(sectionId);
+    const lastVisibleId = selectedPrintSections[selectedPrintSections.length - 1];
+    const isLast = lastVisibleId === sectionId;
+    return `${extraClasses} print-section-item ${isVisible ? 'print-visible' : 'print-hidden'} ${isLast ? 'print-last-section' : ''}`.trim();
+  };
+
+  const hasSelectedRequests = useMemo(
+    () => REQUEST_SECTION_IDS.some((id) => selectedPrintSections.includes(id)),
+    [selectedPrintSections]
+  );
+
+  const hasSelectedServices = useMemo(
+    () => SERVICE_SECTION_IDS.some((id) => selectedPrintSections.includes(id)),
+    [selectedPrintSections]
+  );
+
+  const togglePrintSection = (id: string) => {
+    setSelectedPrintSections((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllPrintSections = () => {
+    setSelectedPrintSections([...ALL_PRINT_SECTION_IDS]);
+  };
+
+  const clearAllPrintSections = () => {
+    setSelectedPrintSections([]);
+  };
+
+  const toggleGroupPrintSections = (group: 'Fulfilling Requests' | 'Services Impacted') => {
+    const groupIds = group === 'Fulfilling Requests' ? REQUEST_SECTION_IDS : SERVICE_SECTION_IDS;
+    const allGroupSelected = groupIds.every((id) => selectedPrintSections.includes(id));
+    if (allGroupSelected) {
+      setSelectedPrintSections((prev) => prev.filter((id) => !groupIds.includes(id)));
+    } else {
+      setSelectedPrintSections((prev) => Array.from(new Set([...prev, ...groupIds])));
+    }
+  };
 
   const handlePrint = () => {
-    window.print();
+    if (selectedPrintSections.length === 0) {
+      alert('Please select at least one section to print.');
+      return;
+    }
+
+    // Scroll smoothly to the first selected section
+    const firstSelected = selectedPrintSections[0];
+    if (firstSelected) {
+      const isRequest = firstSelected.startsWith('section-req-');
+      setActiveTab(isRequest ? 'requests' : 'services');
+    }
+
+    setIsPrinting(true);
+
+    // Give React & Recharts a brief moment to calculate layout and render SVGs properly
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          setIsPrinting(false);
+        }, 500);
+      }, 250);
+    }, 100);
   };
+
+  useEffect(() => {
+    const handleBeforePrint = () => {
+      setIsPrinting(true);
+    };
+    const handleAfterPrint = () => {
+      setIsPrinting(false);
+    };
+    window.addEventListener('beforeprint', handleBeforePrint);
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', handleBeforePrint);
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+  }, []);
 
   useEffect(() => {
     const SHEET_ID = '10QwbD_iQuL2iL4HAkhZ61uAIiXcvSOT6j1EcswRO-lY';
@@ -1198,20 +1347,51 @@ function App() {
 
   // List of all active Financial Years for the comparison select boxes
   const comparisonYearsList = useMemo(() => {
-    const list = availableFinancialYears.filter((fy) => fy !== 'All');
-    return list;
-  }, [availableFinancialYears]);
+    const set = new Set(availableFinancialYears.filter((fy) => fy !== 'All'));
+    if (compareYearA) set.add(compareYearA);
+    if (compareYearB) set.add(compareYearB);
+    return Array.from(set).sort();
+  }, [availableFinancialYears, compareYearA, compareYearB]);
+
+  // Handler when user selects a timeline from navigation
+  const handleTimelineChange = (newTimeline: string) => {
+    setSelectedTimeline(newTimeline);
+
+    if (newTimeline && newTimeline !== 'All') {
+      // Second field automatically matches the selected time range
+      setCompareYearB(newTimeline);
+
+      // First field will be the previous year
+      const prevFY = getPreviousFinancialYear(newTimeline);
+      if (prevFY) {
+        setCompareYearA(prevFY);
+      } else {
+        const activeList = availableFinancialYears.filter((fy) => fy !== 'All');
+        const idx = activeList.indexOf(newTimeline);
+        if (idx > 0) {
+          setCompareYearA(activeList[idx - 1]);
+        }
+      }
+    } else if (newTimeline === 'All') {
+      const activeList = availableFinancialYears.filter((fy) => fy !== 'All');
+      if (activeList.length >= 2) {
+        setCompareYearA(activeList[activeList.length - 2]);
+        setCompareYearB(activeList[activeList.length - 1]);
+      }
+    }
+  };
 
   // Auto-set comparison defaults once active list is parsed
   useEffect(() => {
-    if (comparisonYearsList.length >= 2) {
-      setCompareYearA(comparisonYearsList[comparisonYearsList.length - 2]);
-      setCompareYearB(comparisonYearsList[comparisonYearsList.length - 1]);
-    } else if (comparisonYearsList.length === 1) {
-      setCompareYearA(comparisonYearsList[0]);
-      setCompareYearB(comparisonYearsList[0]);
+    const activeList = availableFinancialYears.filter((fy) => fy !== 'All');
+    if (activeList.length >= 2) {
+      setCompareYearA(activeList[activeList.length - 2]);
+      setCompareYearB(activeList[activeList.length - 1]);
+    } else if (activeList.length === 1) {
+      setCompareYearA(activeList[0]);
+      setCompareYearB(activeList[0]);
     }
-  }, [comparisonYearsList]);
+  }, [availableFinancialYears]);
 
   const availableTaskTypes = useMemo(() => {
     const types = new Set<string>();
@@ -2360,70 +2540,96 @@ function App() {
           </div>
         </header>
 
-        <div style={{ display: activeTab === 'requests' ? 'flex' : 'none', flexDirection: 'column', gap: '2.5rem', width: '100%' }}>
+        <div
+          className={`tab-content-requests ${hasSelectedRequests ? 'print-visible' : 'print-hidden'}`}
+          style={{
+            display: (isPrinting ? hasSelectedRequests : activeTab === 'requests') ? 'flex' : 'none',
+            flexDirection: 'column',
+            gap: '2.5rem',
+            width: '100%'
+          }}
+        >
           {/* Metadata stats above KPI boxes */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '1.5rem', 
-          marginBottom: '-1.5rem', 
-          paddingLeft: '0.5rem',
-          fontSize: '0.85rem', 
-          color: '#555555', 
-          fontWeight: 700, 
-          fontFamily: 'Montserrat, sans-serif',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          <span>Total Year: <span style={{ color: '#764393', fontWeight: 800, fontSize: '0.95rem' }}>{stats.totalYears}</span></span>
-          <span>Total Month: <span style={{ color: '#764393', fontWeight: 800, fontSize: '0.95rem' }}>{stats.totalMonths}</span></span>
-        </div>
+          <div
+            className={`requests-kpi-overview ${hasSelectedRequests ? 'print-visible' : 'print-hidden'}`}
+            style={{
+              display: isPrinting && !hasSelectedRequests ? 'none' : 'flex',
+              flexDirection: 'column',
+              gap: '2.5rem',
+              width: '100%'
+            }}
+          >
+            <div style={{ 
+              display: 'flex', 
+              gap: '1.5rem', 
+              marginBottom: '-1.5rem', 
+              paddingLeft: '0.5rem',
+              fontSize: '0.85rem', 
+              color: '#555555', 
+              fontWeight: 700, 
+              fontFamily: 'Montserrat, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              <span>Total Year: <span style={{ color: '#764393', fontWeight: 800, fontSize: '0.95rem' }}>{stats.totalYears}</span></span>
+              <span>Total Month: <span style={{ color: '#764393', fontWeight: 800, fontSize: '0.95rem' }}>{stats.totalMonths}</span></span>
+            </div>
 
-        {/* KPI Cards */}
-        <div className="dashboard-grid">
-          <div className="kpi-card glass-panel">
-            <div className="kpi-info">
-              <h3>Total Projects</h3>
-              <div className="kpi-value">{stats.total}</div>
+            {/* KPI Cards */}
+            <div className="dashboard-grid">
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Total Projects</h3>
+                  <div className="kpi-value">{stats.total}</div>
+                </div>
+              </div>
+
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Avg. Projects Per Year</h3>
+                  <div className="kpi-value">{stats.avgProjectsPerYear}</div>
+                </div>
+              </div>
+
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Avg. Projects Per Month</h3>
+                  <div className="kpi-value">{stats.avgProjectsPerMonth}</div>
+                </div>
+              </div>
+
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Depts / Offices / Units</h3>
+                  <div className="kpi-value">{stats.uniqueDeptsCount}</div>
+                </div>
+              </div>
+
+              <div className="kpi-card glass-panel">
+                <div className="kpi-info">
+                  <h3>Task Types</h3>
+                  <div className="kpi-value">{stats.taskTypeData.length}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="kpi-card glass-panel">
-            <div className="kpi-info">
-              <h3>Avg. Projects Per Year</h3>
-              <div className="kpi-value">{stats.avgProjectsPerYear}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card glass-panel">
-            <div className="kpi-info">
-              <h3>Avg. Projects Per Month</h3>
-              <div className="kpi-value">{stats.avgProjectsPerMonth}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card glass-panel">
-            <div className="kpi-info">
-              <h3>Depts / Offices / Units</h3>
-              <div className="kpi-value">{stats.uniqueDeptsCount}</div>
-            </div>
-          </div>
-
-          <div className="kpi-card glass-panel">
-            <div className="kpi-info">
-              <h3>Task Types</h3>
-              <div className="kpi-value">{stats.taskTypeData.length}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* 1. Projects by Task Type & Month (Full-Width Vertical Stacked Bar Chart) */}
-        <div id="section-req-monthly" className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+          {/* 1. Projects by Task Type & Month (Full-Width Vertical Stacked Bar Chart) */}
+          <div
+            id="section-req-monthly"
+            className={getPrintSectionClassName('section-req-monthly', 'chart-card glass-panel')}
+            style={{
+              width: '100%',
+              padding: '2.5rem',
+              display: isPrinting && !isSectionPrintVisible('section-req-monthly') ? 'none' : undefined
+            }}
+          >
           <div className="chart-header" style={{ marginBottom: '2.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <Calendar size={24} color="#764393" />
-              <h3 style={{ fontSize: '1.65rem' }}>Projects by Task Type & Month</h3>
+              <h3 className="section-title">Projects by Task Type & Month</h3>
             </div>
-            <span style={{ fontSize: '0.9rem', color: '#555555', fontWeight: 600, backgroundColor: 'rgba(118, 67, 147, 0.08)', padding: '0.4rem 0.8rem', borderRadius: '20px' }}>
+            <span className="header-pill">
               {selectedTimeline === 'All' ? 'Showing All Months' : `Filtered to ${selectedTimeline}`}
             </span>
           </div>
@@ -2461,7 +2667,7 @@ function App() {
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend
-                    wrapperStyle={{ paddingTop: 20, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif', color: '#333333' }}
+                    wrapperStyle={{ paddingTop: 20, fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif', color: '#333333' }}
                   />
                   {availableTaskTypes.map((type, index) => (
                     <Bar
@@ -2478,15 +2684,24 @@ function App() {
         </div>
 
         {/* Double Pie Charts: Task Type & Department Groups side-by-side */}
-        <div id="section-req-distribution" style={{ display: 'flex', gap: '2rem', width: '100%', flexWrap: 'wrap' }}>
+        <div
+          id="section-req-distribution"
+          className={getPrintSectionClassName('section-req-distribution')}
+          style={{
+            display: isPrinting && !isSectionPrintVisible('section-req-distribution') ? 'none' : 'flex',
+            gap: '2rem',
+            width: '100%',
+            flexWrap: 'wrap'
+          }}
+        >
           {/* Projects by Task Type (Pie Chart) */}
           <div className="chart-card glass-panel" style={{ flex: '1 1 calc(50% - 1rem)', minWidth: '400px', padding: '2.5rem' }}>
             <div className="chart-header" style={{ marginBottom: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Activity size={24} color="#764393" />
-                <h3 style={{ fontSize: '1.65rem' }}>Projects by Task Type</h3>
+                <h3 className="section-title">Projects by Task Type</h3>
               </div>
-              <span style={{ fontSize: '0.9rem', color: '#555555', fontWeight: 600, backgroundColor: 'rgba(118, 67, 147, 0.08)', padding: '0.4rem 0.8rem', borderRadius: '20px' }}>
+              <span className="header-pill">
                 Distribution by Volume
               </span>
             </div>
@@ -2499,7 +2714,7 @@ function App() {
                     cx="50%"
                     cy="50%"
                     labelLine={{ stroke: '#764393', strokeWidth: 1 }}
-                    label={renderCustomPieLabel}
+                    label={renderPercentOnlyPieLabel}
                     innerRadius={80}
                     outerRadius={140}
                     paddingAngle={3}
@@ -2543,9 +2758,9 @@ function App() {
             <div className="chart-header" style={{ marginBottom: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Building size={24} color="#764393" />
-                <h3 style={{ fontSize: '1.65rem' }}>Projects by Dept / Unit Group</h3>
+                <h3 className="section-title">Projects by Dept / Unit Group</h3>
               </div>
-              <span style={{ fontSize: '0.9rem', color: '#555555', fontWeight: 600, backgroundColor: 'rgba(118, 67, 147, 0.08)', padding: '0.4rem 0.8rem', borderRadius: '20px' }}>
+              <span className="header-pill">
                 CPR vs. CPRO Others vs. Others
               </span>
             </div>
@@ -2599,11 +2814,18 @@ function App() {
         </div>
 
         {/* 2. Year-over-Year Comparison Timeline (Full-Width Area/Line Chart with Dynamic Selects) */}
-        <div id="section-req-yoy" className="chart-card glass-panel" style={{ width: '100%' }}>
+        <div
+          id="section-req-yoy"
+          className={getPrintSectionClassName('section-req-yoy', 'chart-card glass-panel')}
+          style={{
+            width: '100%',
+            display: isPrinting && !isSectionPrintVisible('section-req-yoy') ? 'none' : undefined
+          }}
+        >
           <div className="chart-header" style={{ flexWrap: 'wrap', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Calendar size={20} color="#764393" />
-              <h3 style={{ margin: 0 }}>YoY Monthly Workload Comparison</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <Calendar size={24} color="#764393" />
+              <h3 className="section-title">YoY Monthly Workload Comparison</h3>
             </div>
             <div className="yoy-select-container" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               <select
@@ -2647,11 +2869,11 @@ function App() {
                 <XAxis
                   dataKey="name"
                   stroke="#764393"
-                  tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                  tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
                 />
                 <YAxis
                   stroke="#764393"
-                  tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                  tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -2666,7 +2888,7 @@ function App() {
                   }}
                 />
                 <Legend
-                  wrapperStyle={{ paddingTop: 12, fontSize: 12, fontWeight: 600, fontFamily: 'Montserrat, sans-serif', color: '#333333' }}
+                  wrapperStyle={{ paddingTop: 12, fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif', color: '#333333' }}
                 />
                 <Area
                   type="monotone"
@@ -2690,24 +2912,24 @@ function App() {
         </div>
 
         {/* 3. Top 10 Departments, Offices & Units (Full-Width Card) */}
-        <div id="section-req-top-depts" className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
+        <div
+          id="section-req-top-depts"
+          className={getPrintSectionClassName('section-req-top-depts', 'chart-card glass-panel')}
+          style={{
+            width: '100%',
+            padding: '2.5rem',
+            display: isPrinting && !isSectionPrintVisible('section-req-top-depts') ? 'none' : undefined
+          }}
+        >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.65rem', margin: 0 }}>Top 10 Departments, Offices & Units</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <Building size={24} color="#764393" />
+              <h3 className="section-title">Top 10 Departments, Offices & Units</h3>
+            </div>
             
             {/* Exclude Checkbox */}
-            <label style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.6rem', 
+            <label className="header-pill" style={{ 
               cursor: 'pointer',
-              fontFamily: 'Montserrat, sans-serif',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              color: '#764393',
-              background: 'rgba(118, 67, 147, 0.05)',
-              padding: '0.5rem 1.1rem',
-              borderRadius: '20px',
-              border: '1px solid rgba(118, 67, 147, 0.15)',
               userSelect: 'none',
               transition: 'all 0.2s ease',
             }}>
@@ -2718,8 +2940,8 @@ function App() {
                 style={{
                   accentColor: '#764393',
                   cursor: 'pointer',
-                  width: '15px',
-                  height: '15px',
+                  width: '14px',
+                  height: '14px',
                 }}
               />
               EXCLUDE CPR DIGITAL & CREATIVE
@@ -2740,7 +2962,7 @@ function App() {
                 />
                 <YAxis
                   stroke="#764393"
-                  tick={{ fill: '#333333', fontSize: 10.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
+                  tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }}
                 />
                 <Tooltip
                   contentStyle={{
@@ -2761,9 +2983,17 @@ function App() {
         </div>
 
         {/* 4. Task Type Department Distributions (13+ Pie Charts Grid) */}
-        <div id="section-req-breakdowns" className="chart-card glass-panel" style={{ width: '100%', padding: '2.5rem' }}>
-          <h3 style={{ fontSize: '1.65rem', marginBottom: '0.5rem' }}>Task Type Department Distributions</h3>
-          <p style={{ color: '#555555', fontWeight: 500, fontSize: '0.9rem', marginBottom: '2.5rem' }}>
+        <div
+          id="section-req-breakdowns"
+          className={getPrintSectionClassName('section-req-breakdowns', 'chart-card glass-panel')}
+          style={{
+            width: '100%',
+            padding: '2.5rem',
+            display: isPrinting && !isSectionPrintVisible('section-req-breakdowns') ? 'none' : undefined
+          }}
+        >
+          <h3 className="section-title" style={{ marginBottom: '0.5rem' }}>Task Type Department Distributions</h3>
+          <p className="section-subtitle" style={{ marginBottom: '2rem' }}>
             Individual breakdown of projects by departments, offices & units for each of the task types
           </p>
           <div style={{
@@ -2798,7 +3028,7 @@ function App() {
                   borderRadius: '12px',
                 }}>
                   {/* Header */}
-                  <h4 style={{ fontSize: '1.05rem', color: '#764393', fontWeight: 800, margin: '0 0 1rem 0', textAlign: 'center', minHeight: '24px' }}>
+                  <h4 className="card-title" style={{ color: '#764393', textAlign: 'center', minHeight: '24px', marginBottom: '1rem' }}>
                     {type}
                   </h4>
 
@@ -2814,20 +3044,20 @@ function App() {
                     borderRadius: '8px'
                   }}>
                     <div>
-                      <div style={{ fontSize: '0.55rem', color: '#555', fontWeight: 700, letterSpacing: '0.02em' }}>TOTAL</div>
-                      <div style={{ fontSize: '0.85rem', color: '#222', fontWeight: 800 }}>{total}</div>
+                      <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '0.1rem' }}>TOTAL</div>
+                      <div className="kpi-value" style={{ fontSize: '0.95rem' }}>{total}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.55rem', color: '#555', fontWeight: 700, letterSpacing: '0.02em' }}>AVG/YR</div>
-                      <div style={{ fontSize: '0.85rem', color: '#222', fontWeight: 800 }}>{avgYear}</div>
+                      <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '0.1rem' }}>AVG/YR</div>
+                      <div className="kpi-value" style={{ fontSize: '0.95rem' }}>{avgYear}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.55rem', color: '#555', fontWeight: 700, letterSpacing: '0.02em' }}>AVG/MO</div>
-                      <div style={{ fontSize: '0.85rem', color: '#222', fontWeight: 800 }}>{avgMonth}</div>
+                      <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '0.1rem' }}>AVG/MO</div>
+                      <div className="kpi-value" style={{ fontSize: '0.95rem' }}>{avgMonth}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.55rem', color: '#555', fontWeight: 700, letterSpacing: '0.02em' }}>DEPTS NO.</div>
-                      <div style={{ fontSize: '0.85rem', color: '#222', fontWeight: 800 }}>{deptsCount}</div>
+                      <div className="kpi-label" style={{ fontSize: '0.625rem', marginBottom: '0.1rem' }}>DEPTS NO.</div>
+                      <div className="kpi-value" style={{ fontSize: '0.95rem' }}>{deptsCount}</div>
                     </div>
                   </div>
 
@@ -2939,25 +3169,35 @@ function App() {
         </div>
 
         {/* Data Table */}
-        <div id="section-req-table" className="glass-panel table-container" style={{ padding: '2.5rem' }}>
+        <div
+          id="section-req-table"
+          className={getPrintSectionClassName('section-req-table', 'glass-panel table-container')}
+          style={{
+            padding: '2.5rem',
+            display: isPrinting && !isSectionPrintVisible('section-req-table') ? 'none' : undefined
+          }}
+        >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: 0, fontSize: '1.65rem', color: '#764393' }}>Projects List</h3>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500 }}>
+            <h3 className="section-title section-title-brand">Projects List</h3>
+            <p className="section-subtitle">
               Showing {Math.min(15, filteredTasksForTable.length)} of {filteredTasksForTable.length} filtered Projects
             </p>
           </div>
 
           {/* Interactive Filters Panel */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1.25rem',
-            marginBottom: '2rem',
-            padding: '1.25rem',
-            background: 'rgba(118, 67, 147, 0.04)',
-            border: '1px solid rgba(118, 67, 147, 0.1)',
-            borderRadius: '12px',
-          }}>
+          <div
+            className="table-filters"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1.25rem',
+              marginBottom: '2rem',
+              padding: '1.25rem',
+              background: 'rgba(118, 67, 147, 0.04)',
+              border: '1px solid rgba(118, 67, 147, 0.1)',
+              borderRadius: '12px',
+            }}
+          >
             {/* PROJECT NAME Filter */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif', letterSpacing: '0.05em' }}>
@@ -3081,12 +3321,19 @@ function App() {
         </div>
 
         {/* Active Departments / Units in Current View */}
-        <div id="section-req-active-depts" className="glass-panel" style={{ padding: '2.5rem' }}>
+        <div
+          id="section-req-active-depts"
+          className={getPrintSectionClassName('section-req-active-depts', 'glass-panel')}
+          style={{
+            padding: '2.5rem',
+            display: isPrinting && !isSectionPrintVisible('section-req-active-depts') ? 'none' : undefined
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <Building size={24} color="#764393" />
-            <h3 style={{ margin: 0, fontSize: '1.65rem', color: '#764393' }}>Departments / Units in Current View</h3>
+            <h3 className="section-title section-title-brand">Departments / Units in Current View</h3>
           </div>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: '#555555', fontWeight: 500, marginBottom: '1.5rem' }}>
+          <p className="section-subtitle" style={{ marginBottom: '1.5rem' }}>
             A total of <span style={{ fontWeight: 700, color: '#764393' }}>{currentViewDepartments.length}</span> departments/units are active in the filtered view below.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
@@ -3180,7 +3427,7 @@ function App() {
             const endIdx = Math.min(safeDeptPage * DEPTS_PER_PAGE, currentViewDepartments.length);
 
             return (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <span style={{ fontSize: '0.85rem', color: '#555555', fontWeight: 600 }}>
                   Showing {startIdx} to {endIdx} of {currentViewDepartments.length} active departments
                 </span>
@@ -3228,13 +3475,28 @@ function App() {
         </div>
         </div> {/* closes requests activeTab wrapper */}
 
-        <div style={{ display: activeTab === 'services' ? 'flex' : 'none', flexDirection: 'column', gap: '2.5rem', width: '100%' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div
+          className={`tab-content-services ${hasSelectedServices ? 'print-visible' : 'print-hidden'}`}
+          style={{
+            display: (isPrinting ? hasSelectedServices : activeTab === 'services') ? 'flex' : 'none',
+            flexDirection: 'column',
+            gap: '2.5rem',
+            width: '100%'
+          }}
+        >
+          <div
+            className={`services-overview-header ${hasSelectedServices ? 'print-visible' : 'print-hidden'}`}
+            style={{
+              display: isPrinting && !hasSelectedServices ? 'none' : 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <Layers size={24} color="#764393" />
-              <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222' }}>Services Impact Overview</h3>
+              <h3 className="section-title">Services Impact Overview</h3>
             </div>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+            <p className="section-subtitle">
               Detailed metrics across key creative services to analyze total output and reach.
             </p>
           </div>
@@ -3242,7 +3504,16 @@ function App() {
           {/* ========================================================================= */}
           {/* SECTION: GRAPHIC DESIGN IMPACT (SOURCES: SOCIAL POST, SOUVENIR, ETC.)     */}
           {/* ========================================================================= */}
-          <div id="section-graphic-design" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div
+            id="section-graphic-design"
+            className={getPrintSectionClassName('section-graphic-design', 'glass-panel')}
+            style={{
+              padding: '2.5rem',
+              display: isPrinting && !isSectionPrintVisible('section-graphic-design') ? 'none' : 'flex',
+              flexDirection: 'column',
+              gap: '2rem'
+            }}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{
@@ -3259,45 +3530,25 @@ function App() {
                   <Palette size={24} color="#82754B" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  <h3 className="section-title">
                     Graphic Design Impact
                   </h3>
-                  <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                  <p className="section-subtitle">
                     Analysis of design outputs by deliverable source & channel (Social Posts, Souvenirs & Merchandise, Publications, Events, Web Graphics, etc.) to evaluate what types of Graphic Design are requested.
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{
-                  padding: '0.45rem 0.9rem',
-                  borderRadius: '20px',
+                <span className="header-pill" style={{
                   background: 'rgba(130, 117, 75, 0.08)',
                   color: '#82754B',
-                  fontWeight: 700,
-                  fontSize: '0.825rem',
-                  fontFamily: 'Montserrat, sans-serif',
-                  border: '1px solid rgba(130, 117, 75, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem'
+                  borderColor: 'rgba(130, 117, 75, 0.25)',
                 }}>
                   <Sparkles size={14} color="#82754B" />
                   {graphicDesignData.total.toLocaleString()} Total Projects
                 </span>
-                <span style={{
-                  padding: '0.45rem 0.9rem',
-                  borderRadius: '20px',
-                  background: 'rgba(118, 67, 147, 0.08)',
-                  color: '#764393',
-                  fontWeight: 700,
-                  fontSize: '0.825rem',
-                  fontFamily: 'Montserrat, sans-serif',
-                  border: '1px solid rgba(118, 67, 147, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem'
-                }}>
+                <span className="header-pill">
                   <Calendar size={14} color="#764393" />
                   Timeline: {selectedTimeline}
                 </span>
@@ -3358,10 +3609,10 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 {/* Source Breakdown Donut Chart */}
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                  <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '0.5rem', fontWeight: 700 }}>
+                  <div className="service-section-title">
                     Graphic Design Projects by Source
                   </div>
-                  <p style={{ margin: '0 0 1rem 0', fontSize: '0.8rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif' }}>
+                  <p className="section-subtitle" style={{ margin: '0 0 1rem 0' }}>
                     Distribution of outputs by format and purpose (Social Posts, Souvenirs, Events, Publications, etc.).
                   </p>
                   <div style={{ height: 320 }}>
@@ -4106,7 +4357,16 @@ function App() {
           {/* ========================================================================= */}
           {/* SECTION: DIGITAL PLATFORM IMPACT (WEB UPDATE, DEV & PRODUCTIVITY SYSTEMS) */}
           {/* ========================================================================= */}
-          <div id="section-website" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div
+            id="section-website"
+            className={getPrintSectionClassName('section-website', 'glass-panel')}
+            style={{
+              padding: '2.5rem',
+              display: isPrinting && !isSectionPrintVisible('section-website') ? 'none' : 'flex',
+              flexDirection: 'column',
+              gap: '2rem'
+            }}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{
@@ -4123,44 +4383,24 @@ function App() {
                   <Globe size={24} color="#764393" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>
+                  <h3 className="section-title">
                     Digital Platform Impact
                   </h3>
-                  <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                  <p className="section-subtitle">
                     Performance audit of CUHK digital platforms: high-frequency institutional updates, faculty & staff directories, bespoke web platforms, and internal productivity systems (Notion, Proofreader, Teams, etc.) engineered by CPRO Digital & Creative.
                   </p>
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                <span style={{
-                  padding: '0.45rem 0.9rem',
-                  borderRadius: '20px',
-                  background: 'rgba(118, 67, 147, 0.08)',
-                  color: '#764393',
-                  fontWeight: 700,
-                  fontSize: '0.825rem',
-                  fontFamily: 'Montserrat, sans-serif',
-                  border: '1px solid rgba(118, 67, 147, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem'
-                }}>
+                <span className="header-pill">
                   <Sparkles size={14} color="#764393" />
                   {websiteData.total.toLocaleString()} Total Digital Requests
                 </span>
-                <span style={{
-                  padding: '0.45rem 0.9rem',
-                  borderRadius: '20px',
+                <span className="header-pill" style={{
                   background: 'rgba(130, 117, 75, 0.08)',
                   color: '#82754B',
-                  fontWeight: 700,
-                  fontSize: '0.825rem',
-                  fontFamily: 'Montserrat, sans-serif',
-                  border: '1px solid rgba(130, 117, 75, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem'
+                  borderColor: 'rgba(130, 117, 75, 0.25)',
                 }}>
                   <Calendar size={14} color="#82754B" />
                   Timeline: {selectedTimeline}
@@ -4285,7 +4525,7 @@ function App() {
                 {/* Category Distribution Donut Chart */}
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                      <div className="service-section-title" style={{ fontSize: '0.9rem', margin: 0, fontWeight: 700 }}>
+                      <div className="service-section-title" style={{ margin: 0 }}>
                         Digital Platform Services by Purpose
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -5749,13 +5989,22 @@ function App() {
               return (
                 <>
                   {/* SECTION 1: CUHK VISUALS IMPACT */}
-                  <div id="section-cuhk-visuals" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div
+                    id="section-cuhk-visuals"
+                    className={getPrintSectionClassName('section-cuhk-visuals', 'glass-panel')}
+                    style={{
+                      padding: '2.5rem',
+                      display: isPrinting && !isSectionPrintVisible('section-cuhk-visuals') ? 'none' : 'flex',
+                      flexDirection: 'column',
+                      gap: '2rem'
+                    }}
+                  >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <TrendingUp size={24} color="#764393" />
-                        <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>CUHK Visuals Impact</h3>
+                        <h3 className="section-title">CUHK Visuals Impact</h3>
                       </div>
-                      <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                      <p className="section-subtitle">
                         Live audit of public-facing creative materials, wallpapers, and photo-contest assets. Sourced from CUHK Visuals, 中大視野, and 活動素材上載.
                       </p>
                     </div>
@@ -5866,7 +6115,7 @@ function App() {
                       {visualsSubTab === 'overview' && (
                         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                           <div style={{ flex: '1 1 55%', minWidth: '350px' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>CUHK Visuals Engagement Trend</div>
+                            <div className="service-section-title">CUHK Visuals Engagement Trend</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={visualsSummary.cuhkVisuals.monthlyTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -5887,8 +6136,8 @@ function App() {
                                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(118, 67, 147, 0.08)" />
                                   <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                   <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
-                                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12px' }} />
+                                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                   <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorCVisPreviews)" strokeWidth={2} />
                                   <Area type="monotone" dataKey="download" name="Downloads" stroke="#82754B" fillOpacity={1} fill="url(#colorCVisDownloads)" strokeWidth={2} />
                                   <Area type="monotone" dataKey="share" name="Shares" stroke="#9b7d46" fillOpacity={1} fill="url(#colorCVisShares)" strokeWidth={2} />
@@ -5898,7 +6147,7 @@ function App() {
                           </div>
 
                           <div style={{ flex: '1 1 35%', minWidth: '280px' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Group Activity by Location</div>
+                            <div className="service-section-title">Group Activity by Location</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                               {visualsSummary.cuhkVisuals.locations.map((loc: any, idx: number) => (
                                 <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -5931,7 +6180,7 @@ function App() {
 
                       {visualsSubTab === 'previews' && (
                         <div>
-                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed Creative Assets</div>
+                          <div className="service-section-title">Most Discoverable / Previewed Creative Assets</div>
                           <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
                               <thead>
@@ -5957,7 +6206,7 @@ function App() {
 
                       {visualsSubTab === 'downloads' && (
                         <div>
-                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded Creative Assets</div>
+                          <div className="service-section-title">Most Influential / Downloaded Creative Assets</div>
                           <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
                               <thead>
@@ -5989,7 +6238,7 @@ function App() {
 
                         return (
                           <div>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Shared CUHK Visuals Assets</div>
+                            <div className="service-section-title">Most Shared CUHK Visuals Assets</div>
                             <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
                                 <thead>
@@ -6034,8 +6283,8 @@ function App() {
 
                         return (
                           <div>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The Creative Discovery Journey</div>
-                            <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
+                            <div className="service-section-title">The Creative Discovery Journey</div>
+                            <p className="section-subtitle" style={{ margin: '0 0 1.5rem 0' }}>
                               Tracing how individual files are discovered (Previewed), requested, and distributed (Downloaded/Shared). Sorted by conversion rate.
                             </p>
                             <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
@@ -6083,7 +6332,7 @@ function App() {
                       {visualsSubTab === 'attributes' && (
                         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                           <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Page</div>
+                            <div className="service-section-title">Activity by Page</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -6111,14 +6360,14 @@ function App() {
                                     }}
                                     contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(118, 67, 147, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
                                   />
-                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                 </PieChart>
                               </ResponsiveContainer>
                             </div>
                           </div>
 
                           <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by User Profile</div>
+                            <div className="service-section-title">Activity by User Profile</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -6146,7 +6395,7 @@ function App() {
                                     }}
                                     contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(118, 67, 147, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
                                   />
-                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                 </PieChart>
                               </ResponsiveContainer>
                             </div>
@@ -6157,13 +6406,22 @@ function App() {
                   </div>
 
                   {/* SECTION 2: DAM IMPACT */}
-                  <div id="section-dam" className="glass-panel" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div
+                    id="section-dam"
+                    className={getPrintSectionClassName('section-dam', 'glass-panel')}
+                    style={{
+                      padding: '2.5rem',
+                      display: isPrinting && !isSectionPrintVisible('section-dam') ? 'none' : 'flex',
+                      flexDirection: 'column',
+                      gap: '2rem'
+                    }}
+                  >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <TrendingUp size={24} color="#472858" />
-                        <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222', fontFamily: 'Montserrat, sans-serif', fontWeight: 800 }}>DAM Impact</h3>
+                        <h3 className="section-title">DAM Impact</h3>
                       </div>
-                      <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+                      <p className="section-subtitle">
                         Live audit of internal systems, archives, document folders, and general files. Sourced from Main Library and Congratulatory Messages to VC.
                       </p>
                     </div>
@@ -6270,7 +6528,7 @@ function App() {
                       {damSubTab === 'overview' && (
                         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                           <div style={{ flex: '1 1 55%', minWidth: '350px' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>DAM Engagement Trend</div>
+                            <div className="service-section-title">DAM Engagement Trend</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={visualsSummary.dam.monthlyTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -6287,8 +6545,8 @@ function App() {
                                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(71, 40, 88, 0.08)" />
                                   <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                   <YAxis tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
-                                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Tooltip wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12px' }} />
+                                  <Legend wrapperStyle={{ paddingTop: 15, fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                   <Area type="monotone" dataKey="preview" name="Previews" stroke="#9174A8" fillOpacity={1} fill="url(#colorDamPreviews)" strokeWidth={2} />
                                   <Area type="monotone" dataKey="download" name="Downloads" stroke="#82754B" fillOpacity={1} fill="url(#colorDamDownloads)" strokeWidth={2} />
                                 </AreaChart>
@@ -6297,7 +6555,7 @@ function App() {
                           </div>
 
                           <div style={{ flex: '1 1 35%', minWidth: '280px' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Group Activity by Location</div>
+                            <div className="service-section-title">Group Activity by Location</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                               {visualsSummary.dam.locations.slice(0, 5).map((loc: any, idx: number) => (
                                 <div key={idx} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -6330,7 +6588,7 @@ function App() {
 
                       {damSubTab === 'previews' && (
                         <div>
-                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Discoverable / Previewed DAM Assets</div>
+                          <div className="service-section-title">Most Discoverable / Previewed DAM Assets</div>
                           <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
                               <thead>
@@ -6356,7 +6614,7 @@ function App() {
 
                       {damSubTab === 'downloads' && (
                         <div>
-                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 700 }}>Most Influential / Downloaded DAM Assets</div>
+                          <div className="service-section-title">Most Influential / Downloaded DAM Assets</div>
                           <div style={{ overflowX: 'auto', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#ffffff' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.825rem', fontFamily: 'Montserrat, sans-serif' }}>
                               <thead>
@@ -6382,7 +6640,7 @@ function App() {
 
                       {damSubTab === 'journey' && (
                         <div>
-                          <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>The DAM Asset Discovery Journey</div>
+                          <div className="service-section-title">The DAM Asset Discovery Journey</div>
                           <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.85rem', color: '#64748b', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}>
                             Tracing how individual files are discovered (Previewed), organized, and distributed (Downloaded/Shared). Sorted by overall engagement score.
                           </p>
@@ -6432,7 +6690,7 @@ function App() {
                       {damSubTab === 'attributes' && (
                         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
                           <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by Page</div>
+                            <div className="service-section-title">Activity by Page</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -6460,14 +6718,14 @@ function App() {
                                     }}
                                     contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid rgba(71, 40, 88, 0.25)', borderRadius: '12px', fontFamily: 'Montserrat, sans-serif', fontWeight: 500 }}
                                   />
-                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                                  <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                                 </PieChart>
                               </ResponsiveContainer>
                             </div>
                           </div>
 
                           <div style={{ flex: '1 1 45%', minWidth: '320px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                            <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1rem', fontWeight: 700 }}>Activity by User Profile</div>
+                            <div className="service-section-title">Activity by User Profile</div>
                             <div style={{ height: 350 }}>
                               <ResponsiveContainer width="100%" height="100%">
                                 <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -6510,13 +6768,20 @@ function App() {
           </div>
 
           {/* CUHK in Focus eDM Campaign Impact */}
-          <div id="section-edm" className="glass-panel" style={{ padding: '2.5rem' }}>
+          <div
+            id="section-edm"
+            className={getPrintSectionClassName('section-edm', 'glass-panel')}
+            style={{
+              padding: '2.5rem',
+              display: isPrinting && !isSectionPrintVisible('section-edm') ? 'none' : undefined
+            }}
+          >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Activity size={24} color="#764393" />
-                <h3 style={{ fontSize: '1.65rem', margin: 0, color: '#222222' }}>eDM Campaign Impact (CUHK in Focus)</h3>
+                <h3 className="section-title">eDM Campaign Impact (CUHK in Focus)</h3>
               </div>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b', fontWeight: 500, fontFamily: 'Montserrat, sans-serif' }}>
+              <p className="section-subtitle">
                 Live audit of {edmSummary.totalCampaigns} email campaigns to track audience engagement and reach.
               </p>
             </div>
@@ -6617,7 +6882,7 @@ function App() {
 
             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
               <div style={{ flex: '1 1 100%', minWidth: '400px' }}>
-                <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>Engagement Trend Over Time</div>
+                <div className="service-section-title">Engagement Trend Over Time</div>
                 <div style={{ height: 350 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={edmPerformanceTrend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -6635,8 +6900,8 @@ function App() {
                       <XAxis dataKey="name" tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                       <YAxis yAxisId="left" tickFormatter={(val) => `${val}%`} tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                       <YAxis yAxisId="right" orientation="right" tickFormatter={(val) => `${val}%`} tick={{ fill: '#333333', fontSize: 11, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
-                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
-                      <Legend wrapperStyle={{ paddingTop: 15, fontSize: 12.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
+                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12px' }} />
+                      <Legend wrapperStyle={{ paddingTop: 15, fontSize: 11.5, fontWeight: 600, fontFamily: 'Montserrat, sans-serif' }} />
                       <Area yAxisId="left" type="monotone" dataKey="Open Rate (OTR)" stroke="#764393" fillOpacity={1} fill="url(#colorOR)" strokeWidth={2} />
                       <Area yAxisId="right" type="monotone" dataKey="Click-Through Rate (CTR)" stroke="#82754B" fillOpacity={1} fill="url(#colorCTR)" strokeWidth={2} />
                     </AreaChart>
@@ -6647,7 +6912,7 @@ function App() {
 
             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
-                <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>OTR by Target List</div>
+                <div className="service-section-title">OTR by Target List</div>
                 <div style={{ height: 350 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -6667,14 +6932,14 @@ function App() {
                           return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                         })}
                       </Pie>
-                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '13px' }} />
+                      <Tooltip formatter={(value: any, name: any) => [`${value}%`, name]} wrapperStyle={{ fontFamily: 'Montserrat, sans-serif', fontSize: '12px' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
               <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
-                <div className="service-section-title" style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>CTR by Target List</div>
+                <div className="service-section-title">CTR by Target List</div>
                 <div style={{ height: 350 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
@@ -6804,7 +7069,7 @@ function App() {
               <select
                 className="glass-select"
                 value={selectedTimeline}
-                onChange={(e) => setSelectedTimeline(e.target.value)}
+                onChange={(e) => handleTimelineChange(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '0.55rem 0.7rem',
@@ -6870,73 +7135,278 @@ function App() {
               </span>
             </label>
           </div>
+          <div className="nav-group" style={{ marginBottom: '1.5rem', background: 'rgba(118, 67, 147, 0.03)', padding: '0.85rem', borderRadius: '12px', border: '1px solid rgba(118, 67, 147, 0.18)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
+                  Print Sections
+                </label>
+                <span style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  color: selectedPrintSections.length > 0 ? '#764393' : '#94a3b8',
+                  background: selectedPrintSections.length > 0 ? 'rgba(118, 67, 147, 0.1)' : 'rgba(148, 163, 184, 0.15)',
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '10px',
+                }}>
+                  {selectedPrintSections.length}/{ALL_PRINT_SECTION_IDS.length}
+                </span>
+              </div>
 
-          <div className="nav-title">Navigation & Print</div>
-          <div className="nav-group" style={{ marginBottom: '1.5rem', background: 'rgba(118, 67, 147, 0.03)', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(118, 67, 147, 0.15)' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#764393', fontFamily: 'Montserrat, sans-serif' }}>
-                Print Section (Timeline: {selectedTimeline})
-              </label>
-              <select
-                value={printSection}
-                onChange={(e) => setPrintSection(e.target.value)}
+              {/* Multi-Select Trigger Button */}
+              <button
+                type="button"
+                onClick={() => setIsPrintMenuOpen(!isPrintMenuOpen)}
                 style={{
-                  padding: '0.5rem 0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.55rem 0.75rem',
                   borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
+                  border: isPrintMenuOpen ? '1px solid #764393' : '1px solid #cbd5e1',
                   background: '#ffffff',
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   color: '#1e293b',
                   fontFamily: 'Montserrat, sans-serif',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  boxShadow: isPrintMenuOpen ? '0 0 0 2px rgba(118, 67, 147, 0.15)' : 'none',
+                  transition: 'all 0.15s ease'
                 }}
               >
-                <option value="all">🖨️ Print Entire Dashboard</option>
-                <optgroup label="Fulfilling Requests">
-                  <option value="section-req-monthly">Projects by Month</option>
-                  <option value="section-req-distribution">Projects Distribution</option>
-                  <option value="section-req-yoy">YoY Comparison</option>
-                  <option value="section-req-top-depts">Top 10 Departments</option>
-                  <option value="section-req-breakdowns">Task Type Distributions</option>
-                  <option value="section-req-table">Projects List</option>
-                  <option value="section-req-active-depts">Active Departments</option>
-                </optgroup>
-                <optgroup label="Services Impacted">
-                  <option value="section-graphic-design">Graphic Design Impact</option>
-                  <option value="section-website">Digital Platform Impact</option>
-                  <option value="section-cuhk-visuals">CUHK Visuals Impact</option>
-                  <option value="section-dam">DAM Impact</option>
-                  <option value="section-edm">eDM Campaign Impact</option>
-                </optgroup>
-              </select>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <CheckSquare size={14} color="#764393" style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {selectedPrintSections.length === ALL_PRINT_SECTION_IDS.length
+                      ? 'All Sections Selected'
+                      : selectedPrintSections.length === 0
+                      ? 'No Sections Selected'
+                      : `${selectedPrintSections.length} Sections Selected`}
+                  </span>
+                </div>
+                {isPrintMenuOpen ? <ChevronUp size={15} color="#764393" style={{ flexShrink: 0 }} /> : <ChevronDown size={15} color="#64748b" style={{ flexShrink: 0 }} />}
+              </button>
+
+              {/* Collapsible Multi-Select Panel */}
+              {isPrintMenuOpen && (
+                <div
+                  className="print-options-container"
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.65rem',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '0.65rem',
+                    maxHeight: '260px',
+                    overflowY: 'auto',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)'
+                  }}
+                >
+                  {/* Quick Actions Row */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.4rem', borderBottom: '1px solid #f1f5f9' }}>
+                    <button
+                      type="button"
+                      onClick={selectAllPrintSections}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#764393',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '4px',
+                        fontFamily: 'Montserrat, sans-serif'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(118, 67, 147, 0.08)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                    >
+                      Select All
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clearAllPrintSections}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#dc2626',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        padding: '0.2rem 0.4rem',
+                        borderRadius: '4px',
+                        fontFamily: 'Montserrat, sans-serif'
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(220, 38, 38, 0.08)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                    >
+                      Clear
+                    </button>
+                  </div>
+
+                  {/* Group 1: Fulfilling Requests */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#764393', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Fulfilling Requests
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleGroupPrintSections('Fulfilling Requests')}
+                        title={REQUEST_SECTION_IDS.every((id) => selectedPrintSections.includes(id)) ? 'Deselect All Fulfilling Requests' : 'Select All Fulfilling Requests'}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#64748b',
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          padding: '0.1rem 0.35rem',
+                          borderRadius: '4px',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#764393')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                      >
+                        {REQUEST_SECTION_IDS.every((id) => selectedPrintSections.includes(id)) ? 'Deselect All' : 'Select All'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      {PRINT_SECTIONS.filter((s) => s.group === 'Fulfilling Requests').map((section) => {
+                        const isChecked = selectedPrintSections.includes(section.id);
+                        return (
+                          <label
+                            key={section.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              padding: '0.3rem 0.4rem',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              background: isChecked ? 'rgba(118, 67, 147, 0.06)' : 'transparent',
+                              transition: 'background 0.15s ease'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => togglePrintSection(section.id)}
+                              style={{
+                                accentColor: '#764393',
+                                cursor: 'pointer',
+                                width: '14px',
+                                height: '14px'
+                              }}
+                            />
+                            <span style={{ fontSize: '0.76rem', color: isChecked ? '#1e293b' : '#64748b', fontWeight: isChecked ? 600 : 500, fontFamily: 'Montserrat, sans-serif' }}>
+                              {section.label}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Group 2: Services Impacted */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', marginTop: '0.35rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#82754B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Services Impacted
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleGroupPrintSections('Services Impacted')}
+                        title={SERVICE_SECTION_IDS.every((id) => selectedPrintSections.includes(id)) ? 'Deselect All Services Impacted' : 'Select All Services Impacted'}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#64748b',
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          padding: '0.1rem 0.35rem',
+                          borderRadius: '4px',
+                          fontFamily: 'Montserrat, sans-serif'
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = '#82754B')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                      >
+                        {SERVICE_SECTION_IDS.every((id) => selectedPrintSections.includes(id)) ? 'Deselect All' : 'Select All'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      {PRINT_SECTIONS.filter((s) => s.group === 'Services Impacted').map((section) => {
+                        const isChecked = selectedPrintSections.includes(section.id);
+                        return (
+                          <label
+                            key={section.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
+                              padding: '0.3rem 0.4rem',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              background: isChecked ? 'rgba(130, 117, 75, 0.08)' : 'transparent',
+                              transition: 'background 0.15s ease'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => togglePrintSection(section.id)}
+                              style={{
+                                accentColor: '#82754B',
+                                cursor: 'pointer',
+                                width: '14px',
+                                height: '14px'
+                              }}
+                            />
+                            <span style={{ fontSize: '0.76rem', color: isChecked ? '#1e293b' : '#64748b', fontWeight: isChecked ? 600 : 500, fontFamily: 'Montserrat, sans-serif' }}>
+                              {section.label}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Print Action Button */}
               <button
-                onClick={() => {
-                  if (printSection !== 'all') {
-                    scrollToSection(printSection);
-                  }
-                  setTimeout(() => handlePrint(), 300);
-                }}
+                type="button"
+                onClick={handlePrint}
+                disabled={selectedPrintSections.length === 0}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '0.5rem',
-                  background: '#764393',
+                  background: selectedPrintSections.length === 0 ? '#94a3b8' : '#764393',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '8px',
-                  padding: '0.6rem 1rem',
+                  padding: '0.65rem 1rem',
                   fontSize: '0.825rem',
                   fontWeight: 700,
-                  cursor: 'pointer',
+                  cursor: selectedPrintSections.length === 0 ? 'not-allowed' : 'pointer',
                   fontFamily: 'Montserrat, sans-serif',
-                  boxShadow: '0 2px 6px rgba(118, 67, 147, 0.25)',
-                  transition: 'background 0.2s'
+                  boxShadow: selectedPrintSections.length === 0 ? 'none' : '0 2px 6px rgba(118, 67, 147, 0.25)',
+                  transition: 'background 0.2s, opacity 0.2s',
+                  opacity: selectedPrintSections.length === 0 ? 0.7 : 1
                 }}
               >
                 <Printer size={16} />
-                Print Selected ({selectedTimeline})
+                {selectedPrintSections.length === ALL_PRINT_SECTION_IDS.length
+                  ? `Print Entire Dashboard (${selectedTimeline})`
+                  : selectedPrintSections.length === 0
+                  ? 'Select Sections to Print'
+                  : `Print ${selectedPrintSections.length} Selected (${selectedTimeline})`}
               </button>
             </div>
           </div>

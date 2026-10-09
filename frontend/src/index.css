@@ -8,9 +8,30 @@
   --glass-bg: #ffffff;
   --glass-border: #e2e8f0;
   --glass-shadow: none;
-  --text-primary: #222222;
-  --text-secondary: #555555;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
   --bg-gradient: #ffffff;
+
+  /* Typography Scale */
+  --font-family-base: 'Montserrat', sans-serif;
+  --font-size-title-main: 1.65rem;     /* 26.4px - Primary Section Titles */
+  --font-size-title-card: 1.05rem;     /* 16.8px - Card / Group Titles */
+  --font-size-section-sub: 0.85rem;    /* 13.6px - Sub-section Titles */
+  --font-size-body: 0.875rem;          /* 14px   - Body & Descriptions */
+  --font-size-body-sm: 0.8rem;         /* 12.8px - Small descriptions */
+  --font-size-kpi-val-lg: 2.2rem;      /* 35.2px - Main KPI Metric Values */
+  --font-size-kpi-val-sm: 1.65rem;     /* 26.4px - Secondary KPI Metric Values */
+  --font-size-kpi-label: 0.75rem;      /* 12px   - KPI Label / Overlines */
+  --font-size-tag: 0.75rem;            /* 12px   - Tags, Badges & Pills */
+  --font-size-tag-sm: 0.68rem;         /* 10.9px - Compact Tags & Chips */
+  --font-size-chart-label: 11px;       /* 11px   - Chart Axis & Data Labels */
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 800;
 }
 
 * {
@@ -25,7 +46,7 @@ html, body {
 }
 
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-family-base);
   background: var(--bg-gradient);
   color: var(--text-primary);
   min-height: 100vh;
@@ -139,19 +160,36 @@ body {
   border-color: rgba(71, 194, 245, 0.15);
 }
 
-.kpi-info h3 {
-  font-size: 15px; /* Minimum font size set to 15px */
-  color: var(--text-secondary);
-  font-weight: 500;
-  margin-bottom: 0.25rem;
-  letter-spacing: 0.01em;
+/* ==========================================================================
+   Data Labels & Metrics
+   ========================================================================== */
+.kpi-info h3,
+.kpi-label,
+.service-kpi-label {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-kpi-label);
+  font-weight: var(--font-weight-bold);
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+  line-height: 1.2;
 }
 
 .kpi-info .kpi-value,
 .kpi-value {
-  font-size: 2.2rem;
-  font-weight: 800;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-kpi-val-lg);
+  font-weight: var(--font-weight-heavy);
   color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.service-kpi-value {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-kpi-val-sm);
+  font-weight: var(--font-weight-heavy);
+  color: #1e293b;
   line-height: 1.2;
 }
 
@@ -176,11 +214,62 @@ body {
   box-shadow: none;
 }
 
-.chart-card h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
+/* ==========================================================================
+   Unified Section Titles & Subtitles
+   ========================================================================== */
+.section-title,
+.chart-card h3,
+.chart-header h3 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-title-main);
+  font-weight: var(--font-weight-heavy);
   letter-spacing: -0.015em;
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-title-brand,
+.section-title.brand {
   color: var(--cuhk-purple);
+}
+
+.section-subtitle,
+.section-description {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: #64748b;
+  margin: 0.35rem 0 0 0;
+  line-height: 1.5;
+}
+
+/* Sub-Section & Card Titles */
+.service-section-title {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-section-sub);
+  font-weight: var(--font-weight-heavy);
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title,
+.chart-card h4 {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-title-card);
+  font-weight: var(--font-weight-heavy);
+  color: #1e293b;
+  margin: 0;
   line-height: 1.3;
 }
 
@@ -244,11 +333,12 @@ body {
 }
 
 .table-container h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-title-main);
+  font-weight: var(--font-weight-heavy);
   letter-spacing: -0.015em;
   color: var(--cuhk-purple);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 table {
@@ -288,31 +378,85 @@ tbody tr:hover {
   background: #fbfbfb; /* Subtle line highlight on hover */
 }
 
-/* Status Badges - Line/Border Styled */
+/* ==========================================================================
+   Universal Badge, Tag & Pill Architecture
+   ========================================================================== */
+.badge,
+.tag,
+.pill,
+.category-tag,
+.stream-pill,
+.platform-badge,
 .status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 4px;
-  font-size: 15px; /* Minimum font size set to 15px */
-  font-weight: 600;
+  font-family: var(--font-family-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--font-size-tag);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
   letter-spacing: 0.02em;
+  user-select: none;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
-.status-done { 
-  background: #f4fdf8; 
+.pill,
+.header-pill,
+.badge-rounded {
+  border-radius: 20px;
+}
+
+.header-pill {
+  font-family: var(--font-family-base);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-bold);
+  color: #764393;
+  background-color: rgba(118, 67, 147, 0.08);
+  border: 1px solid rgba(118, 67, 147, 0.16);
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tag-sm,
+.badge-sm {
+  font-size: var(--font-size-tag-sm);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
+/* Status Badges */
+.status-done,
+.status-badge.done { 
+  background: rgba(32, 191, 107, 0.1); 
   color: #82754B; 
-  border: 1px solid #82754B;
+  border: 1px solid rgba(130, 117, 75, 0.25);
 }
 
-.status-progress { 
-  background: #fffbf0; 
-  color: #ffa502; 
-  border: 1px solid #ffa502;
+.status-progress,
+.status-badge.pending { 
+  background: rgba(245, 158, 11, 0.1); 
+  color: #D97706; 
+  border: 1px solid rgba(217, 119, 6, 0.25);
 }
 
-.status-other { 
-  background: #faf8fc; 
+.status-cancel,
+.status-badge.cancel {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.status-other,
+.status-badge.other { 
+  background: rgba(118, 67, 147, 0.08); 
   color: var(--cuhk-purple); 
-  border: 1px solid var(--cuhk-purple);
+  border: 1px solid rgba(118, 67, 147, 0.2);
 }
 
 .loader {
@@ -335,7 +479,7 @@ tbody tr:hover {
 
 .main-content-area {
   flex-grow: 1;
-  max-width: 1400px;
+  max-width: 1800px;
   margin: 0 auto;
   padding: 3rem 1.5rem;
   display: flex;
@@ -628,24 +772,6 @@ tbody tr:hover {
   color: #64748b;
 }
 
-.status-badge {
-  font-weight: 700;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  text-transform: uppercase;
-  font-size: 0.65rem;
-}
-
-.status-badge.done {
-  background: rgba(32, 191, 107, 0.1);
-  color: #82754B;
-}
-
-.status-badge.pending {
-  background: rgba(155, 125, 70, 0.1);
-  color: #9b7d46;
-}
-
 /* Mobile Navigation Controls & Drawer Defaults (Desktop: Hidden) */
 .mobile-nav-toggle {
   display: none;
@@ -862,4 +988,441 @@ tbody tr:hover {
 .web-stream-pill:hover {
   transform: translateY(-1px);
 }
+
+/* ==========================================================================
+   Print Sections & Selective Printing Styles (Single Page per Section)
+   ========================================================================== */
+
+/* Multi-select print custom scrollbar & transitions */
+.print-options-container {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.print-options-container::-webkit-scrollbar {
+  width: 5px;
+}
+.print-options-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.print-options-container::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 8mm 10mm 8mm 10mm;
+  }
+
+  /* Reset body and container geometry for full page printing */
+  html, body {
+    width: 100% !important;
+    min-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 10.5pt !important;
+  }
+
+  /* Hide interactive chrome and elements that should not be printed */
+  .background-blobs,
+  .right-sidebar,
+  .mobile-nav-toggle,
+  .mobile-nav-backdrop,
+  .mobile-drawer-header,
+  .no-print,
+  .print-hidden,
+  .table-filters,
+  .pagination-controls,
+  .yoy-select-container select,
+  .yoy-select-container span,
+  input[type="text"],
+  input[type="checkbox"] {
+    display: none !important;
+  }
+
+  .layout-wrapper {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .main-content-area {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Compact header on page 1 */
+  .header {
+    margin-bottom: 0.6rem !important;
+    padding: 0.4rem 0 !important;
+    border-bottom: 1.5px solid #764393 !important;
+    background: transparent !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .header h1 {
+    font-size: 1.25rem !important;
+    margin: 0 !important;
+  }
+
+  .header p {
+    font-size: 0.72rem !important;
+    margin: 0.15rem 0 0 0 !important;
+  }
+
+  /* Compact KPI Overview in print */
+  .requests-kpi-overview {
+    gap: 0.4rem !important;
+    margin-bottom: 0.6rem !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .requests-kpi-overview > div:first-child {
+    margin-bottom: 0 !important;
+    font-size: 0.72rem !important;
+    gap: 1rem !important;
+  }
+
+  .requests-kpi-overview .dashboard-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .requests-kpi-overview .kpi-card {
+    padding: 0.35rem 0.6rem !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  .requests-kpi-overview .kpi-info h3 {
+    font-size: 0.65rem !important;
+    margin: 0 !important;
+  }
+
+  .requests-kpi-overview .kpi-value {
+    font-size: 1.15rem !important;
+    line-height: 1.2 !important;
+    margin: 0.1rem 0 0 0 !important;
+  }
+
+  /* Services Overview Header */
+  .services-overview-header {
+    margin-bottom: 0.6rem !important;
+    gap: 0.2rem !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .services-overview-header h3 {
+    font-size: 1.2rem !important;
+  }
+
+  .services-overview-header p {
+    font-size: 0.72rem !important;
+  }
+
+  /* Tab containers */
+  .tab-content-requests.print-visible,
+  .tab-content-services.print-visible {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Base Section Page Fitting (Each section fits on a single page) */
+  .print-section-item.print-visible {
+    display: flex !important;
+    flex-direction: column !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    margin-bottom: 0 !important;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    max-height: 98vh !important;
+    overflow: hidden !important;
+  }
+
+  /* Last section has no trailing page break */
+  .print-section-item.print-last-section,
+  .print-section-item.print-visible:last-of-type {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  /* Generic card and panel resets in print */
+  .chart-card,
+  .glass-panel,
+  .kpi-card {
+    box-shadow: none !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* =========================================================================
+     Section-Specific Scale-Down & Layout Adjustments
+     ========================================================================= */
+
+  /* Section 1: Monthly Chart */
+  #section-req-monthly {
+    padding: 1rem 1.25rem !important;
+  }
+  #section-req-monthly .chart-header {
+    margin-bottom: 0.5rem !important;
+  }
+  #section-req-monthly .chart-header h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-req-monthly div[style*="height: 420"] {
+    height: 310px !important;
+  }
+
+  /* Section 2: Distribution Pie Charts (side-by-side) */
+  #section-req-distribution.print-visible {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 1rem !important;
+    padding: 1rem !important;
+  }
+  #section-req-distribution .chart-card {
+    flex: 1 1 50% !important;
+    min-width: 0 !important;
+    padding: 0.75rem 1rem !important;
+  }
+  #section-req-distribution .chart-header {
+    margin-bottom: 0.35rem !important;
+  }
+  #section-req-distribution .chart-header h3 {
+    font-size: 1.1rem !important;
+  }
+  #section-req-distribution div[style*="height: 450"] {
+    height: 270px !important;
+  }
+
+  /* Section 3: YoY Comparison */
+  #section-req-yoy {
+    padding: 1rem 1.25rem !important;
+  }
+  #section-req-yoy .chart-header {
+    margin-bottom: 0.5rem !important;
+  }
+  #section-req-yoy .chart-header h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-req-yoy div[style*="height: 350"] {
+    height: 300px !important;
+  }
+
+  /* Section 4: Top 10 Departments */
+  #section-req-top-depts {
+    padding: 1rem 1.25rem !important;
+  }
+  #section-req-top-depts h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-req-top-depts div[style*="height: 420"] {
+    height: 320px !important;
+    margin-top: 0.5rem !important;
+  }
+
+  /* Section 5: Task Type Department Distributions */
+  #section-req-breakdowns {
+    padding: 0.65rem 0.85rem !important;
+    zoom: 0.78 !important;
+  }
+  #section-req-breakdowns h3 {
+    font-size: 1.15rem !important;
+    margin-bottom: 0.15rem !important;
+  }
+  #section-req-breakdowns p {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  #section-req-breakdowns > div:last-child {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.45rem !important;
+  }
+  #section-req-breakdowns .glass-panel {
+    padding: 0.4rem !important;
+  }
+  #section-req-breakdowns .glass-panel h4 {
+    font-size: 0.72rem !important;
+    margin-bottom: 0.2rem !important;
+    min-height: auto !important;
+  }
+  #section-req-breakdowns .glass-panel > div:nth-child(2) {
+    margin-bottom: 0.2rem !important;
+    padding: 0.2rem !important;
+  }
+  #section-req-breakdowns .glass-panel > div:nth-child(3) {
+    height: 105px !important;
+  }
+
+  /* Section 6: Data Table */
+  #section-req-table {
+    padding: 1rem 1.25rem !important;
+  }
+  #section-req-table h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-req-table > div:nth-child(2) {
+    display: none !important; /* Hide search & filter inputs in print */
+  }
+  #section-req-table table {
+    margin-top: 0.4rem !important;
+    font-size: 0.75rem !important;
+  }
+  #section-req-table th,
+  #section-req-table td {
+    padding: 0.28rem 0.5rem !important;
+    font-size: 0.74rem !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Section 7: Active Departments */
+  #section-req-active-depts {
+    padding: 1rem 1.25rem !important;
+  }
+  #section-req-active-depts h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-req-active-depts p {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.6rem !important;
+  }
+  #section-req-active-depts table th,
+  #section-req-active-depts table td {
+    padding: 0.2rem 0.4rem !important;
+    font-size: 0.68rem !important;
+    line-height: 1.2 !important;
+  }
+  #section-req-active-depts > div:last-child {
+    display: none !important; /* Hide pagination controls */
+  }
+
+  /* Section 8: Graphic Design Impact */
+  #section-graphic-design {
+    padding: 1rem 1.25rem !important;
+    gap: 0.65rem !important;
+    zoom: 0.88 !important;
+  }
+  #section-graphic-design > div:first-child {
+    padding-bottom: 0.4rem !important;
+  }
+  #section-graphic-design h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-graphic-design .dashboard-grid {
+    margin-bottom: 0 !important;
+    gap: 0.4rem !important;
+  }
+  #section-graphic-design .kpi-card {
+    padding: 0.4rem 0.6rem !important;
+  }
+  #section-graphic-design > div:nth-child(3) {
+    display: none !important; /* Hide interactive sub-tab bar */
+  }
+  #section-graphic-design div[style*="height: 320"] {
+    height: 220px !important;
+  }
+
+  /* Section 9: Digital Platform Impact */
+  #section-website {
+    padding: 1rem 1.25rem !important;
+    gap: 0.65rem !important;
+    zoom: 0.85 !important;
+  }
+  #section-website > div:first-child {
+    padding-bottom: 0.4rem !important;
+  }
+  #section-website h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-website .dashboard-grid {
+    gap: 0.4rem !important;
+  }
+  #section-website .kpi-card {
+    padding: 0.35rem 0.55rem !important;
+  }
+  #section-website > div:nth-child(3) {
+    display: none !important; /* Hide subtab buttons */
+  }
+  #section-website div[style*="height: 300"] {
+    height: 195px !important;
+  }
+
+  /* Section 10: CUHK Visuals Impact */
+  #section-cuhk-visuals {
+    padding: 1rem 1.25rem !important;
+    gap: 0.65rem !important;
+    zoom: 0.85 !important;
+  }
+  #section-cuhk-visuals h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-cuhk-visuals div[style*="padding: 2.5rem"] {
+    padding: 0.75rem !important;
+  }
+  #section-cuhk-visuals div[style*="height: 350"] {
+    height: 200px !important;
+  }
+
+  /* Section 11: DAM Impact */
+  #section-dam {
+    padding: 1rem 1.25rem !important;
+    gap: 0.65rem !important;
+    zoom: 0.82 !important;
+  }
+  #section-dam h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-dam div[style*="padding: 2.5rem"] {
+    padding: 0.75rem !important;
+  }
+  #section-dam div[style*="height: 350"] {
+    height: 200px !important;
+  }
+
+  /* Section 12: eDM Campaign Impact */
+  #section-edm {
+    padding: 1rem 1.25rem !important;
+    zoom: 0.8 !important;
+  }
+  #section-edm h3 {
+    font-size: 1.2rem !important;
+  }
+  #section-edm .dashboard-grid {
+    margin-bottom: 0.4rem !important;
+    gap: 0.35rem !important;
+  }
+  #section-edm .kpi-card {
+    padding: 0.35rem 0.55rem !important;
+  }
+  #section-edm div[style*="height: 350"],
+  #section-edm div[style*="height: 400"] {
+    height: 195px !important;
+  }
+
+  .table-container {
+    overflow: visible !important;
+  }
+}
+
 
